@@ -1,4 +1,7 @@
 export enum EErrors {
+  // Generic errors
+  INTERNAL_SERVER_ERROR = 'Ocorreu um erro interno do servidor. Por favor, tente novamente mais tarde.',
+
   // it's not a string
   NAME_MUST_BE_STRING = 'O nome deve ser uma string',
   SURNAME_MUST_BE_STRING = 'O sobrenome deve ser uma string',
