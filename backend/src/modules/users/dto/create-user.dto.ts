@@ -35,5 +35,5 @@ export class CreateUserDto {
   @Length(8, 20, {
     message: EErrors.PASSWORD_LENGTH_INVALID,
   })
-  password!: string;
+  password?: string;
 }
