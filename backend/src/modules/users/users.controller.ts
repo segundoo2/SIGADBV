@@ -9,11 +9,11 @@ import {
   Patch,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { IUsersController } from './interface/users.controller.interface';
 import type { IUsersService } from './interface/users.service.interface';
 import { ESuccess } from './enum/success.enum';
 import { UsersResponseDto } from './dto/users-response.dto';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('Users')
 @Controller('users')
