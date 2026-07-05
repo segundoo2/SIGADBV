@@ -1,12 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DeleteResult, ObjectLiteral, Repository } from 'typeorm';
-import { CreateUserDto } from '../dto/create-user.dto';
 import { User } from '../entities/user.entity';
 import { ESuccess } from '../enum/success.enum';
 import { UsersRepository } from '../users.repository';
 import { InternalServerErrorException } from '@nestjs/common';
 import { EErrorsGlobal } from '../../../enum/errors-global.enum';
+import { createFakeUser } from '../helpers/create-fake-user.helper';
+import { UserDto } from '../dto/user.dto';
+import { UpdateResult } from 'typeorm/browser';
 
 type MockRepository<T extends ObjectLiteral> = Partial<
   Record<keyof Repository<T>, jest.Mock>
@@ -16,18 +18,11 @@ describe('UsersRepository', () => {
   let repository: UsersRepository;
   let ormRepositoryMock: MockRepository<User>;
 
-  const createFakeUser = (username = 'edilson.segundo'): User => ({
-    id: 'some-uuid-or-id',
-    username,
-    password: 'hashed_password',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
-
   beforeEach(async () => {
     const mockFactory = (): MockRepository<User> => ({
       create: jest.fn(),
       save: jest.fn(),
+      update: jest.fn(),
       find: jest.fn(),
       findOne: jest.fn(),
       delete: jest.fn(),
@@ -67,53 +62,63 @@ describe('UsersRepository', () => {
   };
 
   describe('createUser', () => {
-    const mockDto: CreateUserDto = {
-      username: 'Edilson Segundo',
-      password: '12345678',
-    };
-    const mockUserInstance: User = {
-      id: 'um-id-qualquer',
-      ...mockDto,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    const user = createFakeUser();
+    user.password = '12345678';
+    const userDto: UserDto = {
+      username: user.username as string,
+      password: user.password,
     };
 
-    it(`should return the message "${ESuccess.USER_REGISTER}", if the user is successfully registered`, async () => {
-      ormRepositoryMock.create?.mockReturnValue(mockUserInstance);
-      ormRepositoryMock.save?.mockResolvedValue(mockUserInstance);
+    it(`should return the message "${ESuccess.CREATE_USER}", if the user is successfully registered`, async () => {
+      ormRepositoryMock.create?.mockReturnValue(user);
 
-      expect(await repository.createUser(mockDto)).toBe(ESuccess.USER_REGISTER);
-      expect(ormRepositoryMock.create).toHaveBeenCalledWith(mockDto);
-      expect(ormRepositoryMock.save).toHaveBeenCalledWith(mockUserInstance);
+      await repository.createUser(userDto);
+      expect(ormRepositoryMock.create).toHaveBeenCalledWith(userDto);
+      expect(ormRepositoryMock.save).toHaveBeenCalledWith(user);
     });
 
     shouldHandleDatabaseErrors(
-      () => repository.createUser(mockDto),
+      () => repository.createUser(userDto),
       () => ormRepositoryMock.save,
     );
   });
 
   describe('updateUserPassword', () => {
-    const userMock: User = createFakeUser('edilson.segundo');
+    const user = createFakeUser();
+    user.password = '12345678';
+    const userDto: UserDto = {
+      username: user.username as string,
+      password: user.password,
+    };
+    const response: UpdateResult = {
+      raw: [],
+      affected: 0,
+      generatedMaps: [],
+    };
 
-    it('should return the temporary password if the data is successfully persisted to the database', async () => {
-      ormRepositoryMock.save?.mockResolvedValue(userMock.password);
+    it('should return { raw: [], affected: 1, generatedMaps: [] } when the password has successfully persisted', async () => {
+      response.affected = 1;
+      ormRepositoryMock.update?.mockResolvedValue(response);
+      expect(await repository.updateUserPassword(userDto)).toEqual(response);
+      expect(ormRepositoryMock.update).toHaveBeenCalledWith(userDto.username, {
+        password: userDto.password,
+      });
+    });
 
-      expect(await repository.updateUserPassword(userMock)).toBe(
-        userMock.password,
-      );
-      expect(ormRepositoryMock.save).toHaveBeenCalledWith(userMock);
+    it('should return { raw: [], affected: 1, generatedMaps: [] } when the user not found', async () => {
+      ormRepositoryMock.update?.mockResolvedValue(response);
+      expect(await repository.updateUserPassword(userDto)).toEqual(response);
     });
 
     shouldHandleDatabaseErrors(
-      () => repository.updateUserPassword(userMock),
-      () => ormRepositoryMock.save,
+      () => repository.updateUserPassword(userDto),
+      () => ormRepositoryMock.update,
     );
   });
 
   describe('findAllUsers', () => {
     it('should return all registred users', async () => {
-      const usersMock = [createFakeUser('segundo'), createFakeUser('segundo')];
+      const usersMock = [createFakeUser(), createFakeUser()];
       ormRepositoryMock.find?.mockResolvedValue(usersMock);
 
       expect(await repository.findAllUsers()).toEqual(usersMock);
@@ -138,13 +143,12 @@ describe('UsersRepository', () => {
   });
 
   describe('findOneByUsername', () => {
-    it('should return a user when found in the database by TypeORM', async () => {
-      const mockUser = createFakeUser('john_doe');
-      ormRepositoryMock.findOne?.mockResolvedValue(mockUser);
+    const user = createFakeUser();
 
-      expect(await repository.findOneByUsername(mockUser.username)).toEqual(
-        mockUser,
-      );
+    it('should return a user when found in the database by TypeORM', async () => {
+      ormRepositoryMock.findOne?.mockResolvedValue(user);
+
+      expect(await repository.findOneByUsername('segundo')).toEqual(user);
     });
 
     it('should return null if TypeORM does not find the user', async () => {

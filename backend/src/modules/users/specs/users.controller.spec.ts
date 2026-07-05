@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/unbound-method */
-import { CreateUserDto } from '../dto/create-user.dto';
+import { UserDto } from '../dto/user.dto';
 import { UsersResponseDto } from '../dto/users-response.dto';
 import { User } from '../entities/user.entity';
 import { ESuccess } from '../enum/success.enum';
+import { createFakeUser } from '../helpers/create-fake-user.helper';
 import { IUsersService } from '../interface/users.service.interface';
 import { UsersController } from '../users.controller';
 
@@ -21,106 +21,86 @@ describe('UsersController', () => {
     controller = new UsersController(mockService);
   });
 
+  const user = createFakeUser();
+
   describe('create', () => {
-    it(`should return the message "${ESuccess.USER_REGISTER}", if the user is successfully registered`, async () => {
-      const payload: CreateUserDto = {
-        username: 'Edilson',
-        password: '12345678',
-      };
-      mockService.createUser.mockResolvedValue(ESuccess.USER_REGISTER);
+    const response: UsersResponseDto = {
+      message: ESuccess.CREATE_USER,
+      data: '12345678',
+    };
+    it(`should return the object { message: string, data: string }, if the user is successfully registered`, async () => {
+      const userDto: UserDto = { username: user.username as string };
+      mockService.createUser.mockResolvedValue(response);
 
-      const result: string = await controller.createUser(payload);
-
-      expect(result).toBe(ESuccess.USER_REGISTER);
-      expect(mockService.createUser).toHaveBeenCalledWith(payload);
+      expect(await controller.createUser(userDto)).toEqual(response);
+      expect(mockService.createUser).toHaveBeenCalledWith(userDto);
     });
   });
 
   describe('updateUserPassword', () => {
-    it(`should return the message ${ESuccess.USERPASSWORD_UPDATE} if the password was successfully updated.`, async () => {
-      const username: string = 'edilson.segundo';
-      const temporaryPassword: string = '12345678';
-      mockService.updateUserPassword.mockResolvedValue(temporaryPassword);
+    user.password = '12345678';
+    const response: UsersResponseDto = {
+      message: ESuccess.PASSWORD_UPDATE,
+      data: user.password,
+    };
+    const userDto: UserDto = {
+      username: user.username as string,
+      password: user.password,
+    };
 
-      const result: string = await controller.updateUserPassword(username);
+    it(`should return the message ${ESuccess.PASSWORD_UPDATE} if the temporary password was successfully updated.`, async () => {
+      userDto.password = undefined;
+      mockService.updateUserPassword.mockResolvedValue(response);
 
-      expect(result).toBe(temporaryPassword);
-      expect(mockService.updateUserPassword).toHaveBeenCalledWith(username);
+      expect(await controller.updateUserPassword(userDto)).toBe(response);
+      expect(mockService.updateUserPassword).toHaveBeenCalledWith(userDto);
+    });
+
+    it(`should return the message ${ESuccess.PASSWORD_UPDATE} if the user password was successfully updated.`, async () => {
+      mockService.updateUserPassword.mockResolvedValue(response);
+
+      expect(await controller.updateUserPassword(userDto)).toEqual(response);
+      expect(mockService.updateUserPassword).toHaveBeenCalledWith(userDto);
     });
   });
 
   describe('findAllUsers', () => {
     it('should return the object: { message: string, data: Partial<user>[] | null }', async () => {
       const usersMock: Partial<User>[] = [
-        {
-          id: 'uuid-0123',
-          username: 'segundo123',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: 'uuid-4567',
-          username: 'oliveira_dev',
-          createdAt: new Date('2026-01-15T10:00:00Z'),
-          updatedAt: new Date('2026-05-20T14:30:00Z'),
-        },
-        {
-          id: 'uuid-8910',
-          username: 'santos_qa',
-          createdAt: new Date('2026-03-01T08:22:00Z'),
-          updatedAt: new Date('2026-03-01T08:22:00Z'),
-        },
-        {
-          id: 'uuid-1112',
-          username: 'lima_admin',
-          createdAt: new Date('2025-12-25T18:00:00Z'),
-          updatedAt: new Date('2026-06-10T11:15:00Z'),
-        },
+        createFakeUser(),
+        createFakeUser(),
+        createFakeUser(),
       ];
       const response: UsersResponseDto = {
         message: ESuccess.USER_FOUND,
         data: usersMock,
       };
       mockService.findAllUsers.mockResolvedValue(response);
-
-      const result: UsersResponseDto = await controller.findAllUsers();
-
-      expect(result).toEqual(response);
+      expect(await controller.findAllUsers()).toEqual(response);
     });
   });
 
   describe('findOneByUsername', () => {
-    it('should return the object: { message: string, data: Partial<User> | null }', async () => {
-      const username: string = 'segundo123';
-      const userMock: Partial<User> = {
-        id: 'uuid-0123',
-        username: 'segundo123',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+    it('should return the object: { message: string, data: Partial<User> }', async () => {
       const response: UsersResponseDto = {
         message: ESuccess.USER_FOUND,
-        data: userMock,
+        data: user,
       };
       mockService.findOneByUsername.mockResolvedValue(response);
-
-      const result: UsersResponseDto =
-        await controller.findOneByUsername(username);
-
-      expect(result).toEqual(response);
-      expect(mockService.findOneByUsername).toHaveBeenCalledWith(username);
+      expect(
+        await controller.findOneByUsername(user.username as string),
+      ).toEqual(response);
+      expect(mockService.findOneByUsername).toHaveBeenCalledWith(user.username);
     });
   });
 
   describe('deleteUser', () => {
     it(`It should return the message ${ESuccess.DELETE_USER} if the user is successfully deleted.`, async () => {
-      const username: string = 'edilson.segundo';
       mockService.deleteUser.mockResolvedValue(ESuccess.DELETE_USER);
-
-      const result: string = await controller.deleteUser(username);
-
-      expect(result).toBe(ESuccess.DELETE_USER);
-      expect(mockService.deleteUser).toHaveBeenCalledWith(username);
+      expect(await controller.deleteUser(user.username as string)).toBe(
+        ESuccess.DELETE_USER,
+      );
+      expect(mockService.deleteUser).toHaveBeenCalledWith(user.username);
     });
   });
 });

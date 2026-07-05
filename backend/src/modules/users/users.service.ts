@@ -5,7 +5,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { IUsersService } from './interface/users.service.interface';
 import type { IUsersRepository } from './interface/users.repository.interface';
 import { User } from './entities/user.entity';
@@ -13,7 +12,9 @@ import { EErrors } from './enum/errors.enum';
 import { ESuccess } from './enum/success.enum';
 import { UsersResponseDto } from './dto/users-response.dto';
 import * as generatePassword from 'generate-password';
-import { DeleteResult } from 'typeorm';
+import { DeleteResult, UpdateResult } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -22,9 +23,23 @@ export class UsersService implements IUsersService {
     private readonly usersRepository: IUsersRepository,
   ) {}
 
-  async createUser(dto: CreateUserDto): Promise<string> {
-    await this.verifyUserNotExisting(dto.username);
-    return await this.usersRepository.createUser(dto);
+  //utilizado pela maioria dos métodos CRUD
+  private verifyInvalidUsername(username: string) {
+    if (!username || username.trim() === '') {
+      throw new BadRequestException(EErrors.USERNAME_INVALID);
+    }
+  }
+
+  saltRounds: number = 10;
+
+  async createUser(userDto: UserDto): Promise<UsersResponseDto> {
+    await this.verifyUserNotExisting(userDto.username);
+    userDto.password = this.generateTemporaryPassword();
+    await this.usersRepository.createUser({
+      ...userDto,
+      password: await bcrypt.hash(userDto.password, this.saltRounds),
+    });
+    return { message: ESuccess.CREATE_USER, data: userDto.password };
   }
 
   private async verifyUserNotExisting(username: string) {
@@ -36,16 +51,7 @@ export class UsersService implements IUsersService {
     }
   }
 
-  async updateUserPassword(username: string): Promise<string> {
-    this.verifyInvalidUsername(username);
-    const user: Partial<User> = await this.getExistingUser(username);
-    return this.usersRepository.updateUserPassword({
-      ...user,
-      password: this.generateTemporaryPassword(),
-    });
-  }
-
-  private generateTemporaryPassword() {
+  private generateTemporaryPassword(): string {
     return generatePassword.generate({
       length: 8,
       numbers: true,
@@ -54,6 +60,36 @@ export class UsersService implements IUsersService {
       lowercase: true,
       strict: true,
     });
+  }
+
+  async updateUserPassword(userDto: UserDto): Promise<UsersResponseDto> {
+    this.verifyInvalidUsername(userDto.username);
+    let passwordUpdated: UpdateResult;
+
+    if (!userDto.password) {
+      userDto.password = this.generateTemporaryPassword();
+      passwordUpdated = await this.usersRepository.updateUserPassword({
+        ...userDto,
+        password: await bcrypt.hash(userDto.password, this.saltRounds),
+      });
+
+      if (passwordUpdated.affected === 0) {
+        throw new NotFoundException(EErrors.USER_NOT_FOUND);
+      }
+
+      return { message: ESuccess.PASSWORD_UPDATE, data: userDto.password };
+    }
+
+    passwordUpdated = await this.usersRepository.updateUserPassword({
+      ...userDto,
+      password: await bcrypt.hash(userDto.password, 10),
+    });
+
+    if (passwordUpdated.affected === 0) {
+      throw new NotFoundException(EErrors.USER_NOT_FOUND);
+    }
+
+    return { message: ESuccess.PASSWORD_UPDATE, data: null };
   }
 
   async findAllUsers(): Promise<UsersResponseDto> {
@@ -94,15 +130,9 @@ export class UsersService implements IUsersService {
     const response: DeleteResult =
       await this.usersRepository.deleteUser(username);
 
-    if (response.affected !== 0) {
+    if (response.affected === 0) {
       throw new NotFoundException(EErrors.USER_NOT_FOUND);
     }
     return ESuccess.DELETE_USER;
-  }
-
-  private verifyInvalidUsername(username: string) {
-    if (!username || username.trim() === '') {
-      throw new BadRequestException(EErrors.USERNAME_INVALID);
-    }
   }
 }

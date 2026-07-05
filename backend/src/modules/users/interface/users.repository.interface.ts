@@ -1,10 +1,10 @@
-import { DeleteResult } from 'typeorm';
-import { CreateUserDto } from '../dto/create-user.dto';
+import { DeleteResult, UpdateResult } from 'typeorm';
 import { User } from '../entities/user.entity';
+import { UserDto } from '../dto/user.dto';
 
 export interface IUsersRepository {
-  createUser(createUserDto: CreateUserDto): Promise<string>;
-  updateUserPassword(user: Partial<User>): Promise<string>;
+  createUser(userDto: UserDto): Promise<void>;
+  updateUserPassword(userDto: UserDto): Promise<UpdateResult>;
   findAllUsers(): Promise<Partial<User>[] | null>;
   findOneByUsername(username: string): Promise<Partial<User> | null>;
   deleteUser(username: string): Promise<DeleteResult>;

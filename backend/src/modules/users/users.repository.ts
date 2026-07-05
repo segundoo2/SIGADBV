@@ -1,11 +1,11 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { IUsersRepository } from './interface/users.repository.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { DeleteResult, Repository } from 'typeorm';
-import { ESuccess } from './enum/success.enum';
 import { EErrorsGlobal } from '../../enum/errors-global.enum';
+import { UserDto } from './dto/user.dto';
+import { UpdateResult } from 'typeorm/browser';
 
 @Injectable()
 export class UsersRepository implements IUsersRepository {
@@ -13,22 +13,20 @@ export class UsersRepository implements IUsersRepository {
     @InjectRepository(User) private readonly repository: Repository<User>,
   ) {}
 
-  async createUser(dto: CreateUserDto): Promise<string> {
+  async createUser(userDto: UserDto): Promise<void> {
     try {
-      const user: User = this.repository.create(dto);
-
+      const user: User = this.repository.create(userDto);
       await this.repository.save(user);
-
-      return ESuccess.USER_REGISTER;
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
     }
   }
 
-  async updateUserPassword(user: User): Promise<string> {
+  async updateUserPassword(userDto: UserDto): Promise<UpdateResult> {
     try {
-      await this.repository.save(user);
-      return user.password;
+      return await this.repository.update(userDto.username, {
+        password: userDto.password,
+      });
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
     }
@@ -44,7 +42,6 @@ export class UsersRepository implements IUsersRepository {
           updatedAt: true,
         },
       });
-
       return users.length === 0 ? null : users;
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
