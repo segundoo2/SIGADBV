@@ -14,6 +14,9 @@ export class User {
   @Column({ type: 'varchar', unique: true, length: 50 })
   username!: string;
 
+  @Column({ type: 'boolean' })
+  mustChangePassword!: boolean;
+
   @Column({ type: 'varchar', length: 12 })
   password!: string;
 
