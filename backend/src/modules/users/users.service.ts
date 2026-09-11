@@ -5,50 +5,205 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { IUsersService } from './interface/users.service.interface';
-import type { IUsersRepository } from './interface/users.repository.interface';
+import { IUsersService } from './interfaces/users.service.interface';
+import type { IUsersRepository } from './interfaces/users.repository.interface';
 import { User } from './entities/user.entity';
-import { EErrors } from './enum/errors.enum';
-import { ESuccess } from './enum/success.enum';
-import { UsersResponseDto } from './dto/users-response.dto';
 import * as generatePassword from 'generate-password';
-import { DeleteResult, UpdateResult } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { UserDto } from './dto/user.dto';
+import { UserDto } from './dtos/user.dto';
+import { UpdatePasswordDto } from './dtos/update-password.dto';
+import { UpdateResult } from 'typeorm';
+import type { ICacheStorageService } from '../../common/redis/interface/cache-storage.interface';
+import { EUsersSuccess } from '../../common/enum/users-sucess.enum';
+import { EUsersErrors } from '../../common/enum/users-errors.enum';
+import { IResponse } from '../../common/interfaces/response.interface';
+import type { IRolesRepository } from '../roles/interfaces/roles.repository.interface';
+import { ERolesErrors } from '../../common/enum/roles-errors.enum';
+import { ERolesSuccess } from '../../common/enum/roles-success.enum';
+import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
+import { IPaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class UsersService implements IUsersService {
+  private readonly SALT_ROUNDS = 10;
+  private readonly BLACKLIST_EXPIRATION_SECONDS = 900;
+
   constructor(
     @Inject('IUsersRepository')
     private readonly usersRepository: IUsersRepository,
+    @Inject('IRolesRepository')
+    private readonly rolesRepository: IRolesRepository,
+    @Inject('ICacheStorageService')
+    private readonly cacheStorage: ICacheStorageService,
   ) {}
 
-  //utilizado pela maioria dos métodos CRUD
-  private verifyInvalidUsername(username: string) {
-    if (!username || username.trim() === '') {
-      throw new BadRequestException(EErrors.USERNAME_INVALID);
+  async createUser(userDto: UserDto): Promise<IResponse<string>> {
+    const roles = await this.rolesRepository.findRolesByIds(
+      userDto.roleIds,
+      userDto.tenantId,
+    );
+
+    if (roles.length !== userDto.roleIds.length) {
+      throw new BadRequestException(ERolesErrors.ROLE_INVALID);
     }
-  }
 
-  saltRounds: number = 10;
-
-  async createUser(userDto: UserDto): Promise<UsersResponseDto> {
-    await this.verifyUserNotExisting(userDto.username);
     userDto.password = this.generateTemporaryPassword();
+
     await this.usersRepository.createUser({
       ...userDto,
-      password: await bcrypt.hash(userDto.password, this.saltRounds),
+      password: await bcrypt.hash(userDto.password, this.SALT_ROUNDS),
     });
-    return { message: ESuccess.CREATE_USER, data: userDto.password };
+
+    return { message: EUsersSuccess.CREATE_USER, data: userDto.password };
   }
 
-  private async verifyUserNotExisting(username: string) {
-    this.verifyInvalidUsername(username);
-    const user: Partial<User> | null =
-      await this.usersRepository.findOneByUsername(username);
-    if (user) {
-      throw new ConflictException(EErrors.USERNAME_EXIST);
+  async findOneByUsername(
+    username: string,
+    tenantId: string,
+  ): Promise<IResponse<Omit<User, 'password'>>> {
+    const user = await this.usersRepository.findOneByUsername(
+      username,
+      tenantId,
+    );
+    if (!user) {
+      throw new NotFoundException(EUsersErrors.USER_NOT_FOUND);
     }
+
+    return {
+      message: EUsersSuccess.USER_FOUND,
+      data: user,
+    };
+  }
+
+  async findAllUsers(
+    tenantId: string,
+    pagination: PaginationQueryDto,
+  ): Promise<IPaginatedResponse<Omit<User, 'password'>[]>> {
+    const currentPage = pagination.page ?? 1;
+    const itemsPerPage = pagination.limit ?? 10;
+
+    const [users, totalItems] = await this.usersRepository.findAllUsers(
+      tenantId,
+      { page: currentPage, limit: itemsPerPage },
+    );
+
+    if (!users || users.length === 0) {
+      throw new NotFoundException(EUsersErrors.USERS_NOT_FOUND);
+    }
+
+    return {
+      message: EUsersSuccess.USERS_FOUND,
+      data: users,
+      meta: {
+        itemCount: users.length,
+        totalItems,
+        itemsPerPage,
+        totalPages: Math.ceil(totalItems / itemsPerPage),
+        currentPage,
+      },
+    };
+  }
+
+  async updateUserPassword(
+    passwordDto: UpdatePasswordDto,
+  ): Promise<IResponse<string | null>> {
+    const plainPassword =
+      passwordDto.password || this.generateTemporaryPassword();
+
+    const passwordUpdated: UpdateResult =
+      await this.usersRepository.updateUserPassword({
+        ...passwordDto,
+        password: await bcrypt.hash(plainPassword, this.SALT_ROUNDS),
+      });
+
+    if (passwordUpdated.affected === 0) {
+      throw new NotFoundException(EUsersErrors.USER_NOT_FOUND);
+    }
+
+    const returnData = passwordDto.password ? null : plainPassword;
+
+    return { message: EUsersSuccess.PASSWORD_UPDATE, data: returnData };
+  }
+
+  async addRoleToUser(
+    username: string,
+    roleId: string,
+    tenantId: string,
+  ): Promise<IResponse<null>> {
+    const user = await this.usersRepository.findOneByUsername(
+      username,
+      tenantId,
+    );
+    if (!user) {
+      throw new NotFoundException(EUsersErrors.USER_NOT_FOUND);
+    }
+
+    const role = await this.rolesRepository.findRoleById(roleId, tenantId);
+    if (!role) {
+      throw new NotFoundException(ERolesErrors.ROLE_NOT_FOUND);
+    }
+
+    const alreadyHasRole = user.roles.some((r) => r.id === roleId);
+    if (alreadyHasRole) {
+      throw new ConflictException(EUsersErrors.USER_ALREADY_HAS_ROLE);
+    }
+
+    await this.usersRepository.addRoleToUser(username, roleId, tenantId);
+
+    return {
+      message: ERolesSuccess.ROLE_ADDED,
+      data: null,
+    };
+  }
+
+  async removeRoleFromUser(
+    username: string,
+    roleId: string,
+    tenantId: string,
+  ): Promise<IResponse<null>> {
+    const user = await this.usersRepository.findOneByUsername(
+      username,
+      tenantId,
+    );
+    if (!user) {
+      throw new NotFoundException(EUsersErrors.USER_NOT_FOUND);
+    }
+
+    const hasRole = user.roles.some((r) => r.id === roleId);
+    if (!hasRole) {
+      throw new NotFoundException(EUsersErrors.USER_DOES_NOT_HAVE_ROLE);
+    }
+
+    await this.usersRepository.removeRoleFromUser(username, roleId, tenantId);
+
+    return {
+      message: ERolesSuccess.ROLE_REMOVED,
+      data: null,
+    };
+  }
+
+  async deleteUser(
+    username: string,
+    tenantId: string,
+  ): Promise<IResponse<null>> {
+    const user = await this.usersRepository.findOneByUsername(
+      username,
+      tenantId,
+    );
+    if (!user || !user.id) {
+      throw new NotFoundException(EUsersErrors.USER_NOT_FOUND);
+    }
+
+    await this.usersRepository.deleteUser(username, tenantId);
+
+    const blockKey = `blacklist:user:${user.id}`;
+    await this.cacheStorage.setWithExpiry(
+      blockKey,
+      'deleted',
+      this.BLACKLIST_EXPIRATION_SECONDS,
+    );
+
+    return { message: EUsersSuccess.DELETE_USER, data: null };
   }
 
   private generateTemporaryPassword(): string {
@@ -60,79 +215,5 @@ export class UsersService implements IUsersService {
       lowercase: true,
       strict: true,
     });
-  }
-
-  async updateUserPassword(userDto: UserDto): Promise<UsersResponseDto> {
-    this.verifyInvalidUsername(userDto.username);
-    let passwordUpdated: UpdateResult;
-
-    if (!userDto.password) {
-      userDto.password = this.generateTemporaryPassword();
-      passwordUpdated = await this.usersRepository.updateUserPassword({
-        ...userDto,
-        password: await bcrypt.hash(userDto.password, this.saltRounds),
-      });
-
-      if (passwordUpdated.affected === 0) {
-        throw new NotFoundException(EErrors.USER_NOT_FOUND);
-      }
-
-      return { message: ESuccess.PASSWORD_UPDATE, data: userDto.password };
-    }
-
-    passwordUpdated = await this.usersRepository.updateUserPassword({
-      ...userDto,
-      password: await bcrypt.hash(userDto.password, 10),
-    });
-
-    if (passwordUpdated.affected === 0) {
-      throw new NotFoundException(EErrors.USER_NOT_FOUND);
-    }
-
-    return { message: ESuccess.PASSWORD_UPDATE, data: null };
-  }
-
-  async findAllUsers(): Promise<UsersResponseDto> {
-    return {
-      message: ESuccess.USERS_FOUND,
-      data: await this.getExistingUsersList(),
-    };
-  }
-
-  private async getExistingUsersList(): Promise<Partial<User>[]> {
-    const usersList: Partial<User>[] | null =
-      await this.usersRepository.findAllUsers();
-    if (!usersList) {
-      throw new NotFoundException(EErrors.USERS_NOT_FOUND);
-    }
-    return usersList;
-  }
-
-  async findOneByUsername(username: string): Promise<UsersResponseDto> {
-    this.verifyInvalidUsername(username);
-    return {
-      message: ESuccess.USER_FOUND,
-      data: await this.getExistingUser(username),
-    };
-  }
-
-  private async getExistingUser(username: string): Promise<Partial<User>> {
-    const existingUser: Partial<User> | null =
-      await this.usersRepository.findOneByUsername(username);
-    if (!existingUser) {
-      throw new NotFoundException(EErrors.USER_NOT_FOUND);
-    }
-    return existingUser;
-  }
-
-  async deleteUser(username: string): Promise<string> {
-    this.verifyInvalidUsername(username);
-    const response: DeleteResult =
-      await this.usersRepository.deleteUser(username);
-
-    if (response.affected === 0) {
-      throw new NotFoundException(EErrors.USER_NOT_FOUND);
-    }
-    return ESuccess.DELETE_USER;
   }
 }

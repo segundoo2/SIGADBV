@@ -2,27 +2,44 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Role } from '../../roles/entities/role.entity';
 
-@Entity({ name: 'users' })
+@Entity('users')
+@Index(['tenantId', 'username'], { unique: true })
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ type: 'varchar', unique: true, length: 50 })
+  @Column({ name: 'tenant_id' })
+  @Index()
+  tenantId!: string;
+
+  @Column()
   username!: string;
 
-  @Column({ type: 'boolean' })
-  mustChangePassword!: boolean;
-
-  @Column({ type: 'varchar', length: 12 })
+  @Column()
   password!: string;
 
-  @CreateDateColumn()
+  @Column({ default: true })
+  mustChangePassword!: boolean;
+
+  @ManyToMany(() => Role, { cascade: true })
+  @JoinTable({
+    name: 'users_roles',
+    joinColumn: { name: 'user_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'role_id', referencedColumnName: 'id' },
+  })
+  roles!: Role[];
+
+  @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
 }

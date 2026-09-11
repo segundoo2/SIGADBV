@@ -1,3 +1,4 @@
 allowBuilds:
-  '@scarf/scarf': true
+  '@scarf/scarf': false
   bcrypt: true
+  unrs-resolver: true

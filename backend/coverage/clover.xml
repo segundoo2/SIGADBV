@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1783212155865" clover="3.2.0">
+  <project timestamp="1783212155865" name="All files">
+    <metrics statements="157" coveredstatements="129" conditionals="72" coveredconditionals="57" methods="32" coveredmethods="30" elements="261" coveredelements="216" complexity="0" loc="157" ncloc="157" packages="7" files="15" classes="15"/>
+    <package name="src">
+      <metrics statements="28" coveredstatements="9" conditionals="6" coveredconditionals="3" methods="5" coveredmethods="3"/>
+      <file name="app.controller.ts" path="C:\Users\edils\OneDrive\Documentos\code\flutter-apps\stockup-mobile\backend\src\app.controller.ts">
+        <metrics statements="6" coveredstatements="6" conditionals="4" coveredconditionals="3" methods="2" coveredmethods="2"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+      </file>
+      <file name="app.module.ts" path="C:\Users\edils\OneDrive\Documentos\code\flutter-apps\stockup-mobile\backend\src\app.module.ts">
+        <metrics statements="8" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="1" count="0" type="stmt"/>
+        <line num="2" count="0" type="stmt"/>
+        <line num="3" count="0" type="stmt"/>
+        <line num="4" count="0" type="stmt"/>
+        <line num="5" count="0" type="stmt"/>
+        <line num="6" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+      </file>
+      <file name="app.service.ts" path="C:\Users\edils\OneDrive\Documentos\code\flutter-apps\stockup-mobile\backend\src\app.service.ts">
+        <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+      </file>
+      <file name="main.ts" path="C:\Users\edils\OneDrive\Documentos\code\flutter-apps\stockup-mobile\backend\src\main.ts">
+        <metrics statements="11" coveredstatements="0" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="1" count="0" type="stmt"/>
+        <line num="2" count="0" type="stmt"/>
+        <line num="3" count="0" type="stmt"/>
+        <line num="4" count="0" type="stmt"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="33" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="35" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.enum">
+      <metrics statements="2" coveredstatements="2" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+      <file name="errors-global.enum.ts" path="C:\Users\edils\OneDrive\Documentos\code\flutter-apps\stockup-mobile\backend\src\enum\errors-global.enum.ts">
+        <metrics statements="2" coveredstatements="2" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="1" count="1" type="cond" truecount="2" falsecount="0"/>
+        <line num="2" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.users">
+      <metrics statements="94" coveredstatements="85" conditionals="52" coveredconditionals="42" methods="23" coveredmethods="23"/>
+      <file name="users.controller.ts" path="C:\Users\edils\OneDrive\Documentos\code\flutter-apps\stockup-mobile\backend\src\modules\users\users.controller.ts">
+        <metrics statements="17" coveredstatements="17" conditionals="28" coveredconditionals="21" methods="6" coveredmethods="6"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="24" count="6" type="stmt"/>
+        <line num="34" count="1" type="cond" truecount="6" falsecount="2"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="48" count="2" type="stmt"/>
+        <line num="59" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="74" count="1" type="stmt"/>
+        <line num="85" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="86" count="1" type="stmt"/>
+      </file>
+      <file name="users.module.ts" path="C:\Users\edils\OneDrive\Documentos\code\flutter-apps\stockup-mobile\backend\src\modules\users\users.module.ts">
+        <metrics statements="7" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="0" type="stmt"/>
+        <line num="2" count="0" type="stmt"/>
+        <line num="3" count="0" type="stmt"/>
+        <line num="4" count="0" type="stmt"/>
+        <line num="5" count="0" type="stmt"/>
+        <line num="6" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+      </file>
+      <file name="users.repository.ts" path="C:\Users\edils\OneDrive\Documentos\code\flutter-apps\stockup-mobile\backend\src\modules\users\users.repository.ts">
+        <metrics statements="24" coveredstatements="24" conditionals="6" coveredconditionals="5" methods="6" coveredmethods="6"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="13" count="15" type="cond" truecount="3" falsecount="1"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="18" count="2" type="stmt"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="26" count="3" type="stmt"/>
+        <line num="27" count="3" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="36" count="4" type="stmt"/>
+        <line num="37" count="4" type="stmt"/>
+        <line num="45" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="47" count="1" type="stmt"/>
+        <line num="52" count="3" type="stmt"/>
+        <line num="53" count="3" type="stmt"/>
+        <line num="63" count="1" type="stmt"/>
+        <line num="68" count="3" type="stmt"/>
+        <line num="69" count="3" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+      </file>
+      <file name="users.service.ts" path="C:\Users\edils\OneDrive\Documentos\code\flutter-apps\stockup-mobile\backend\src\modules\users\users.service.ts">
+        <metrics statements="46" coveredstatements="44" conditionals="18" coveredconditionals="16" methods="11" coveredmethods="11"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="23" count="13" type="stmt"/>
+        <line num="28" count="17" type="cond" truecount="4" falsecount="0"/>
+        <line num="29" count="9" type="stmt"/>
+        <line num="33" count="13" type="stmt"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="42" count="1" type="stmt"/>
+        <line num="46" count="2" type="stmt"/>
+        <line num="48" count="2" type="stmt"/>
+        <line num="49" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="50" count="1" type="stmt"/>
+        <line num="55" count="3" type="stmt"/>
+        <line num="66" count="6" type="stmt"/>
+        <line num="69" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="70" count="2" type="stmt"/>
+        <line num="71" count="2" type="stmt"/>
+        <line num="76" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="77" count="1" type="stmt"/>
+        <line num="80" count="1" type="stmt"/>
+        <line num="83" count="1" type="stmt"/>
+        <line num="88" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="92" count="1" type="stmt"/>
+        <line num="96" count="2" type="stmt"/>
+        <line num="104" count="2" type="stmt"/>
+        <line num="105" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="106" count="1" type="stmt"/>
+        <line num="108" count="1" type="stmt"/>
+        <line num="112" count="4" type="stmt"/>
+        <line num="113" count="1" type="stmt"/>
+        <line num="121" count="1" type="stmt"/>
+        <line num="122" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="123" count="0" type="stmt"/>
+        <line num="125" count="1" type="stmt"/>
+        <line num="129" count="5" type="stmt"/>
+        <line num="131" count="2" type="stmt"/>
+        <line num="133" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="134" count="1" type="stmt"/>
+        <line num="136" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.users.dto">
+      <metrics statements="11" coveredstatements="11" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="user.dto.ts" path="C:\Users\edils\OneDrive\Documentos\code\flutter-apps\stockup-mobile\backend\src\modules\users\dto\user.dto.ts">
+        <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+      </file>
+      <file name="users-response.dto.ts" path="C:\Users\edils\OneDrive\Documentos\code\flutter-apps\stockup-mobile\backend\src\modules\users\dto\users-response.dto.ts">
+        <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.users.entities">
+      <metrics statements="8" coveredstatements="8" conditionals="8" coveredconditionals="6" methods="0" coveredmethods="0"/>
+      <file name="user.entity.ts" path="C:\Users\edils\OneDrive\Documentos\code\flutter-apps\stockup-mobile\backend\src\modules\users\entities\user.entity.ts">
+        <metrics statements="8" coveredstatements="8" conditionals="8" coveredconditionals="6" methods="0" coveredmethods="0"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="12" count="2" type="stmt"/>
+        <line num="15" count="2" type="stmt"/>
+        <line num="18" count="2" type="stmt"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="24" count="2" type="cond" truecount="3" falsecount="1"/>
+        <line num="27" count="2" type="cond" truecount="3" falsecount="1"/>
+      </file>
+    </package>
+    <package name="src.modules.users.enum">
+      <metrics statements="13" coveredstatements="13" conditionals="4" coveredconditionals="4" methods="2" coveredmethods="2"/>
+      <file name="errors.enum.ts" path="C:\Users\edils\OneDrive\Documentos\code\flutter-apps\stockup-mobile\backend\src\modules\users\enum\errors.enum.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="1" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+      </file>
+      <file name="success.enum.ts" path="C:\Users\edils\OneDrive\Documentos\code\flutter-apps\stockup-mobile\backend\src\modules\users\enum\success.enum.ts">
+        <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="1" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="2" count="3" type="stmt"/>
+        <line num="3" count="3" type="stmt"/>
+        <line num="4" count="3" type="stmt"/>
+        <line num="6" count="3" type="stmt"/>
+        <line num="8" count="3" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.modules.users.helpers">
+      <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+      <file name="create-fake-user.helper.ts" path="C:\Users\edils\OneDrive\Documentos\code\flutter-apps\stockup-mobile\backend\src\modules\users\helpers\create-fake-user.helper.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="3" count="11" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>

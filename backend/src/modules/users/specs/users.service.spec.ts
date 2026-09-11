@@ -1,176 +1,340 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import {
   BadRequestException,
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
-import { ESuccess } from '../enum/success.enum';
-import { IUsersRepository } from '../interface/users.repository.interface';
+import { EUsersSuccess } from '../../../common/enum/users-sucess.enum';
+import { IUsersRepository } from '../interfaces/users.repository.interface';
 import { UsersService } from '../users.service';
-import { EErrors } from '../enum/errors.enum';
+import { EUsersErrors } from '../../../common/enum/users-errors.enum';
+import { ERolesErrors } from '../../../common/enum/roles-errors.enum';
+import { UpdateResult } from 'typeorm';
+import { ICacheStorageService } from '../../../common/redis/interface/cache-storage.interface';
+import { IRolesRepository } from '../../roles/interfaces/roles.repository.interface';
+import { createFakeUser } from '../../../common/helpers/create-fake-user.helper';
+import { Role } from '../../roles/entities/role.entity';
+import { ERolesSuccess } from '../../../common/enum/roles-success.enum';
 import { User } from '../entities/user.entity';
-import { DeleteResult, UpdateResult } from 'typeorm';
-import { createFakeUser } from '../helpers/create-fake-user.helper';
 
 describe('UsersService', () => {
   let service: UsersService;
-  let mockRepository: jest.Mocked<IUsersRepository>;
+  let mockUsersRepository: jest.Mocked<IUsersRepository>;
+  let mockRolesRepository: jest.Mocked<IRolesRepository>;
+  let mockRedisService: jest.Mocked<ICacheStorageService>;
+
+  const fakeTenantId = 'tenant-uuid-999';
+  const roleId = 'c22e5a7d-b2b2-4d76-8809-51a81231f24d';
+  const user = createFakeUser();
+
+  const mockRole: Role = {
+    id: roleId,
+    name: 'ADMIN',
+    tenantId: fakeTenantId,
+    permissions: [],
+    users: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
 
   beforeEach(() => {
-    mockRepository = {
+    mockUsersRepository = {
       createUser: jest.fn(),
       updateUserPassword: jest.fn(),
       findAllUsers: jest.fn(),
       findOneByUsername: jest.fn(),
       deleteUser: jest.fn(),
+      addRoleToUser: jest.fn(),
+      removeRoleFromUser: jest.fn(),
     };
-    service = new UsersService(mockRepository);
-  });
 
-  describe('Shared Username Validation Guard', () => {
-    it.each([
-      { label: 'undefined', value: undefined as unknown as string },
-      { label: 'empty string', value: '' },
-      { label: 'only spaces', value: '   ' },
-    ])(
-      'should throw BadRequestException if username is $label',
-      async ({ value }) => {
-        await expect(
-          service.updateUserPassword({ username: value }),
-        ).rejects.toThrow(new BadRequestException(EErrors.USERNAME_INVALID));
-        await expect(service.findOneByUsername(value)).rejects.toThrow(
-          new BadRequestException(EErrors.USERNAME_INVALID),
-        );
-        await expect(service.deleteUser(value)).rejects.toThrow(
-          new BadRequestException(EErrors.USERNAME_INVALID),
-        );
-      },
+    mockRolesRepository = {
+      createRole: jest.fn(),
+      findRolesByIds: jest.fn(),
+      findAllRoles: jest.fn(),
+      findRoleById: jest.fn(),
+      updateRole: jest.fn(),
+      deleteRole: jest.fn(),
+      countUsersWithRole: jest.fn(),
+    };
+
+    mockRedisService = {
+      setWithExpiry: jest.fn(),
+      get: jest.fn(),
+      delete: jest.fn(),
+    };
+
+    service = new UsersService(
+      mockUsersRepository,
+      mockRolesRepository,
+      mockRedisService,
     );
   });
 
-  const user = createFakeUser();
-
   describe('createUser', () => {
-    it('should return success message if the user is successfully registered', async () => {
-      user.password = '12345678';
-      const result = await service.createUser({
-        username: user.username as string,
-      });
-
-      expect(result.message).toBe(ESuccess.CREATE_USER);
-      expect(typeof result.data).toBe('string');
-      expect(result.data).toHaveLength(8);
-    });
-
-    it('should throw ConflictException if the username is already registered', async () => {
-      mockRepository.findOneByUsername.mockResolvedValue(createFakeUser());
-      await expect(
-        service.createUser({ username: user.username as string }),
-      ).rejects.toThrow(new ConflictException(EErrors.USERNAME_EXIST));
-    });
-  });
-
-  describe('updateUserPassword', () => {
-    const response: UpdateResult = {
-      raw: [],
-      affected: 1,
-      generatedMaps: [],
+    const createDto = {
+      tenantId: '1',
+      username: user.username,
+      roleIds: [roleId],
+      mustChangePassword: true,
     };
 
-    // Cenário 1: Quando NENHUMA senha é enviada (Geração de senha temporária)
-    it('should generate and return a temporary password if no password is provided in DTO', async () => {
-      mockRepository.updateUserPassword.mockResolvedValue(response);
+    it('should return success message and password payload upon successful registration', async () => {
+      const mockRoles = [{ id: roleId }] as Role[];
+      mockRolesRepository.findRolesByIds.mockResolvedValue(mockRoles);
 
-      const result = await service.updateUserPassword({
-        username: user.username as string,
-      });
+      const result = await service.createUser(createDto);
 
-      expect(result.message).toBe(ESuccess.PASSWORD_UPDATE);
-      expect(typeof result.data).toBe('string');
+      expect(result.message).toBe(EUsersSuccess.CREATE_USER);
       expect(result.data).toHaveLength(8);
-
-      expect(mockRepository.updateUserPassword).toHaveBeenCalledWith(
-        expect.objectContaining({
-          username: user.username,
-          password: expect.stringMatching(/^\$2[ayb]\$\d{2}\$/) as string,
-        }),
+      expect(mockRolesRepository.findRolesByIds).toHaveBeenCalledWith(
+        createDto.roleIds,
+        createDto.tenantId,
       );
     });
 
-    // Cenário 2: Quando UMA senha já é enviada no DTO (Apenas atualiza e retorna null)
-    it('should update successfully and return data as null if a password is provided in DTO', async () => {
-      mockRepository.updateUserPassword.mockResolvedValue(response);
+    it('should throw BadRequestException if any roleId is invalid or not found', async () => {
+      mockRolesRepository.findRolesByIds.mockResolvedValue([]);
 
-      const result = await service.updateUserPassword({
-        username: user.username as string,
-        password: 'NovaSenhaDefinida123',
-      });
-
-      expect(result.message).toBe(ESuccess.PASSWORD_UPDATE);
-      expect(result.data).toBeNull();
-
-      expect(mockRepository.updateUserPassword).toHaveBeenCalledWith(
-        expect.objectContaining({
-          username: user.username,
-          password: expect.stringMatching(/^\$2[ayb]\$\d{2}\$/) as string,
-        }),
+      await expect(service.createUser(createDto)).rejects.toThrow(
+        new BadRequestException(ERolesErrors.ROLE_INVALID),
       );
     });
 
-    it('should return the NotFoundException when the user not exist', async () => {
-      response.affected = 0;
-      mockRepository.updateUserPassword.mockResolvedValue(response);
+    it('should forward ConflictException if the repository catches duplicated keys', async () => {
+      const mockRoles = [{ id: roleId }] as Role[];
+      mockRolesRepository.findRolesByIds.mockResolvedValue(mockRoles);
+      mockUsersRepository.createUser.mockRejectedValue(
+        new ConflictException(EUsersErrors.USERNAME_EXIST),
+      );
 
-      await expect(
-        service.updateUserPassword({ username: user.username as string }),
-      ).rejects.toThrow(new NotFoundException(EErrors.USER_NOT_FOUND));
-    });
-  });
-
-  describe('findAllUsers', () => {
-    const users: Partial<User>[] = [user, user, user];
-
-    it('should return users response list payload', async () => {
-      mockRepository.findAllUsers.mockResolvedValue(users);
-      expect(await service.findAllUsers()).toEqual({
-        message: ESuccess.USERS_FOUND,
-        data: users,
-      });
-    });
-
-    it('should throw NotFoundException if users list is null', async () => {
-      mockRepository.findAllUsers.mockResolvedValue(null);
-      await expect(service.findAllUsers()).rejects.toThrow(
-        new NotFoundException(EErrors.USERS_NOT_FOUND),
+      await expect(service.createUser(createDto)).rejects.toThrow(
+        new ConflictException(EUsersErrors.USERNAME_EXIST),
       );
     });
   });
 
   describe('findOneByUsername', () => {
-    it('should return target user wrapped in response DTO', async () => {
-      mockRepository.findOneByUsername.mockResolvedValue(user);
-      expect(await service.findOneByUsername(user.username as string)).toEqual({
-        message: ESuccess.USER_FOUND,
-        data: user,
+    it('should return targeted single user profile', async () => {
+      mockUsersRepository.findOneByUsername.mockResolvedValue(user);
+
+      expect(
+        await service.findOneByUsername(user.username, fakeTenantId),
+      ).toEqual({ message: EUsersSuccess.USER_FOUND, data: user });
+    });
+
+    it('should throw NotFoundException if target profile does not exist', async () => {
+      mockUsersRepository.findOneByUsername.mockResolvedValue(null);
+
+      await expect(
+        service.findOneByUsername(user.username, fakeTenantId),
+      ).rejects.toThrow(new NotFoundException(EUsersErrors.USER_NOT_FOUND));
+    });
+  });
+
+  describe('findAllUsers', () => {
+    it('should return wrapped paginated users payload array with metadata', async () => {
+      const users = [user, user] as Omit<User, 'password'>[];
+      const pagination = { page: 1, limit: 10 };
+
+      mockUsersRepository.findAllUsers.mockResolvedValue([users, 2]);
+
+      expect(await service.findAllUsers(fakeTenantId, pagination)).toEqual({
+        message: EUsersSuccess.USERS_FOUND,
+        data: users,
+        meta: {
+          itemCount: 2,
+          totalItems: 2,
+          itemsPerPage: 10,
+          totalPages: 1,
+          currentPage: 1,
+        },
       });
+      expect(mockUsersRepository.findAllUsers).toHaveBeenCalledWith(
+        fakeTenantId,
+        pagination,
+      );
+    });
+
+    it('should throw NotFoundException if repository returns null/empty', async () => {
+      mockUsersRepository.findAllUsers.mockResolvedValue([[], 0]);
+
+      await expect(
+        service.findAllUsers(fakeTenantId, { page: 1, limit: 10 }),
+      ).rejects.toThrow(new NotFoundException(EUsersErrors.USERS_NOT_FOUND));
+    });
+  });
+
+  describe('updateUserPassword', () => {
+    const response: UpdateResult = { raw: [], affected: 1, generatedMaps: [] };
+    const baseDto = {
+      tenantId: '1',
+      username: user.username,
+      roleIds: [roleId],
+      mustChangePassword: true,
+    };
+
+    it('should generate a temporary password if none is provided in the payload', async () => {
+      mockUsersRepository.updateUserPassword.mockResolvedValue(response);
+
+      const result = await service.updateUserPassword(baseDto);
+
+      expect(result.message).toBe(EUsersSuccess.PASSWORD_UPDATE);
+      expect(result.data).toHaveLength(8);
+      expect(mockUsersRepository.updateUserPassword).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: user.username,
+          password: expect.stringMatching(/^\$2[ayb]\$\d{2}\$/) as string,
+        }),
+      );
+    });
+
+    it('should update successfully and return null data if cleartext password is provided', async () => {
+      mockUsersRepository.updateUserPassword.mockResolvedValue(response);
+
+      const result = await service.updateUserPassword({
+        ...baseDto,
+        password: 'NovaSenhaDefinida123',
+      });
+
+      expect(result.message).toBe(EUsersSuccess.PASSWORD_UPDATE);
+      expect(result.data).toBeNull();
+    });
+
+    it('should throw NotFoundException when affected rows count is zero', async () => {
+      mockUsersRepository.updateUserPassword.mockResolvedValue({
+        ...response,
+        affected: 0,
+      });
+
+      await expect(service.updateUserPassword(baseDto)).rejects.toThrow(
+        new NotFoundException(EUsersErrors.USER_NOT_FOUND),
+      );
+    });
+  });
+
+  describe('addRoleToUser', () => {
+    it('should add role to user successfully', async () => {
+      const userWithoutRole = { ...user, roles: [] };
+      mockUsersRepository.findOneByUsername.mockResolvedValue(userWithoutRole);
+      mockRolesRepository.findRoleById.mockResolvedValue(mockRole);
+      mockUsersRepository.addRoleToUser.mockResolvedValue(undefined);
+
+      const result = await service.addRoleToUser(user.id, roleId, fakeTenantId);
+
+      expect(result).toEqual({
+        message: ERolesSuccess.ROLE_ADDED,
+        data: null,
+      });
+      expect(mockUsersRepository.addRoleToUser).toHaveBeenCalledWith(
+        user.id,
+        roleId,
+        fakeTenantId,
+      );
+    });
+
+    it('should throw NotFoundException if user is not found', async () => {
+      mockUsersRepository.findOneByUsername.mockResolvedValue(null);
+
+      await expect(
+        service.addRoleToUser(user.id, roleId, fakeTenantId),
+      ).rejects.toThrow(new NotFoundException(EUsersErrors.USER_NOT_FOUND));
+    });
+
+    it('should throw NotFoundException if role is not found', async () => {
+      mockUsersRepository.findOneByUsername.mockResolvedValue({
+        ...user,
+        roles: [],
+      });
+      mockRolesRepository.findRoleById.mockResolvedValue(null);
+
+      await expect(
+        service.addRoleToUser(user.id, roleId, fakeTenantId),
+      ).rejects.toThrow(new NotFoundException(ERolesErrors.ROLE_NOT_FOUND));
+    });
+
+    it('should throw ConflictException if user already has the role', async () => {
+      const userWithRole = { ...user, roles: [mockRole] };
+      mockUsersRepository.findOneByUsername.mockResolvedValue(userWithRole);
+      mockRolesRepository.findRoleById.mockResolvedValue(mockRole);
+
+      await expect(
+        service.addRoleToUser(user.id, roleId, fakeTenantId),
+      ).rejects.toThrow(
+        new ConflictException(EUsersErrors.USER_ALREADY_HAS_ROLE),
+      );
+    });
+  });
+
+  describe('removeRoleFromUser', () => {
+    it('should remove role from user successfully', async () => {
+      const userWithRole = { ...user, roles: [mockRole] };
+      mockUsersRepository.findOneByUsername.mockResolvedValue(userWithRole);
+      mockUsersRepository.removeRoleFromUser.mockResolvedValue(undefined);
+
+      const result = await service.removeRoleFromUser(
+        user.id,
+        roleId,
+        fakeTenantId,
+      );
+
+      expect(result).toEqual({
+        message: ERolesSuccess.ROLE_REMOVED,
+        data: null,
+      });
+      expect(mockUsersRepository.removeRoleFromUser).toHaveBeenCalledWith(
+        user.id,
+        roleId,
+        fakeTenantId,
+      );
+    });
+
+    it('should throw NotFoundException if user is not found', async () => {
+      mockUsersRepository.findOneByUsername.mockResolvedValue(null);
+
+      await expect(
+        service.removeRoleFromUser(user.id, roleId, fakeTenantId),
+      ).rejects.toThrow(new NotFoundException(EUsersErrors.USER_NOT_FOUND));
+    });
+
+    it('should throw NotFoundException if user does not have the role', async () => {
+      const userWithoutRole = { ...user, roles: [] };
+      mockUsersRepository.findOneByUsername.mockResolvedValue(userWithoutRole);
+
+      await expect(
+        service.removeRoleFromUser(user.id, roleId, fakeTenantId),
+      ).rejects.toThrow(
+        new NotFoundException(EUsersErrors.USER_DOES_NOT_HAVE_ROLE),
+      );
     });
   });
 
   describe('deleteUser', () => {
-    const response: DeleteResult = { raw: [], affected: 1 };
+    it('should purge record and set structural temporary expiration blacklist item inside Redis', async () => {
+      mockUsersRepository.findOneByUsername.mockResolvedValue(user);
+      mockUsersRepository.deleteUser.mockResolvedValue({
+        raw: [],
+        affected: 1,
+      });
+      mockRedisService.setWithExpiry.mockResolvedValue(undefined);
 
-    it('should return success message upon deletion', async () => {
-      mockRepository.deleteUser.mockResolvedValue(response);
-      expect(await service.deleteUser(user.username as string)).toBe(
-        ESuccess.DELETE_USER,
+      expect(await service.deleteUser(user.username, fakeTenantId)).toEqual({
+        message: EUsersSuccess.DELETE_USER,
+        data: null,
+      });
+      expect(mockRedisService.setWithExpiry).toHaveBeenCalledWith(
+        `blacklist:user:${user.id}`,
+        'deleted',
+        900,
       );
     });
 
-    it('should return the NotFoundException when the user not exist', async () => {
-      response.affected = 0;
-      mockRepository.deleteUser.mockResolvedValue(response);
-      await expect(service.deleteUser(user.username as string)).rejects.toThrow(
-        new NotFoundException(EErrors.USER_NOT_FOUND),
-      );
+    it('should throw NotFoundException if entity missing before execution steps', async () => {
+      mockUsersRepository.findOneByUsername.mockResolvedValue(null);
+
+      await expect(
+        service.deleteUser(user.username, fakeTenantId),
+      ).rejects.toThrow(new NotFoundException(EUsersErrors.USER_NOT_FOUND));
     });
   });
 });
