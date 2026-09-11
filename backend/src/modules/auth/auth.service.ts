@@ -1,5 +1,4 @@
 import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
-import { RedisService } from '../../common/redis/redis.service';
 import { EAuthSuccess } from '../../common/enum/auth-success.enum';
 import { EPermission } from '../../common/enum/permissions.enum';
 import { User } from '../users/entities/user.entity';
@@ -15,6 +14,7 @@ import type {
 } from './interfaces/jwt-service.interface';
 import * as bcrypt from 'bcrypt';
 import { EErrorsGlobal } from '../../common/enum/errors-global.enum';
+import type { ICacheStorageService } from '../../common/redis/interface/cache-storage.interface';
 
 type PermissionItem = EPermission | { slug: EPermission };
 
@@ -25,8 +25,8 @@ export class AuthService {
     private readonly tokenService: ITokenService,
     @Inject('IAuthRepository')
     private readonly authRepository: IAuthRepository,
-
-    private readonly redisService: RedisService,
+    @Inject('ICacheStorageService')
+    private readonly redisService: ICacheStorageService,
   ) {}
 
   async login(loginDto: LoginDto, fingerprint: string) {
