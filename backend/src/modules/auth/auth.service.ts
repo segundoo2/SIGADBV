@@ -25,6 +25,7 @@ export class AuthService {
     private readonly tokenService: ITokenService,
     @Inject('IAuthRepository')
     private readonly authRepository: IAuthRepository,
+
     private readonly redisService: RedisService,
   ) {}
 

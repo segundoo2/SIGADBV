@@ -8,7 +8,7 @@ import {
   SelectQueryBuilder,
 } from 'typeorm';
 import { ProductLocation } from '../entities/product-location.entity';
-import { ProductLocationsRepository } from '../product-location.repository';
+import { ProductLocationsRepository } from '../product-locations.repository';
 
 type MockRepository<T extends object = object> = {
   [P in keyof Repository<T>]?: jest.Mock;

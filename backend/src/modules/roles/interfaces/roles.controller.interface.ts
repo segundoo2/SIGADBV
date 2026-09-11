@@ -13,7 +13,7 @@ export interface IRolesController {
   findAllRoles(
     tenantId: string,
     paginationQuery: PaginationQueryDto,
-  ): Promise<IPaginatedResponse<Role>>;
+  ): Promise<IPaginatedResponse<Role[]>>;
 
   updateRole(
     id: string,

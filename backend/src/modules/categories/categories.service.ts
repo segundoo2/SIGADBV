@@ -17,7 +17,7 @@ import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
 @Injectable()
 export class CategoriesService implements ICategoriesService {
   constructor(
-    @Inject('ICategoriesRespository')
+    @Inject('ICategoriesRepository')
     private readonly repository: ICategoriesRepository,
   ) {}
 

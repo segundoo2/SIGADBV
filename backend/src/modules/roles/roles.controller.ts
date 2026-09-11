@@ -56,7 +56,7 @@ export class RolesController implements IRolesController {
   async findAllRoles(
     @TenantId() tenantId: string,
     @Query() paginationQuery: PaginationQueryDto,
-  ): Promise<IPaginatedResponse<Role>> {
+  ): Promise<IPaginatedResponse<Role[]>> {
     return await this.rolesService.findAllRoles(tenantId, paginationQuery);
   }
 

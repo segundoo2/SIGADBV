@@ -6,9 +6,12 @@ import { User } from '../users/entities/user.entity';
 import { AuthRepository } from './auth.repository';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtAdapter } from '../../common/adapters/jwt.adapter';
+import { RedisModule } from '../../common/redis/redis.module';
+import { RedisService } from '../../common/redis/redis.service';
 
 @Module({
   imports: [
+    RedisModule,
     TypeOrmModule.forFeature([User]),
     JwtModule.register({
       global: true,
@@ -18,6 +21,7 @@ import { JwtAdapter } from '../../common/adapters/jwt.adapter';
   ],
   controllers: [AuthController],
   providers: [
+    RedisService,
     { provide: 'IAuthService', useClass: AuthService },
     { provide: 'IAuthRepository', useClass: AuthRepository },
     { provide: 'ITokenService', useClass: JwtAdapter },
