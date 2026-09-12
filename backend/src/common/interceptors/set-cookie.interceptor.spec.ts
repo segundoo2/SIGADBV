@@ -1,8 +1,8 @@
 import { ExecutionContext, CallHandler } from '@nestjs/common';
 import { of, firstValueFrom } from 'rxjs';
 import { Response } from 'express';
-import { IAuthPayload } from '../interfaces/auth-payload.interface';
-import { SetCookiesInterceptor } from '../../../common/interceptors/set-cookie.interceptor';
+import { IAuthPayload } from '../../modules/auth/interfaces/auth-payload.interface';
+import { SetCookiesInterceptor } from './set-cookie.interceptor';
 
 describe('SetCookiesInterceptor', () => {
   let interceptor: SetCookiesInterceptor;
@@ -11,7 +11,6 @@ describe('SetCookiesInterceptor', () => {
   const originalEnv = process.env.NODE_ENV;
 
   beforeEach(() => {
-    // Garante que o ambiente de teste seja previsível
     process.env.NODE_ENV = 'production';
 
     interceptor = new SetCookiesInterceptor();
