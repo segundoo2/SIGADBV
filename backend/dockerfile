@@ -1,0 +1,49 @@
+# ==========================================
+# 1. ESTÁGIO DE BUILD (Compilação)
+# ==========================================
+FROM node:20-alpine AS builder
+
+WORKDIR /usr/src/app
+
+# Habilita o Corepack para usar o pnpm nativo do Node.js
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copia os manifestos de dependências e a lockfile do pnpm
+COPY package.json pnpm-lock.yaml ./
+
+# Instala todas as dependências (incluindo devDependencies)
+RUN pnpm install --frozen-lockfile
+
+# Copia todo o código fonte da aplicação
+COPY . .
+
+# Se utilizar o Prisma, descomente a linha abaixo:
+# RUN pnpm prisma generate
+
+# Compila o TypeScript para JavaScript (gera a pasta /dist)
+RUN pnpm run build
+
+# ==========================================
+# 2. ESTÁGIO DE EXECUÇÃO (Imagem Final Leve)
+# ==========================================
+FROM node:20-alpine AS runner
+
+WORKDIR /usr/src/app
+
+ENV NODE_ENV=production
+
+# Habilita o Corepack no estágio de execução
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copia os manifestos de dependências e a lockfile
+COPY package.json pnpm-lock.yaml ./
+
+# Instala apenas as dependências de produção
+RUN pnpm install --prod --frozen-lockfile
+
+# Copia a pasta /dist compilada no estágio anterior
+COPY --from=builder /usr/src/app/dist ./dist
+
+EXPOSE 3000
+
+CMD ["node", "dist/main.js"]

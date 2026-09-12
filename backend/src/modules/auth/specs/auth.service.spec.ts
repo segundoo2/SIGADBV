@@ -9,17 +9,17 @@ import {
   IJwtPayload,
   IJwtPayloadWithExpiry,
 } from '../interfaces/jwt-payload.interface';
-import { RedisService } from '../../../common/redis/redis.service';
 import { EPermission } from '../../../common/enum/permissions.enum';
 import { EAuthSuccess } from '../../../common/enum/auth-success.enum';
 import { LoginDto } from '../dtos/login.dto';
 import { EErrorsGlobal } from '../../../common/enum/errors-global.enum';
+import { ICacheStorageService } from '../../../common/redis/interface/cache-storage.interface';
 
 describe('AuthService', () => {
   let service: AuthService;
   let mockRepository: jest.Mocked<IAuthRepository>;
   let mockTokenService: jest.Mocked<ITokenService>;
-  let mockRedisService: jest.Mocked<RedisService>;
+  let mockRedisService: jest.Mocked<ICacheStorageService>;
   let validPasswordHash: string;
 
   const userDto: LoginDto = {
@@ -45,7 +45,9 @@ describe('AuthService', () => {
     };
     mockRedisService = {
       setWithExpiry: jest.fn(),
-    } as unknown as jest.Mocked<RedisService>;
+      get: jest.fn(),
+      delete: jest.fn(),
+    };
 
     service = new AuthService(
       mockTokenService,

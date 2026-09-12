@@ -1,10 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 import { IJwtPayloadWithExpiry } from '../../modules/auth/interfaces/jwt-payload.interface';
 import { RequestWithCookies } from '../../modules/auth/interfaces/req-with-cookies.interface';
-import { RedisService } from '../redis/redis.service';
 import { EErrorsGlobal } from '../enum/errors-global.enum';
+import type { ICacheStorageService } from '../redis/interface/cache-storage.interface';
 
 export const cookieRefreshExtractor = (
   req: RequestWithCookies,
@@ -22,7 +22,10 @@ export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
   'jwt-refresh',
 ) {
-  constructor(private readonly redisService: RedisService) {
+  constructor(
+    @Inject('ICacheStorageService')
+    private readonly redisService: ICacheStorageService,
+  ) {
     super({
       jwtFromRequest: cookieRefreshExtractor,
       ignoreExpiration: false,

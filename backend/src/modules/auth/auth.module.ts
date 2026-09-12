@@ -21,7 +21,7 @@ import { RedisService } from '../../common/redis/redis.service';
   ],
   controllers: [AuthController],
   providers: [
-    RedisService,
+    { provide: 'ICacheStorageService', useClass: RedisService },
     { provide: 'IAuthService', useClass: AuthService },
     { provide: 'IAuthRepository', useClass: AuthRepository },
     { provide: 'ITokenService', useClass: JwtAdapter },

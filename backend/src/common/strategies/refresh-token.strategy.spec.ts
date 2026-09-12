@@ -6,15 +6,18 @@ import { RequestWithCookies } from '../../modules/auth/interfaces/req-with-cooki
 import { JwtRefreshStrategy } from './refresh-token.strategy';
 import { RedisService } from '../redis/redis.service';
 import { EPermission } from '../enum/permissions.enum';
+import { ICacheStorageService } from '../redis/interface/cache-storage.interface';
 
 describe('JwtRefreshStrategy', () => {
   let strategy: JwtRefreshStrategy;
-  let mockRedisService: jest.Mocked<RedisService>;
+  let mockRedisService: jest.Mocked<ICacheStorageService>;
 
   beforeEach(async () => {
     mockRedisService = {
+      setWithExpiry: jest.fn(),
       get: jest.fn(),
-    } as unknown as jest.Mocked<RedisService>;
+      delete: jest.fn(),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

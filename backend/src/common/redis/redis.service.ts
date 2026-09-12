@@ -7,11 +7,19 @@ import { ICacheStorageService } from './interface/cache-storage.interface';
 export class RedisService
   implements ICacheStorageService, OnModuleInit, OnModuleDestroy
 {
-  private client: RedisClientType;
+  private readonly client: RedisClientType;
 
   constructor() {
+    const redisUrl: string = process.env.REDIS_URL ?? 'redis://localhost:6379';
+    const isTls: boolean = redisUrl.startsWith('rediss://');
+
     this.client = createClient({
-      url: process.env.REDIS_URL || 'redis://localhost:6379',
+      url: redisUrl,
+      ...(isTls && {
+        socket: {
+          tls: true,
+        },
+      }),
     });
   }
 
@@ -19,8 +27,8 @@ export class RedisService
     await this.client.connect();
   }
 
-  onModuleDestroy(): void {
-    this.client.destroy();
+  async onModuleDestroy(): Promise<void> {
+    await this.client.close();
   }
 
   async setWithExpiry(
