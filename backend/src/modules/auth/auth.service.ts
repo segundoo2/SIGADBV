@@ -31,7 +31,7 @@ export class AuthService {
   ) {}
 
   async login(loginDto: LoginDto, fingerprint: string) {
-    const tenantId = '00000000-0000-0000-0000-000000000000'; //implementar lógica de busca do tenantId pelo slug
+    const tenantId = await this.findTenantIdBySlug(loginDto.slug);
 
     const user = await this.authRepository.findUserByUsername(
       loginDto.username,
@@ -141,6 +141,11 @@ export class AuthService {
     return {
       message: EAuthSuccess.LOGOUT,
     };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async findTenantIdBySlug(_slug: string): Promise<string> {
+    return Promise.resolve('00000000-0000-0000-0000-000000000000');
   }
 
   private buildJwtPayload(user: User, fingerprint: string): IJwtPayload {

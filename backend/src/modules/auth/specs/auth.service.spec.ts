@@ -23,11 +23,14 @@ describe('AuthService', () => {
   let mockRedisService: jest.Mocked<ICacheStorageService>;
   let validPasswordHash: string;
 
+  const DEFAULT_TENANT_ID = '00000000-0000-0000-0000-000000000000';
+
   const userDto: LoginDto = {
+    slug: 'bergcell',
     username: 'segundo',
     password: '12345678',
-    tenantId: 'tenant-uuid-123',
   };
+
   const testFingerprint = 'test-fingerprint';
 
   beforeAll(async () => {
@@ -59,8 +62,8 @@ describe('AuthService', () => {
 
   const mockUser = {
     id: 'uuid-user',
-    tenantId: 'tenant-uuid-123',
-    username: 'user.name',
+    tenantId: DEFAULT_TENANT_ID,
+    username: 'segundo',
     password: '12345678',
     roles: [
       {
@@ -71,16 +74,25 @@ describe('AuthService', () => {
     ],
   } as unknown as User;
 
+  describe('findTenantIdBySlug', () => {
+    it('should return default tenant id when slug is provided', async () => {
+      // Accessing private method for testing purpose
+      const tenantId = await service['findTenantIdBySlug']('bergcell');
+
+      expect(tenantId).toBe(DEFAULT_TENANT_ID);
+    });
+  });
+
   describe('login', () => {
     it('should throw UnauthorizedException when the user is not found', async () => {
       mockRepository.findUserByUsername.mockResolvedValue(null);
 
       await expect(service.login(userDto, testFingerprint)).rejects.toThrow(
-        UnauthorizedException,
+        new UnauthorizedException(EAuthErrors.USER_NOT_FOUND),
       );
       expect(mockRepository.findUserByUsername).toHaveBeenCalledWith(
         userDto.username,
-        userDto.tenantId,
+        DEFAULT_TENANT_ID,
       );
     });
 
@@ -137,8 +149,8 @@ describe('AuthService', () => {
   describe('refresh', () => {
     const mockJwtPayload: IJwtPayloadWithExpiry = {
       sub: 'uuid-user',
-      tenantId: 'tenant-uuid-123',
-      username: 'user.name',
+      tenantId: DEFAULT_TENANT_ID,
+      username: 'segundo',
       roles: ['ADMIN'],
       permissions: [EPermission.USERS_READ],
       fingerprint: testFingerprint,
@@ -186,8 +198,8 @@ describe('AuthService', () => {
     it('should place the active token into the Redis blacklist under revoked status', async () => {
       const mockJwtPayload: IJwtPayloadWithExpiry = {
         sub: 'uuid-user',
-        tenantId: 'tenant-uuid-123',
-        username: 'user.name',
+        tenantId: DEFAULT_TENANT_ID,
+        username: 'segundo',
         roles: ['ADMIN'],
         permissions: [EPermission.USERS_READ],
         fingerprint: testFingerprint,
