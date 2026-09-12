@@ -16,7 +16,7 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ name: 'tenant_id' })
+  @Column({ type: 'uuid', default: '00000000-0000-0000-0000-000000000000' })
   @Index()
   tenantId!: string;
 

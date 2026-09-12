@@ -5,6 +5,6 @@ export const TenantId = createParamDecorator(
     const request = ctx
       .switchToHttp()
       .getRequest<{ user?: { tenantId: string } }>();
-    return request.user?.tenantId ?? '';
+    return request.user?.tenantId ?? '00000000-0000-0000-0000-000000000000';
   },
 );

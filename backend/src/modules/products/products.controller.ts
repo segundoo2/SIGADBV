@@ -26,7 +26,6 @@ import { ProductDto } from './dtos/product.dto';
 import type { IProductsService } from './interfaces/products.service.interface';
 import { Product } from './entities/product.entity';
 import { IResponse } from '../../common/interfaces/response.interface';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { PermissionGuard } from '../../common/guards/permission.guard';
 import { EPermission } from '../../common/enum/permissions.enum';
@@ -42,7 +41,7 @@ import { IPaginatedResponse } from '../../common/interfaces/paginated-response.i
   description: 'Identificador do Tenant',
   required: true,
 })
-@UseGuards(JwtAuthGuard, PermissionGuard)
+@UseGuards(PermissionGuard)
 @Controller('products')
 export class ProductsController implements IProductsController {
   constructor(

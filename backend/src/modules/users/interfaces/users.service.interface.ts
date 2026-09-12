@@ -6,7 +6,9 @@ import { UserDto } from '../dtos/user.dto';
 import { User } from '../entities/user.entity';
 
 export interface IUsersService {
-  createUser(userDto: UserDto): Promise<IResponse<string>>;
+  createUser(
+    userDto: UserDto & { mustChangePassword: boolean; tenantId: string },
+  ): Promise<IResponse<string>>;
 
   findAllUsers(
     tenantId: string,

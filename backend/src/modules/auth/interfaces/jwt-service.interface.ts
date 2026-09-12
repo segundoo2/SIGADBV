@@ -8,6 +8,6 @@ export type TokenDuration =
 export interface ITokenService {
   signAsync<T extends object>(
     payload: T,
-    options?: { expiresIn: TokenDuration },
+    options?: { secret: string; expiresIn: TokenDuration },
   ): Promise<string>;
 }

@@ -25,7 +25,9 @@ export class UsersRepository implements IUsersRepository {
     @InjectRepository(User) private readonly repository: Repository<User>,
   ) {}
 
-  async createUser(userDto: UserDto): Promise<void> {
+  async createUser(
+    userDto: UserDto & { mustChangePassword: boolean; tenantId: string },
+  ): Promise<void> {
     try {
       // Mapeia o array de UUIDs (roleIds) para o formato { id } que a entity exige
       const user = this.repository.create({

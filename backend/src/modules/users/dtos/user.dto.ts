@@ -5,15 +5,12 @@ import {
   Matches,
   IsOptional,
   Length,
-  IsBoolean,
   IsArray,
   IsUUID,
 } from 'class-validator';
 import { EUsersErrors } from '../../../common/enum/users-errors.enum';
 
 export abstract class UserDto {
-  tenantId!: string;
-
   @ApiProperty({ example: 'edilson.segundo' })
   @IsString({
     message: `${EUsersErrors.USERNAME} ${EUsersErrors.CARACTERS_INVALID}`,
@@ -32,11 +29,6 @@ export abstract class UserDto {
   @IsUUID('4', { each: true, message: EUsersErrors.ROLE_INVALID })
   @IsNotEmpty({ message: EUsersErrors.ROLE_INVALID })
   roleIds!: string[];
-
-  @ApiProperty()
-  @IsBoolean({ message: EUsersErrors.MUST_CHANGE_PASSWORD_INVALID })
-  @IsNotEmpty({ message: EUsersErrors.MUST_CHANGE_PASSWORD_INVALID })
-  mustChangePassword!: boolean;
 
   @ApiProperty({ required: false })
   @IsString()

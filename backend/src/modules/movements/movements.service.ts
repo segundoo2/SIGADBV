@@ -41,7 +41,6 @@ export class MovementsService implements IMovementsService {
       dto.typeMovement === EMovementType.IN ? dto.quantity : -dto.quantity;
 
     await this.dataSource.transaction(async (manager) => {
-      // 1. Atualiza o estoque geral no catálogo de produtos
       await this.productsService.applyStockDelta(
         dto.productId,
         dto.tenantId,
@@ -49,7 +48,6 @@ export class MovementsService implements IMovementsService {
         manager,
       );
 
-      // 2. Registra o histórico da movimentação (com locationId opcional)
       await this.movementsRepository.registerMovement(dto, manager);
     });
 
@@ -73,7 +71,6 @@ export class MovementsService implements IMovementsService {
         throw new NotFoundException(EProductsErrors.PRODUCT_NOT_FOUND);
       }
 
-      // 1. Executa a alocação/transferência nas tabelas de saldo por localização
       await this.locationsService.allocateProduct(
         {
           productId: dto.productId,
@@ -86,9 +83,7 @@ export class MovementsService implements IMovementsService {
         manager,
       );
 
-      // 2. Registra o histórico de movimentação
       if (dto.sourceLocationId) {
-        // Se for transferência, registra a saída da origem e a entrada no destino
         await this.movementsRepository.registerMovement(
           {
             tenantId: dto.tenantId,
@@ -117,7 +112,6 @@ export class MovementsService implements IMovementsService {
           manager,
         );
       } else {
-        // Se for alocação do saldo geral, registra apenas a entrada na posição física
         await this.movementsRepository.registerMovement(
           {
             tenantId: dto.tenantId,

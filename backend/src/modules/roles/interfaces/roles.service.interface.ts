@@ -6,7 +6,7 @@ import { UpdateRoleDto } from '../dtos/update-role.dto';
 import { Role } from '../entities/role.entity';
 
 export interface IRolesService {
-  createRole(roleDto: RoleDto): Promise<IResponse<Role>>;
+  createRole(roleDto: RoleDto & { tenantId: string }): Promise<IResponse<Role>>;
 
   findRoleById(id: string, tenantId: string): Promise<IResponse<Role>>;
 

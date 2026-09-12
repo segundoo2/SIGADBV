@@ -64,8 +64,19 @@ describe('ProductsRepository', () => {
     updatedAt: new Date('2026-07-15T19:00:00Z'),
   };
 
+  const createQueryBuilderMock = {
+    update: jest.fn().mockReturnThis(),
+    set: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    andWhere: jest.fn().mockReturnThis(),
+    returning: jest.fn().mockReturnThis(),
+    execute: jest.fn(),
+  };
+
   beforeEach(async () => {
-    const mockFactory = (): MockRepository<Product> => ({
+    const mockFactory = (): MockRepository<Product> & {
+      createQueryBuilder: jest.Mock;
+    } => ({
       create: jest.fn(),
       save: jest.fn(),
       update: jest.fn(),
@@ -73,6 +84,7 @@ describe('ProductsRepository', () => {
       findOne: jest.fn(),
       findAndCount: jest.fn(),
       delete: jest.fn(),
+      createQueryBuilder: jest.fn().mockReturnValue(createQueryBuilderMock),
     });
 
     const module: TestingModule = await Test.createTestingModule({
@@ -102,7 +114,7 @@ describe('ProductsRepository', () => {
   const shouldHandleDatabaseErrors = (
     operation: () => Promise<unknown>,
     mockMethod: () => jest.Mock | undefined,
-  ) => {
+  ): void => {
     it('should return InternalServerException when TypeORM throws an error', async () => {
       mockMethod()?.mockRejectedValue(
         new Error('[TypeOrmModule] Unable to connect to the database'),
@@ -114,7 +126,7 @@ describe('ProductsRepository', () => {
     });
   };
 
-  describe('create', () => {
+  describe('createProduct', () => {
     const productDto = {
       ...mockProductDto,
       tenantId: mockProduct.tenantId,
@@ -132,8 +144,121 @@ describe('ProductsRepository', () => {
     });
 
     shouldHandleDatabaseErrors(
-      () => productsRepository.createProduct(productDto),
+      async (): Promise<Product> =>
+        productsRepository.createProduct(productDto),
       () => ormRepositoryMock.save,
+    );
+  });
+
+  describe('findOneCurrentStockById', () => {
+    const response: Pick<Product, 'currentStock' | 'uom'> = {
+      currentStock: mockProduct.currentStock,
+      uom: mockProduct.uom,
+    };
+
+    it('should return the currentStock when the product found', async () => {
+      ormRepositoryMock.findOne?.mockResolvedValue(response);
+
+      const result = await productsRepository.findOneCurrentStockById(
+        mockProduct.id,
+        mockProduct.tenantId,
+      );
+
+      expect(result).toEqual(response);
+    });
+
+    it('should return null when the product not found', async () => {
+      ormRepositoryMock.findOne?.mockResolvedValue(null);
+
+      const result = await productsRepository.findOneCurrentStockById(
+        mockProduct.id,
+        mockProduct.tenantId,
+      );
+
+      expect(result).toBeNull();
+    });
+
+    shouldHandleDatabaseErrors(
+      async (): Promise<Pick<Product, 'currentStock' | 'uom'> | null> =>
+        productsRepository.findOneCurrentStockById(
+          mockProduct.id,
+          mockProduct.tenantId,
+        ),
+      () => ormRepositoryMock.findOne,
+    );
+  });
+
+  describe('findOneById', () => {
+    it('should return product when it is found', async () => {
+      ormRepositoryMock.findOne?.mockResolvedValue(mockProduct);
+
+      const result = await productsRepository.findOneById(
+        mockProduct.id,
+        mockProduct.tenantId,
+      );
+
+      expect(result).toEqual(mockProduct);
+    });
+
+    shouldHandleDatabaseErrors(
+      async (): Promise<Product | null> =>
+        productsRepository.findOneById(mockProduct.id, mockProduct.tenantId),
+      () => ormRepositoryMock.findOne,
+    );
+  });
+
+  describe('findOneBySku', () => {
+    it('should return product when it is found', async () => {
+      ormRepositoryMock.findOne?.mockResolvedValue(mockProduct);
+
+      const result = await productsRepository.findOneBySku(
+        mockProduct.sku,
+        mockProduct.tenantId,
+      );
+
+      expect(result).toEqual(mockProduct);
+      expect(ormRepositoryMock.findOne).toHaveBeenCalledWith({
+        where: {
+          sku: mockProduct.sku,
+          tenantId: mockProduct.tenantId,
+        },
+      });
+    });
+
+    shouldHandleDatabaseErrors(
+      async (): Promise<Product | null> =>
+        productsRepository.findOneBySku(mockProduct.sku, mockProduct.tenantId),
+      () => ormRepositoryMock.findOne,
+    );
+  });
+
+  describe('findAllProducts', () => {
+    const pagination: PaginationQueryDto = { page: 1, limit: 10 };
+
+    it("should return tuple [Product[], number] when it's found", async () => {
+      const productsList: [Product[], number] = [
+        [mockProduct, mockProduct, mockProduct],
+        3,
+      ];
+      ormRepositoryMock.findAndCount?.mockResolvedValue(productsList);
+
+      const result = await productsRepository.findAllProducts(
+        mockProduct.tenantId,
+        pagination,
+      );
+
+      expect(result).toEqual(productsList);
+      expect(ormRepositoryMock.findAndCount).toHaveBeenCalledWith({
+        where: { tenantId: mockProduct.tenantId },
+        skip: 0,
+        take: 10,
+      });
+    });
+
+    shouldHandleDatabaseErrors(
+      async (): Promise<[Product[], number]> =>
+        productsRepository.findAllProducts(mockProduct.tenantId, pagination),
+      () => ormRepositoryMock.findAndCount,
     );
   });
 
@@ -148,19 +273,20 @@ describe('ProductsRepository', () => {
       generatedMaps: [],
     };
 
-    it('should return the object { raw: [], affected: 1, generatedMaps: [] } when the product is update success', async () => {
+    it('should return the update result when update success', async () => {
       ormRepositoryMock.update?.mockResolvedValue(response);
-      expect(
-        await productsRepository.updateProduct(
-          mockUpdateProductDto,
-          mockProduct.id,
-          mockProduct.tenantId,
-        ),
-      ).toEqual(response);
+
+      const result = await productsRepository.updateProduct(
+        mockUpdateProductDto,
+        mockProduct.id,
+        mockProduct.tenantId,
+      );
+
+      expect(result).toEqual(response);
     });
 
     shouldHandleDatabaseErrors(
-      () =>
+      async (): Promise<UpdateResult> =>
         productsRepository.updateProduct(
           mockUpdateProductDto,
           mockProduct.id,
@@ -170,122 +296,33 @@ describe('ProductsRepository', () => {
     );
   });
 
-  describe('updateCurrentStockById', () => {
-    const newCurrentStock: number = 12;
+  describe('updateStockAtomic', () => {
     const response: UpdateResult = {
-      raw: [],
-      generatedMaps: [],
+      raw: [{ current_stock: 15, uom: 'UN' }],
       affected: 1,
+      generatedMaps: [],
     };
 
-    it('should return the object { raw: [], generatedMaps: [], affected: 1 } when the update success', async () => {
-      ormRepositoryMock.update?.mockResolvedValue(response);
-      expect(
-        await productsRepository.updateCurrentStockById(
-          mockProduct.id,
-          mockProduct.tenantId,
-          newCurrentStock,
-        ),
-      ).toEqual(response);
-    });
+    it('should execute atomic update query successfully', async () => {
+      createQueryBuilderMock.execute.mockResolvedValue(response);
 
-    shouldHandleDatabaseErrors(
-      () =>
-        productsRepository.updateCurrentStockById(
-          mockProduct.id,
-          mockProduct.tenantId,
-          newCurrentStock,
-        ),
-      () => ormRepositoryMock.update,
-    );
-  });
-
-  describe('findCurrentStockById', () => {
-    const response: Pick<Product, 'currentStock' | 'uom'> | null = {
-      currentStock: mockProduct.currentStock,
-      uom: mockProduct.uom,
-    };
-
-    it('should return the currentStock when the product found', async () => {
-      ormRepositoryMock.findOne?.mockResolvedValue(response);
-      expect(
-        await productsRepository.findOneCurrentStockById(
-          mockProduct.id,
-          mockProduct.tenantId,
-        ),
-      ).toEqual(response);
-    });
-
-    it('should return null when the product not found', async () => {
-      ormRepositoryMock.findOne?.mockResolvedValue(null);
-      expect(
-        await productsRepository.findOneCurrentStockById(
-          mockProduct.id,
-          mockProduct.tenantId,
-        ),
-      ).toBeNull();
-    });
-
-    shouldHandleDatabaseErrors(
-      () =>
-        productsRepository.findOneCurrentStockById(
-          mockProduct.id,
-          mockProduct.tenantId,
-        ),
-      () => ormRepositoryMock.findOne,
-    );
-  });
-
-  describe('findOneBySku', () => {
-    it('should return product when it is found', async () => {
-      ormRepositoryMock.findOne?.mockResolvedValue(mockProduct);
-      expect(
-        await productsRepository.findOneBySku(
-          mockProduct.sku,
-          mockProduct.tenantId,
-        ),
+      const result = await productsRepository.updateStockAtomic(
+        mockProduct.id,
+        mockProduct.tenantId,
+        5,
       );
-      expect(ormRepositoryMock.findOne).toHaveBeenCalledWith({
-        where: {
-          sku: mockProduct.sku,
-          tenantId: mockProduct.tenantId,
-        },
-      });
+
+      expect(result).toEqual(response);
     });
 
     shouldHandleDatabaseErrors(
-      () =>
-        productsRepository.findOneBySku(mockProduct.sku, mockProduct.tenantId),
-      () => ormRepositoryMock.findOne,
-    );
-  });
-
-  describe('findAllProducts', () => {
-    const pagination: PaginationQueryDto = { page: 1, limit: 10 };
-
-    it("should return tuple [Product[], number] when it's is found", async () => {
-      const productsList: [Product[], number] = [
-        [mockProduct, mockProduct, mockProduct],
-        3,
-      ];
-      ormRepositoryMock.findAndCount?.mockResolvedValue(productsList);
-      expect(
-        await productsRepository.findAllProducts(
+      async (): Promise<UpdateResult> =>
+        productsRepository.updateStockAtomic(
+          mockProduct.id,
           mockProduct.tenantId,
-          pagination,
+          5,
         ),
-      ).toEqual(productsList);
-      expect(ormRepositoryMock.findAndCount).toHaveBeenCalledWith({
-        where: { tenantId: mockProduct.tenantId },
-        skip: 0,
-        take: 10,
-      });
-    });
-
-    shouldHandleDatabaseErrors(
-      () =>
-        productsRepository.findAllProducts(mockProduct.tenantId, pagination),
-      () => ormRepositoryMock.findAndCount,
+      () => createQueryBuilderMock.execute,
     );
   });
 
@@ -294,18 +331,20 @@ describe('ProductsRepository', () => {
       raw: [],
       affected: 1,
     };
-    it('should return the object: { raw: [], affected: number } when .delete is resolved', async () => {
+
+    it('should return the delete result when .delete is resolved', async () => {
       ormRepositoryMock.delete?.mockResolvedValue(response);
-      expect(
-        await productsRepository.deleteProduct(
-          mockProduct.sku,
-          mockProduct.tenantId,
-        ),
-      ).toEqual(response);
+
+      const result = await productsRepository.deleteProduct(
+        mockProduct.sku,
+        mockProduct.tenantId,
+      );
+
+      expect(result).toEqual(response);
     });
 
     shouldHandleDatabaseErrors(
-      () =>
+      async (): Promise<DeleteResult> =>
         productsRepository.deleteProduct(mockProduct.sku, mockProduct.tenantId),
       () => ormRepositoryMock.delete,
     );

@@ -11,9 +11,9 @@ export class JwtAdapter implements ITokenService {
 
   async signAsync<T extends object>(
     payload: T,
-    options?: { expiresIn: TokenDuration },
+    options: { secret: string; expiresIn: TokenDuration },
   ): Promise<string> {
-    const signOptions: JwtSignOptions = {};
+    const signOptions: JwtSignOptions = options;
 
     if (options?.expiresIn) {
       signOptions.expiresIn = options.expiresIn;

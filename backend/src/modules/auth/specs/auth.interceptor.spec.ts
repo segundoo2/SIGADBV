@@ -1,8 +1,8 @@
 import { ExecutionContext, CallHandler } from '@nestjs/common';
 import { of, firstValueFrom } from 'rxjs';
 import { Response } from 'express';
-import { SetCookiesInterceptor } from '../../../common/interceptors/auth.interceptor';
 import { IAuthPayload } from '../interfaces/auth-payload.interface';
+import { SetCookiesInterceptor } from '../../../common/interceptors/set-cookie.interceptor';
 
 describe('SetCookiesInterceptor', () => {
   let interceptor: SetCookiesInterceptor;

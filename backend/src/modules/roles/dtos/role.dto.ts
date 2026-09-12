@@ -3,8 +3,6 @@ import { IsArray, IsEnum, IsNotEmpty, IsString, Length } from 'class-validator';
 import { EPermission } from '../../../common/enum/permissions.enum';
 
 export class RoleDto {
-  tenantId!: string;
-
   @ApiProperty({ example: 'Operador de Estoque' })
   @IsString()
   @IsNotEmpty()
