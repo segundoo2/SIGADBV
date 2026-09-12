@@ -9,7 +9,7 @@ import {
   Patch,
   Delete,
   HttpCode,
-  UseGuards,
+  // UseGuards,
   Query,
 } from '@nestjs/common';
 import {
@@ -26,8 +26,7 @@ import type { IUsersService } from './interfaces/users.service.interface';
 import { EUsersSuccess } from '../../common/enum/users-sucess.enum';
 import { UserDto } from './dtos/user.dto';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { PermissionGuard } from '../../common/guards/permission.guard';
+// import { PermissionGuard } from '../../common/guards/permission.guard';
 import { User } from './entities/user.entity';
 import { IResponse } from '../../common/interfaces/response.interface';
 import { EPermission } from '../../common/enum/permissions.enum';
@@ -35,10 +34,11 @@ import { RequiresPermission } from '../../common/decorators/permission.decorator
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
 import { IPaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import { Public } from '../../common/decorators/public.decorator';
 
 @ApiTags('Users')
 @ApiCookieAuth('access_token')
-@UseGuards(JwtAuthGuard, PermissionGuard)
+// @UseGuards(PermissionGuard)
 @Controller('users')
 export class UsersController implements IUsersController {
   constructor(
@@ -47,6 +47,7 @@ export class UsersController implements IUsersController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @Public()
   @RequiresPermission(EPermission.USERS_CREATE)
   @ApiOperation({ summary: 'Criar um novo usuário' })
   @ApiBody({ type: UserDto })
@@ -70,8 +71,11 @@ export class UsersController implements IUsersController {
     @Body() userDto: UserDto,
     @TenantId() tenantId: string,
   ): Promise<IResponse<string>> {
-    userDto.tenantId = tenantId;
-    return await this.usersService.createUser(userDto);
+    return await this.usersService.createUser({
+      ...userDto,
+      tenantId,
+      mustChangePassword: true,
+    });
   }
 
   @Get(':username')

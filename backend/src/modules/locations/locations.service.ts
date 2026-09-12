@@ -254,9 +254,7 @@ export class LocationsService implements ILocationsService {
     em?: EntityManager,
   ): Promise<void> {
     if (dto.sourceLocationId && dto.sourceLocationId === dto.targetLocationId) {
-      throw new BadRequestException(
-        'A localização de origem e destino não podem ser iguais',
-      );
+      throw new BadRequestException(ELocationErrorsMessage.CONFLICT_TRANSFER);
     }
 
     const targetLocation = await this.repository.findById(
@@ -283,9 +281,7 @@ export class LocationsService implements ILocationsService {
         }
 
         if (sourceLocation.type !== ELocationType.STORAGE) {
-          throw new BadRequestException(
-            'Transferências para uma posição de mostruário (DISPLAY) devem vir obrigatoriamente de um estoque (STORAGE)',
-          );
+          throw new BadRequestException(ELocationErrorsMessage.POSITION_ORIGIN);
         }
       }
 
@@ -308,9 +304,7 @@ export class LocationsService implements ILocationsService {
         !currentProductInLocation || currentProductInLocation.quantity === 0;
 
       if (isNewProductInLocation && totalDifferentProducts > 0) {
-        throw new ConflictException(
-          'A posição de mostruário (DISPLAY) já possui outro produto alocado e só permite um único SKU',
-        );
+        throw new ConflictException(ELocationErrorsMessage.POSITION_ALLOCATION);
       }
 
       if (targetLocation.capacity) {
@@ -319,13 +313,12 @@ export class LocationsService implements ILocationsService {
 
         if (projectedQuantity > targetLocation.capacity) {
           throw new BadRequestException(
-            `A quantidade alocada (${projectedQuantity}) excede a capacidade máxima (${targetLocation.capacity}) da posição de mostruário`,
+            `${ELocationErrorsMessage.CAPACITY_POSITION} ${targetLocation.capacity}`,
           );
         }
       }
     }
 
-    // Validação de saldo disponível no estoque ou na posição de origem
     if (dto.sourceLocationId) {
       const sourceProductLocation =
         await this.productLocationsRepository.findByProductAndLocation(
@@ -339,7 +332,7 @@ export class LocationsService implements ILocationsService {
 
       if (dto.quantity > currentSourceStock) {
         throw new BadRequestException(
-          `Saldo insuficiente na localização de origem. Disponível: ${currentSourceStock}, Solicitado: ${dto.quantity}`,
+          `${ELocationErrorsMessage.INSUFFICIENT_QUANTITY} ${currentSourceStock}, Solicitado: ${dto.quantity}`,
         );
       }
     } else {
@@ -354,7 +347,7 @@ export class LocationsService implements ILocationsService {
 
       if (dto.quantity > unallocatedStock) {
         throw new BadRequestException(
-          `Quantidade a alocar (${dto.quantity}) excede o saldo não alocado disponível (${unallocatedStock})`,
+          `${ELocationErrorsMessage.OVER_ALLOCATION} Saldo não alocado disponível: ${unallocatedStock}`,
         );
       }
     }

@@ -6,11 +6,13 @@ import { EErrorsGlobal } from '../../common/enum/errors-global.enum';
 import { DeleteResult, EntityManager, Repository, UpdateResult } from 'typeorm';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
+import { IProductsRepository } from './interfaces/products.repository.interface';
 
 @Injectable()
-export class ProductsRepository implements ProductsRepository {
+export class ProductsRepository implements IProductsRepository {
   constructor(
-    @InjectRepository(Product) private readonly repository: Repository<Product>,
+    @InjectRepository(Product)
+    private readonly repository: Repository<Product>,
   ) {}
 
   private getRepository(manager?: EntityManager): Repository<Product> {
@@ -33,13 +35,17 @@ export class ProductsRepository implements ProductsRepository {
     tenantId: string,
     manager?: EntityManager,
   ): Promise<Pick<Product, 'currentStock' | 'uom'> | null> {
-    const repo = this.getRepository(manager);
+    try {
+      const repo = this.getRepository(manager);
 
-    return await repo.findOne({
-      where: { id, tenantId },
-      select: { currentStock: true, uom: true },
-      lock: manager ? { mode: 'pessimistic_write' } : undefined,
-    });
+      return await repo.findOne({
+        where: { id, tenantId },
+        select: { currentStock: true, uom: true },
+        lock: manager ? { mode: 'pessimistic_write' } : undefined,
+      });
+    } catch {
+      throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
+    }
   }
 
   async findOneById(
@@ -47,10 +53,14 @@ export class ProductsRepository implements ProductsRepository {
     tenantId: string,
     manager?: EntityManager,
   ): Promise<Product | null> {
-    const repo = this.getRepository(manager);
-    return await repo.findOne({
-      where: { id, tenantId },
-    });
+    try {
+      const repo = this.getRepository(manager);
+      return await repo.findOne({
+        where: { id, tenantId },
+      });
+    } catch {
+      throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
+    }
   }
 
   async findOneBySku(sku: string, tenantId: string): Promise<Product | null> {
@@ -106,24 +116,28 @@ export class ProductsRepository implements ProductsRepository {
     delta: number,
     manager?: EntityManager,
   ): Promise<UpdateResult> {
-    const repo = this.getRepository(manager);
+    try {
+      const repo = this.getRepository(manager);
 
-    const query = repo
-      .createQueryBuilder('product')
-      .update(Product)
-      .set({
-        currentStock: () => `current_stock + ${delta}`,
-      })
-      .where('id = :productId AND tenant_id = :tenantId', {
-        productId,
-        tenantId,
-      });
+      const query = repo
+        .createQueryBuilder('product')
+        .update(Product)
+        .set({
+          currentStock: () => `current_stock + ${delta}`,
+        })
+        .where('id = :productId AND tenant_id = :tenantId', {
+          productId,
+          tenantId,
+        });
 
-    if (delta < 0) {
-      query.andWhere('current_stock + :delta >= 0', { delta });
+      if (delta < 0) {
+        query.andWhere('current_stock + :delta >= 0', { delta });
+      }
+
+      return await query.returning(['current_stock', 'uom']).execute();
+    } catch {
+      throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
     }
-
-    return await query.returning(['current_stock', 'uom']).execute();
   }
 
   async deleteProduct(sku: string, tenantId: string): Promise<DeleteResult> {

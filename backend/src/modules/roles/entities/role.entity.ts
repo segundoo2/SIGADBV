@@ -19,7 +19,7 @@ export class Role {
   id!: string;
 
   @ApiProperty({ description: 'Identificador do tenant' })
-  @Column('uuid')
+  @Column('uuid', { default: '00000000-0000-0000-0000-000000000000' })
   @Index()
   tenantId!: string;
 

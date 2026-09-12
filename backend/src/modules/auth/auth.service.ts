@@ -15,6 +15,7 @@ import type {
 import * as bcrypt from 'bcrypt';
 import { EErrorsGlobal } from '../../common/enum/errors-global.enum';
 import type { ICacheStorageService } from '../../common/redis/interface/cache-storage.interface';
+import { EAuthErrors } from '../../common/enum/auth-errors.enum';
 
 type PermissionItem = EPermission | { slug: EPermission };
 
@@ -30,13 +31,15 @@ export class AuthService {
   ) {}
 
   async login(loginDto: LoginDto, fingerprint: string) {
+    const tenantId = '00000000-0000-0000-0000-000000000000'; //implementar lógica de busca do tenantId pelo slug
+
     const user = await this.authRepository.findUserByUsername(
       loginDto.username,
-      loginDto.tenantId,
+      tenantId,
     );
 
     if (!user) {
-      throw new UnauthorizedException('Usuário ou senha incorretos.');
+      throw new UnauthorizedException(EAuthErrors.USER_NOT_FOUND);
     }
 
     const isPasswordValid = await bcrypt.compare(
@@ -45,7 +48,7 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Senha incorreta.');
+      throw new UnauthorizedException(EAuthErrors.USER_NOT_FOUND);
     }
 
     const payload = this.buildJwtPayload(user, fingerprint);
@@ -57,9 +60,11 @@ export class AuthService {
 
     const [accessToken, refreshToken] = await Promise.all([
       this.tokenService.signAsync(payload, {
+        secret: process.env.JWT_SECRET as string,
         expiresIn: accessTokenExpiresIn,
       }),
       this.tokenService.signAsync(payload, {
+        secret: process.env.JWT_SECRET as string,
         expiresIn: refreshTokenExpiresIn,
       }),
     ]);
@@ -103,9 +108,11 @@ export class AuthService {
 
     const [accessToken, refreshToken] = await Promise.all([
       this.tokenService.signAsync(newPayload, {
+        secret: process.env.JWT_SECRET as string,
         expiresIn: accessTokenExpiresIn,
       }),
       this.tokenService.signAsync(newPayload, {
+        secret: process.env.JWT_SECRET as string,
         expiresIn: refreshTokenExpiresIn,
       }),
     ]);

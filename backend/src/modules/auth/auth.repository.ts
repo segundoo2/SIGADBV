@@ -21,9 +21,7 @@ export class AuthRepository implements IAuthRepository {
         (await this.repository.findOne({
           where: { username, tenantId },
           relations: {
-            roles: {
-              permissions: true,
-            },
+            roles: true,
           },
         })) ?? null
       );

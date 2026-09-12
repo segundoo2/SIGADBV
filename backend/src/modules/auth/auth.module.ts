@@ -8,11 +8,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtAdapter } from '../../common/adapters/jwt.adapter';
 import { RedisModule } from '../../common/redis/redis.module';
 import { RedisService } from '../../common/redis/redis.service';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from '../../common/strategies/jwt.strategy';
 
 @Module({
   imports: [
     RedisModule,
     TypeOrmModule.forFeature([User]),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
@@ -21,6 +24,7 @@ import { RedisService } from '../../common/redis/redis.service';
   ],
   controllers: [AuthController],
   providers: [
+    JwtStrategy,
     { provide: 'ICacheStorageService', useClass: RedisService },
     { provide: 'IAuthService', useClass: AuthService },
     { provide: 'IAuthRepository', useClass: AuthRepository },

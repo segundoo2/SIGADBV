@@ -5,7 +5,7 @@ import { Role } from '../entities/role.entity';
 import { DeleteResult, UpdateResult } from 'typeorm';
 
 export interface IRolesRepository {
-  createRole(roleDto: RoleDto): Promise<Role>;
+  createRole(roleDto: RoleDto & { tenantId: string }): Promise<Role>;
 
   findRoleById(id: string, tenantId: string): Promise<Role | null>;
 

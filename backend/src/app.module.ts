@@ -11,6 +11,8 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { LocationsModule } from './modules/locations/locations.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { MovementsModule } from './modules/movements/movements.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -25,6 +27,7 @@ import { MovementsModule } from './modules/movements/movements.module';
         url: configService.get<string>('DATABASE_URL'),
         autoLoadEntities: true,
         synchronize: configService.get<string>('NODE_ENV') === 'development',
+        logging: configService.get<string>('NODE_ENV') === 'development',
       }),
     }),
     ThrottlerModule.forRoot([
@@ -42,6 +45,13 @@ import { MovementsModule } from './modules/movements/movements.module';
     MovementsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, ThrottlerGuard],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    ThrottlerGuard,
+  ],
 })
 export class AppModule {}

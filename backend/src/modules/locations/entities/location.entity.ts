@@ -40,7 +40,7 @@ export class Location {
     description: 'Identificador do tenant proprietário',
     example: 'tenant-12345',
   })
-  @Column({ type: 'varchar', name: 'tenant_id' })
+  @Column({ type: 'uuid', default: '00000000-0000-0000-0000-000000000000' })
   @Index()
   tenantId!: string;
 

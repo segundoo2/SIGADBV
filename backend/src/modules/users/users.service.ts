@@ -37,7 +37,18 @@ export class UsersService implements IUsersService {
     private readonly cacheStorage: ICacheStorageService,
   ) {}
 
-  async createUser(userDto: UserDto): Promise<IResponse<string>> {
+  async createUser(
+    userDto: UserDto & { mustChangePassword: boolean; tenantId: string },
+  ): Promise<IResponse<string>> {
+    const userExist = await this.usersRepository.findOneByUsername(
+      userDto.username,
+      userDto.tenantId,
+    );
+
+    if (userExist) {
+      throw new ConflictException(EUsersErrors.USERNAME_EXIST);
+    }
+
     const roles = await this.rolesRepository.findRolesByIds(
       userDto.roleIds,
       userDto.tenantId,

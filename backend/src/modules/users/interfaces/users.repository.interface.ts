@@ -2,9 +2,12 @@ import { DeleteResult, UpdateResult } from 'typeorm';
 import { PaginationQueryDto } from '../../../common/dtos/pagination-query.dto';
 import { UpdatePasswordDto } from '../dtos/update-password.dto';
 import { User } from '../entities/user.entity';
+import { UserDto } from '../dtos/user.dto';
 
 export interface IUsersRepository {
-  createUser(userData: Partial<User>): Promise<void>;
+  createUser(
+    userDto: UserDto & { mustChangePassword: boolean; tenantId },
+  ): Promise<void>;
 
   findAllUsers(
     tenantId: string,

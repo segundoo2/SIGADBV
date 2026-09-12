@@ -18,7 +18,7 @@ export class Movement {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ type: 'uuid', name: 'tenant_id', nullable: false })
+  @Column({ type: 'uuid', default: '00000000-0000-0000-0000-000000000000' })
   @Index()
   tenantId!: string;
 

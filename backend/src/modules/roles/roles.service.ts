@@ -22,7 +22,9 @@ export class RolesService implements IRolesService {
     private readonly rolesRepository: IRolesRepository,
   ) {}
 
-  async createRole(roleDto: RoleDto): Promise<IResponse<Role>> {
+  async createRole(
+    roleDto: RoleDto & { tenantId: string },
+  ): Promise<IResponse<Role>> {
     const role = await this.rolesRepository.createRole(roleDto);
     return {
       message: ERolesSuccess.CREATE_ROLE,

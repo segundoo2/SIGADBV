@@ -5,7 +5,6 @@ import {
   Post,
   Req,
   Res,
-  UseGuards,
   UseInterceptors,
   Body,
   Inject,
@@ -22,12 +21,12 @@ import type { Response, Request } from 'express';
 import { IAuthController } from './interfaces/auth.controller.interface';
 import type { IAuthService } from './interfaces/auth.service.interface';
 import { IAuthPayload } from './interfaces/auth-payload.interface';
-import { AuthGuard } from '@nestjs/passport';
 import { SetCookiesInterceptor } from '../../common/interceptors/set-cookie.interceptor';
 import { IJwtPayloadWithExpiry } from './interfaces/jwt-payload.interface';
 import type { RequestWithCookies } from './interfaces/req-with-cookies.interface';
 import { EAuthSuccess } from '../../common/enum/auth-success.enum';
 import { LoginDto } from './dtos/login.dto';
+import { Public } from '../../common/decorators/public.decorator';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -37,6 +36,7 @@ export class AuthController implements IAuthController {
   ) {}
 
   @Post()
+  @Public()
   @UseInterceptors(SetCookiesInterceptor)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Realiza a autenticação do usuário' })
@@ -73,7 +73,6 @@ export class AuthController implements IAuthController {
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('jwt-refresh'))
   @UseInterceptors(SetCookiesInterceptor)
   @ApiCookieAuth('refresh_token')
   @ApiHeader({
@@ -106,7 +105,6 @@ export class AuthController implements IAuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('jwt-refresh'))
   @ApiCookieAuth('refresh_token')
   @ApiOperation({
     summary:

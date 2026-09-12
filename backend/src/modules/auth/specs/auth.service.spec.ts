@@ -14,6 +14,7 @@ import { EAuthSuccess } from '../../../common/enum/auth-success.enum';
 import { LoginDto } from '../dtos/login.dto';
 import { EErrorsGlobal } from '../../../common/enum/errors-global.enum';
 import { ICacheStorageService } from '../../../common/redis/interface/cache-storage.interface';
+import { EAuthErrors } from '../../../common/enum/auth-errors.enum';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -87,7 +88,7 @@ describe('AuthService', () => {
       mockRepository.findUserByUsername.mockResolvedValue(mockUser);
 
       await expect(service.login(userDto, testFingerprint)).rejects.toThrow(
-        new UnauthorizedException('Senha incorreta.'),
+        new UnauthorizedException(EAuthErrors.USER_NOT_FOUND),
       );
     });
 
