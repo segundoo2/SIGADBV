@@ -26,10 +26,10 @@ describe('AuthService', () => {
   const DEFAULT_TENANT_ID = '00000000-0000-0000-0000-000000000000';
 
   const userDto: LoginDto = {
-    slug: 'bergcell',
     username: 'segundo',
     password: '12345678',
   };
+  const slug: string = 'sgcode';
 
   const testFingerprint = 'test-fingerprint';
 
@@ -87,9 +87,9 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException when the user is not found', async () => {
       mockRepository.findUserByUsername.mockResolvedValue(null);
 
-      await expect(service.login(userDto, testFingerprint)).rejects.toThrow(
-        new UnauthorizedException(EAuthErrors.USER_NOT_FOUND),
-      );
+      await expect(
+        service.login({ ...userDto, slug }, testFingerprint),
+      ).rejects.toThrow(new UnauthorizedException(EAuthErrors.USER_NOT_FOUND));
       expect(mockRepository.findUserByUsername).toHaveBeenCalledWith(
         userDto.username,
         DEFAULT_TENANT_ID,
@@ -99,9 +99,9 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException when the password is incorrect', async () => {
       mockRepository.findUserByUsername.mockResolvedValue(mockUser);
 
-      await expect(service.login(userDto, testFingerprint)).rejects.toThrow(
-        new UnauthorizedException(EAuthErrors.USER_NOT_FOUND),
-      );
+      await expect(
+        service.login({ ...userDto, slug }, testFingerprint),
+      ).rejects.toThrow(new UnauthorizedException(EAuthErrors.USER_NOT_FOUND));
     });
 
     it('should return tokens envelope when user logs in successfully', async () => {
@@ -124,7 +124,7 @@ describe('AuthService', () => {
         },
       );
 
-      const result = await service.login(userDto, testFingerprint);
+      const result = await service.login({ ...userDto, slug }, testFingerprint);
 
       expect(result).toEqual({
         message: EAuthSuccess.LOGIN,

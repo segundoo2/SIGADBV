@@ -4,7 +4,10 @@ import { EAuthSuccess } from '../../../common/enum/auth-success.enum';
 import { LoginDto } from '../dtos/login.dto';
 
 export interface IAuthService {
-  login(loginDto: LoginDto, fingerprint: string): Promise<IAuthPayload>;
+  login(
+    loginDto: LoginDto & { slug: string },
+    fingerprint: string,
+  ): Promise<IAuthPayload>;
 
   refresh(
     payload: IJwtPayloadWithExpiry,

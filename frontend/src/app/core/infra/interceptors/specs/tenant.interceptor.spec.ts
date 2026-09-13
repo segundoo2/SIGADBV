@@ -35,25 +35,35 @@ describe('tenantInterceptor', () => {
     httpMock.verify();
   });
 
-  it('should inject x-tenant-id header when tenant slug is present', () => {
+  it('should inject x-tenant-slug header when making a login request and tenant slug is present', () => {
+    vi.spyOn(tenantContextMock, 'getTenantSlug').mockReturnValue('empresa-abc');
+
+    httpClient.post('/api/v1/auth/login', {}).subscribe();
+
+    const req = httpMock.expectOne('/api/v1/auth/login');
+    expect(req.request.headers.has('x-tenant-slug')).toBe(true);
+    expect(req.request.headers.get('x-tenant-slug')).toBe('empresa-abc');
+    req.flush({});
+  });
+
+  it('should not inject x-tenant-slug header on non-login requests even if tenant slug is present', () => {
     vi.spyOn(tenantContextMock, 'getTenantSlug').mockReturnValue('empresa-abc');
 
     httpClient.get('/api/v1/products').subscribe();
 
     const req = httpMock.expectOne('/api/v1/products');
-    expect(req.request.headers.has('x-tenant-id')).toBe(true);
-    expect(req.request.headers.get('x-tenant-id')).toBe('empresa-abc');
+    expect(req.request.headers.has('x-tenant-slug')).toBe(false);
     req.flush([]);
   });
 
-  it('should not inject x-tenant-id header when tenant slug is null', () => {
+  it('should not inject x-tenant-slug header on login request when tenant slug is null', () => {
     vi.spyOn(tenantContextMock, 'getTenantSlug').mockReturnValue(null);
 
-    httpClient.get('/api/v1/products').subscribe();
+    httpClient.post('/api/v1/auth/login', {}).subscribe();
 
-    const req = httpMock.expectOne('/api/v1/products');
-    expect(req.request.headers.has('x-tenant-id')).toBe(false);
-    req.flush([]);
+    const req = httpMock.expectOne('/api/v1/auth/login');
+    expect(req.request.headers.has('x-tenant-slug')).toBe(false);
+    req.flush({});
   });
 
   it('should proceed gracefully when TENANT_CONTEXT_PORT is not provided', () => {
@@ -68,10 +78,10 @@ describe('tenantInterceptor', () => {
     const unconfiguredClient = TestBed.inject(HttpClient);
     const unconfiguredMock = TestBed.inject(HttpTestingController);
 
-    unconfiguredClient.get('/api/v1/products').subscribe();
+    unconfiguredClient.post('/api/v1/auth/login', {}).subscribe();
 
-    const req = unconfiguredMock.expectOne('/api/v1/products');
-    expect(req.request.headers.has('x-tenant-id')).toBe(false);
+    const req = unconfiguredMock.expectOne('/api/v1/auth/login');
+    expect(req.request.headers.has('x-tenant-slug')).toBe(false);
     unconfiguredMock.verify();
   });
 });

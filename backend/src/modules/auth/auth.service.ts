@@ -30,7 +30,7 @@ export class AuthService {
     private readonly redisService: ICacheStorageService,
   ) {}
 
-  async login(loginDto: LoginDto, fingerprint: string) {
+  async login(loginDto: LoginDto & { slug: string }, fingerprint: string) {
     const tenantId = await this.findTenantIdBySlug(loginDto.slug);
 
     const user = await this.authRepository.findUserByUsername(
@@ -64,7 +64,7 @@ export class AuthService {
         expiresIn: accessTokenExpiresIn,
       }),
       this.tokenService.signAsync(payload, {
-        secret: process.env.JWT_SECRET as string,
+        secret: process.env.JWT_REFRESH_SECRET as string,
         expiresIn: refreshTokenExpiresIn,
       }),
     ]);
@@ -112,7 +112,7 @@ export class AuthService {
         expiresIn: accessTokenExpiresIn,
       }),
       this.tokenService.signAsync(newPayload, {
-        secret: process.env.JWT_SECRET as string,
+        secret: process.env.JWT_REFRESH_SECRET as string,
         expiresIn: refreshTokenExpiresIn,
       }),
     ]);
@@ -143,6 +143,7 @@ export class AuthService {
     };
   }
 
+  // implementar lógica de busca do tenantId no db futuramente
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async findTenantIdBySlug(_slug: string): Promise<string> {
     return Promise.resolve('00000000-0000-0000-0000-000000000000');

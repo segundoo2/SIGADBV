@@ -3,11 +3,13 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
   Res,
   UseInterceptors,
   Body,
   Inject,
+  Headers,
+  BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -17,16 +19,17 @@ import {
   ApiCookieAuth,
   ApiHeader,
 } from '@nestjs/swagger';
-import type { Response, Request } from 'express';
+import type { Response } from 'express';
 import { IAuthController } from './interfaces/auth.controller.interface';
 import type { IAuthService } from './interfaces/auth.service.interface';
 import { IAuthPayload } from './interfaces/auth-payload.interface';
 import { SetCookiesInterceptor } from '../../common/interceptors/set-cookie.interceptor';
-import { IJwtPayloadWithExpiry } from './interfaces/jwt-payload.interface';
-import type { RequestWithCookies } from './interfaces/req-with-cookies.interface';
+import type { IJwtPayloadWithExpiry } from './interfaces/jwt-payload.interface';
 import { EAuthSuccess } from '../../common/enum/auth-success.enum';
 import { LoginDto } from './dtos/login.dto';
 import { Public } from '../../common/decorators/public.decorator';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { JwtRefreshGuard } from '../../common/guards/jwt-refresh.guard';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -41,6 +44,12 @@ export class AuthController implements IAuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Realiza a autenticação do usuário' })
   @ApiBody({ type: LoginDto })
+  @ApiHeader({
+    name: 'x-tenant-slug',
+    required: true,
+    description: 'Slug do tenant extraído do subdomínio',
+    example: 'empresa-abc',
+  })
   @ApiHeader({
     name: 'x-device-id',
     required: false,
@@ -57,21 +66,28 @@ export class AuthController implements IAuthController {
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'Senha incorreta.',
+    description: 'Senha incorreta ou cabeçalho x-tenant-slug ausente.',
   })
   async login(
-    @Req() req: Request,
+    @Headers('x-tenant-slug') tenantSlug: string | undefined,
+    @Headers('x-device-id') deviceId: string | undefined,
+    @Headers('user-agent') userAgent: string | undefined,
     @Body() loginDto: LoginDto,
   ): Promise<IAuthPayload> {
-    const fingerprint =
-      (req.headers['x-device-id'] as string) ||
-      (req.headers['user-agent'] as string) ||
-      'unknown';
+    if (!tenantSlug) {
+      throw new BadRequestException('O cabeçalho x-tenant-slug é obrigatório.');
+    }
 
-    return await this.authService.login(loginDto, fingerprint);
+    const fingerprint = deviceId || userAgent || 'unknown';
+
+    return await this.authService.login(
+      { ...loginDto, slug: tenantSlug },
+      fingerprint,
+    );
   }
 
   @Post('refresh')
+  @UseGuards(JwtRefreshGuard)
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(SetCookiesInterceptor)
   @ApiCookieAuth('refresh_token')
@@ -92,13 +108,12 @@ export class AuthController implements IAuthController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Refresh token inválido, expirado ou dispositivo divergente.',
   })
-  async refresh(@Req() req: RequestWithCookies): Promise<IAuthPayload> {
-    const userPayload = req.user as IJwtPayloadWithExpiry;
-
-    const fingerprint =
-      (req.headers['x-device-id'] as string) ||
-      (req.headers['user-agent'] as string) ||
-      'unknown';
+  async refresh(
+    @CurrentUser() userPayload: IJwtPayloadWithExpiry,
+    @Headers('x-device-id') deviceId: string | undefined,
+    @Headers('user-agent') userAgent: string | undefined,
+  ): Promise<IAuthPayload> {
+    const fingerprint = deviceId || userAgent || 'unknown';
 
     return await this.authService.refresh(userPayload, fingerprint);
   }
@@ -119,11 +134,9 @@ export class AuthController implements IAuthController {
     description: 'Não autorizado.',
   })
   async logout(
-    @Req() req: RequestWithCookies,
+    @CurrentUser() userPayload: IJwtPayloadWithExpiry,
     @Res() res: Response,
   ): Promise<Response> {
-    const userPayload = req.user as IJwtPayloadWithExpiry;
-
     await this.authService.logout(userPayload);
 
     const isProd = process.env.NODE_ENV === 'production';
