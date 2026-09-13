@@ -10,6 +10,8 @@ import { RedisModule } from '../../common/redis/redis.module';
 import { RedisService } from '../../common/redis/redis.service';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from '../../common/strategies/jwt.strategy';
+import { JwtRefreshGuard } from '../../common/guards/jwt-refresh.guard';
+import { JwtRefreshStrategy } from '../../common/strategies/refresh-token.strategy';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { JwtStrategy } from '../../common/strategies/jwt.strategy';
   controllers: [AuthController],
   providers: [
     JwtStrategy,
+    JwtRefreshStrategy,
+    JwtRefreshGuard,
     { provide: 'ICacheStorageService', useClass: RedisService },
     { provide: 'IAuthService', useClass: AuthService },
     { provide: 'IAuthRepository', useClass: AuthRepository },

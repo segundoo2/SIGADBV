@@ -1,12 +1,21 @@
+import { Response } from 'express';
 import { IAuthPayload } from './auth-payload.interface';
-import { Request, Response } from 'express';
-import { RequestWithCookies } from './req-with-cookies.interface';
 import { LoginDto } from '../dtos/login.dto';
+import { IJwtPayloadWithExpiry } from './jwt-payload.interface';
 
 export interface IAuthController {
-  login(req: Request, loginDto: LoginDto): Promise<IAuthPayload>;
+  login(
+    tenantSlug: string | undefined,
+    deviceId: string | undefined,
+    userAgent: string | undefined,
+    loginDto: LoginDto,
+  ): Promise<IAuthPayload>;
 
-  refresh(req: RequestWithCookies): Promise<IAuthPayload>;
+  refresh(
+    userPayload: IJwtPayloadWithExpiry,
+    deviceId: string | undefined,
+    userAgent: string | undefined,
+  ): Promise<IAuthPayload>;
 
-  logout(req: RequestWithCookies, res: Response): Promise<Response>;
+  logout(userPayload: IJwtPayloadWithExpiry, res: Response): Promise<Response>;
 }
