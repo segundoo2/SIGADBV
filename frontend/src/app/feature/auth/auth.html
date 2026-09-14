@@ -1,0 +1,23 @@
+<form data-testid="form-auth" [formGroup]="loginForm"] (ngSubmit)="onSubmit()" >
+  <div class="field-container">
+    <input data-testid="username-input" formControlName="username" placeholder="Usuário" />
+    @if (loginForm.get('username')?.touched && loginForm.get('username')?.invalid) {
+      <span data-testid="username-error" class="error-text">Usuário inválido (mínimo de 3 caracteres)</span>
+    }
+  </div>
+
+  <div class="field-container">
+    <input type="password" data-testid="password-input" formControlName="password" placeholder="Senha" />
+    @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
+      <span data-testid="password-error" class="error-text">Senha inválida (mínimo de 8 caracteres)</span>
+    }
+  </div>
+
+  @if (errorMessage) {
+    <section data-testid="error-message" class="error-container">
+      {{ errorMessage }}
+    </section>
+  }
+
+  <button type="submit" data-testid="submit-btn" [disabled]="loginForm.invalid || loginForm.disabled">ACESSAR SISTEMA</button>
+</form>
