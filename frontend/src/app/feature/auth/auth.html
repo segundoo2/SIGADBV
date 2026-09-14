@@ -1,23 +1,121 @@
-<form data-testid="form-auth" [formGroup]="loginForm"] (ngSubmit)="onSubmit()" >
-  <div class="field-container">
-    <input data-testid="username-input" formControlName="username" placeholder="Usuário" />
-    @if (loginForm.get('username')?.touched && loginForm.get('username')?.invalid) {
-      <span data-testid="username-error" class="error-text">Usuário inválido (mínimo de 3 caracteres)</span>
+<main class="min-h-screen w-full flex items-center justify-center bg-slate-950 px-4 sm:px-6 py-6 sm:py-12 overflow-y-auto">
+  <div class="w-full max-w-sm sm:max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl my-auto">
+    
+    <header class="text-center mb-6 sm:mb-8">
+      <!-- Aumentei de w-12 h-12 para w-20 h-20 e a margem para mb-4 -->
+      <div class="inline-flex items-center justify-center w-20 h-20 mb-4">
+        <img src="/D3.png" alt="Logo Desbravadores" class="w-full h-full object-contain drop-shadow" />
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-black tracking-widest bg-linear-to-r from-white via-slate-200 to-indigo-400 bg-clip-text text-transparent">
+        SIGADBV
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-400 mt-2">Acesse sua conta para continuar</p>
+    </header>
+
+    @if (errorMessage) {
+      <div
+        data-testid="error-message"
+        class="mb-6 p-3 sm:p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs sm:text-sm font-medium flex items-center gap-3"
+      >
+        <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.92 3 1.732 3z"
+          />
+        </svg>
+        <span>{{ errorMessage }}</span>
+      </div>
     }
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" data-testid="form-auth" class="space-y-4 sm:space-y-5">
+      <!-- Campo Username -->
+      <div class="relative">
+        <input
+          type="text"
+          id="username"
+          data-testid="username-input"
+          formControlName="username"
+          placeholder="Usuário"
+          class="peer w-full px-4 pt-6 pb-2 sm:pt-7 sm:pb-2.5 bg-slate-950/60 border border-slate-800 rounded-xl text-white text-sm sm:text-base placeholder-transparent focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        />
+        <label
+          for="username"
+          class="absolute left-4 top-4 sm:top-5 text-slate-400 text-sm sm:text-base transition-all duration-200 pointer-events-none 
+                 peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-indigo-400 
+                 peer-not-placeholder-shown:top-1.5 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:text-slate-400"
+        >
+          Usuário
+        </label>
+
+        <!-- Espaço fixo reservado para o erro (não empurra o layout) -->
+        <div class="min-h-4.5 sm:min-h-5 mt-1 ml-1">
+          @if (loginForm.get('username')?.touched && loginForm.get('username')?.invalid) {
+            <span data-testid="username-error" class="block text-[11px] sm:text-xs text-red-400 animate-fadeIn">
+              Usuário inválido (mínimo de 3 caracteres)
+            </span>
+          }
+        </div>
+      </div>
+
+      <!-- Campo Password -->
+      <div class="relative">
+        <input
+          type="password"
+          id="password"
+          data-testid="password-input"
+          formControlName="password"
+          placeholder="Senha"
+          class="peer w-full px-4 pt-6 pb-2 sm:pt-7 sm:pb-2.5 bg-slate-950/60 border border-slate-800 rounded-xl text-white text-sm sm:text-base placeholder-transparent focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        />
+        <label
+          for="password"
+          class="absolute left-4 top-4 sm:top-5 text-slate-400 text-sm sm:text-base transition-all duration-200 pointer-events-none 
+                 peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-indigo-400 
+                 peer-not-placeholder-shown:top-1.5 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:text-slate-400"
+        >
+          Senha
+        </label>
+
+        <!-- Espaço fixo reservado para o erro (não empurra o layout) -->
+        <div class="min-h-4.5 sm:min-h-5 mt-1 ml-1">
+          @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
+            <span data-testid="password-error" class="block text-[11px] sm:text-xs text-red-400 animate-fadeIn">
+              Senha inválida (mínimo de 8 caracteres)
+            </span>
+          }
+        </div>
+      </div>
+
+      <!-- Botão de Submit -->
+      <button
+        type="submit"
+        data-testid="submit-btn"
+        [disabled]="loginForm.invalid || loginForm.disabled"
+        class="w-full mt-2 h-11 sm:h-12 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white font-medium text-sm sm:text-base rounded-xl shadow-lg shadow-indigo-600/20 transition-all duration-200 flex items-center justify-center gap-2"
+      >
+        @if (isLoading) {
+          <svg class="animate-spin -ml-1 mr-3 h-5 text-white" fill="none" viewBox="0 0 24 24">
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          <span>Autenticando...</span>
+        } @else {
+          <span>Acessar Sistema</span>
+        }
+      </button>
+    </form>
   </div>
-
-  <div class="field-container">
-    <input type="password" data-testid="password-input" formControlName="password" placeholder="Senha" />
-    @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
-      <span data-testid="password-error" class="error-text">Senha inválida (mínimo de 8 caracteres)</span>
-    }
-  </div>
-
-  @if (errorMessage) {
-    <section data-testid="error-message" class="error-container">
-      {{ errorMessage }}
-    </section>
-  }
-
-  <button type="submit" data-testid="submit-btn" [disabled]="loginForm.invalid || loginForm.disabled">ACESSAR SISTEMA</button>
-</form>
+</main>

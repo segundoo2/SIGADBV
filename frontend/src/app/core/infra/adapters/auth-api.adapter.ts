@@ -14,7 +14,7 @@ export class AuthApiAdapter implements IAuthApiPort {
 
   async login(credentials: AuthCredentialsModel): Promise<IAuthResponseModel> {
     return firstValueFrom(
-      this.http.post<IAuthResponseModel>(`${this.baseUrl}/login`, credentials)
+      this.http.post<IAuthResponseModel>(this.baseUrl, credentials)
     );
   }
 

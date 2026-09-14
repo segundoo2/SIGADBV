@@ -38,7 +38,7 @@ export class AuthStore implements IAuthStorePort {
       return true;
     } catch (err: unknown) {
       const errorMessage =
-        err instanceof Error ? err.message : 'An unexpected error occurred';
+        err instanceof Error ? err.message : 'Ops! Ocorreu um erro inesperado ao conectar com o servidor. Tente novamente mais tarde.';
 
       this._state.update((s) => ({
         ...s,

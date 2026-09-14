@@ -4,8 +4,9 @@ import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { UrlTenantContextAdapter } from './core/infra/adapters/url-tenant-context.adapter';
 import { tenantInterceptor } from './core/infra/interceptors/tenant.interceptor';
-import { AUTH_STORE_PORT, TENANT_CONTEXT_PORT } from './core/infra/tokens/auth.token';
+import { AUTH_API_PORT, AUTH_STORE_PORT, TENANT_CONTEXT_PORT } from './core/infra/tokens/auth.token';
 import { AuthStore } from './core/store/auth.store';
+import { AuthApiAdapter } from './core/infra/adapters/auth-api.adapter';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,6 +18,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: TENANT_CONTEXT_PORT,
       useClass: UrlTenantContextAdapter,
+    },
+    {
+      provide: AUTH_API_PORT,
+      useClass: AuthApiAdapter,
     },
     //store
     {

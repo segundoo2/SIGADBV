@@ -30,6 +30,10 @@ export class Auth {
     return this._loginForm
   }
 
+  get isLoading(): boolean {
+    return this.authStore.isLoading();
+  }
+
   get errorMessage(): string | null {
     return this.authStore.error();
   }
