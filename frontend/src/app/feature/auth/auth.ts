@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Component, effect, inject } from '@angular/core';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   imports: [ReactiveFormsModule],
@@ -10,6 +11,7 @@ import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 })
 export class Auth {
   private readonly authStore = inject(AUTH_STORE_PORT);
+  private titleService = inject(Title);
   
   private readonly _loginForm = new FormGroup({
     username: new FormControl('', [Validators.required, Validators.minLength(3)]),
@@ -24,6 +26,10 @@ export class Auth {
         this._loginForm.enable();
       }
     });
+  }
+
+  ngOnInit(): void {
+    this.titleService.setTitle('SIGADBV - Acessar Sistema');
   }
 
   get loginForm(): FormGroup {
