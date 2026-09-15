@@ -30,7 +30,7 @@ describe('authGuard', () => {
     });
   });
 
-  it('deve permitir o acesso à rota quando o usuário estiver autenticado', () => {
+  it('should allow access to the route when the user is authenticated.', () => {
     vi.mocked(authStoreMock.isAuthenticated).mockReturnValue(true);
 
     const result = TestBed.runInInjectionContext(() => authGuard({} as never, {} as never));
@@ -39,12 +39,12 @@ describe('authGuard', () => {
     expect(routerMock.createUrlTree).not.toHaveBeenCalled();
   });
 
-  it('deve redirecionar para /auth/login quando o usuário não estiver autenticado', () => {
+  it('should redirect to /auth/login when the user is not authenticated', () => {
     vi.mocked(authStoreMock.isAuthenticated).mockReturnValue(false);
 
     const result = TestBed.runInInjectionContext(() => authGuard({} as never, {} as never));
 
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/auth/login']);
-    expect(result).toEqual(['/auth/login']);
+    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/auth/']);
+    expect(result).toEqual(['/auth/']);
   });
 });

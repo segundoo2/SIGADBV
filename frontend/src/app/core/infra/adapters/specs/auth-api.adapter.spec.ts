@@ -41,7 +41,7 @@ describe('AuthApiAdapter', () => {
 
     const loginPromise = adapter.login(credentials);
 
-    const req = httpMock.expectOne(`${baseUrl}/login`);
+    const req = httpMock.expectOne(`${baseUrl}`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(credentials);
 

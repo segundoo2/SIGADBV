@@ -1,11 +1,11 @@
-import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Component, effect, inject } from '@angular/core';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 import { Title } from '@angular/platform-browser';
+import { InputFormComponent } from '../../shared/inputs/input-form/input-form';
 
 @Component({
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, InputFormComponent],
   selector: 'app-auth',
   templateUrl: './auth.html',
 })

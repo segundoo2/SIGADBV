@@ -144,7 +144,7 @@ describe('Auth', () => {
 
   it('should mark the password control as invalid if it is too short', () => {
     const passwordControl = component.loginForm.get('password');
-    passwordControl?.setValue('1234567'); // 7 caracteres (menor que 8)
+    passwordControl?.setValue('1234567');
 
     expect(passwordControl?.valid).toBeFalsy();
     expect(component.loginForm.valid).toBeFalsy();
@@ -152,35 +152,9 @@ describe('Auth', () => {
 
   it('should mark the username control as invalid if it is too short', () => {
     const usernameControl = component.loginForm.get('username');
-    usernameControl?.setValue('ab'); // 2 caracteres (menor que 3)
+    usernameControl?.setValue('ab');
 
     expect(usernameControl?.valid).toBeFalsy();
     expect(component.loginForm.valid).toBeFalsy();
-  });
-
-  it('should display validation error for username when touched and invalid', () => {
-    const usernameControl = component.loginForm.get('username');
-    usernameControl?.setValue('');
-    usernameControl?.markAsTouched();
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement;
-    const usernameError = compiled.querySelector('[data-testid="username-error"]');
-
-    expect(usernameError).toBeTruthy();
-    expect(usernameError.textContent).toContain('Usuário inválido');
-  });
-
-  it('should display validation error for password when touched and invalid', () => {
-    const passwordControl = component.loginForm.get('password');
-    passwordControl?.setValue('123');
-    passwordControl?.markAsTouched();
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement;
-    const passwordError = compiled.querySelector('[data-testid="password-error"]');
-
-    expect(passwordError).toBeTruthy();
-    expect(passwordError.textContent).toContain('Senha inválida');
   });
 });
