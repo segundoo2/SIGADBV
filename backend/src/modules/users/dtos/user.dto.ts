@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 import {
   IsString,
   IsNotEmpty,
@@ -9,6 +9,7 @@ import {
   IsUUID,
 } from 'class-validator';
 import { EUsersErrors } from '../../../common/enum/users-errors.enum';
+import { Type } from '@nestjs/common';
 
 export abstract class UserDto {
   @ApiProperty({ example: 'edilson.segundo' })
@@ -38,3 +39,8 @@ export abstract class UserDto {
   })
   password?: string;
 }
+
+export class CreateUserDto extends OmitType(
+  UserDto as unknown as Type<any>,
+  ['password'] as const,
+) {}
