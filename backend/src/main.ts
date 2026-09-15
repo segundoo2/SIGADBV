@@ -55,9 +55,55 @@ async function bootstrap() {
     }),
   );
 
-  // Configurações de CORS (corrigido typos da variável de ambiente)
+  // Configuração de CORS: libera sem origem em dev, e valida subdomínios dinâmicos
+  const baseOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
+    : ['http://localhost:4200'];
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: (
+      origin: string | undefined,
+      callback: (error: Error | null, allow?: boolean) => void,
+    ) => {
+      // 1. Libera requisições sem origem estritamente em desenvolvimento (Postman/cURL)
+      if (!origin) {
+        const isDev = process.env.NODE_ENV !== 'production';
+        if (isDev) {
+          callback(null, true);
+          return;
+        } else {
+          callback(new Error('Requisições sem origem não são permitidas.'));
+          return;
+        }
+      }
+
+      // 2. Validação de exatidão ou subdomínios dinâmicos
+      const isAllowed = baseOrigins.some((base) => {
+        if (origin === base) return true;
+
+        try {
+          const url = new URL(base);
+          const hostname = url.hostname;
+          const protocol = url.protocol;
+          const port = url.port ? `:${url.port}` : '';
+
+          const escapedHostname = hostname.replace(/\./g, '\\.');
+          const wildcardRegex = new RegExp(
+            `^${protocol}//([a-zA-Z0-9_-]+\\.)?${escapedHostname}${port}$`,
+          );
+
+          return wildcardRegex.test(origin);
+        } catch {
+          return false;
+        }
+      });
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error('Bloqueado pela política de CORS'));
+      }
+    },
     credentials: true,
   });
 

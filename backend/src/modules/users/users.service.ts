@@ -39,7 +39,7 @@ export class UsersService implements IUsersService {
 
   async createUser(
     userDto: UserDto & { mustChangePassword: boolean; tenantId: string },
-  ): Promise<IResponse<string>> {
+  ): Promise<IResponse<{ temporaryPassword: string }>> {
     const userExist = await this.usersRepository.findOneByUsername(
       userDto.username,
       userDto.tenantId,
@@ -65,7 +65,10 @@ export class UsersService implements IUsersService {
       password: await bcrypt.hash(userDto.password, this.SALT_ROUNDS),
     });
 
-    return { message: EUsersSuccess.CREATE_USER, data: userDto.password };
+    return {
+      message: EUsersSuccess.CREATE_USER,
+      data: { temporaryPassword: userDto.password },
+    };
   }
 
   async findOneByUsername(

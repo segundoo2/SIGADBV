@@ -70,7 +70,7 @@ export class UsersController implements IUsersController {
   async createUser(
     @Body() userDto: UserDto,
     @TenantId() tenantId: string,
-  ): Promise<IResponse<string>> {
+  ): Promise<IResponse<{ temporaryPassword: string }>> {
     return await this.usersService.createUser({
       ...userDto,
       tenantId,

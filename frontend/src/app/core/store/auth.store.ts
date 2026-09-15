@@ -27,6 +27,7 @@ export class AuthStore implements IAuthStorePort {
 
   async login(credentials: AuthCredentialsModel): Promise<boolean> {
     this._state.update((s) => ({ ...s, isLoading: true, error: null }));
+    console.log(credentials)
 
     try {
       await this.authApiPort.login(credentials);
