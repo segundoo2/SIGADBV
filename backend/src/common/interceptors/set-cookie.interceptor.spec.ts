@@ -1,8 +1,9 @@
 import { ExecutionContext, CallHandler } from '@nestjs/common';
 import { of, firstValueFrom } from 'rxjs';
 import { Response } from 'express';
-import { IAuthPayload } from '../../modules/auth/interfaces/auth-payload.interface';
 import { SetCookiesInterceptor } from './set-cookie.interceptor';
+import { IResponse } from '../interfaces/response.interface';
+import { ITokens } from '../../modules/auth/interfaces/token.interface';
 
 describe('SetCookiesInterceptor', () => {
   let interceptor: SetCookiesInterceptor;
@@ -31,15 +32,18 @@ describe('SetCookiesInterceptor', () => {
   });
 
   it('should extract tokens from data and append them to cookies', async () => {
-    const mockServiceResult: IAuthPayload = {
+    const mockServiceResult: IResponse<ITokens> & {
+      mustChangePassword?: boolean;
+    } = {
       message: 'LOGIN_SUCCESS',
+      mustChangePassword: true,
       data: {
         accessToken: 'access-123',
         refreshToken: 'refresh-456',
       },
     };
 
-    const mockCallHandler: CallHandler<IAuthPayload> = {
+    const mockCallHandler: CallHandler<IResponse<ITokens>> = {
       handle: () => of(mockServiceResult),
     };
 

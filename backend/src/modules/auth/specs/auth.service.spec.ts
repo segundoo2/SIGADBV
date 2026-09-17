@@ -4,7 +4,7 @@ import { AuthService } from '../auth.service';
 import { IAuthRepository } from '../interfaces/auth.repository.interface';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../users/entities/user.entity';
-import { ITokenService } from '../interfaces/jwt-service.interface';
+import { ITokenService } from '../../../common/adapters/interfaces/token-service.interface';
 import {
   IJwtPayload,
   IJwtPayloadWithExpiry,
@@ -60,19 +60,26 @@ describe('AuthService', () => {
     );
   });
 
-  const mockUser = {
+  const mockUser: User = {
     id: 'uuid-user',
     tenantId: DEFAULT_TENANT_ID,
     username: 'segundo',
+    mustChangePassword: false,
     password: '12345678',
     roles: [
       {
         id: 'role-1',
         name: 'ADMIN',
-        permissions: [{ id: 'perm-1', slug: EPermission.USERS_READ }],
+        permissions: [EPermission.USERS_READ],
+        tenantId: '',
+        users: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     ],
-  } as unknown as User;
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
 
   describe('findTenantIdBySlug', () => {
     it('should return default tenant id when slug is provided', async () => {
@@ -128,6 +135,7 @@ describe('AuthService', () => {
 
       expect(result).toEqual({
         message: EAuthSuccess.LOGIN,
+        mustChangePassword: false,
         data: tokens,
       });
 

@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
-import { Application } from 'express';
+import { Application, Response } from 'express';
 import helmet from 'helmet';
 import { PermissionsMetadataDto } from './modules/roles/permissions.controller';
 
@@ -24,7 +24,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('StockUp API')
     .setDescription(
-      'Documentação da API do StockUp, um sistema de gestão e controle de estoque.',
+      'Documentação da API do SIGADBV - Sistema de Gestão Automatizada de Desbravadores.',
     )
     .setVersion('1.0')
     .addBearerAuth()
@@ -35,6 +35,7 @@ async function bootstrap() {
   });
 
   SwaggerModule.setup('api', app, document);
+  app.use('/api-json', (res: Response): Response => res.json(document));
 
   // Configuração de parsing de cookie
   app.use(cookieParser());

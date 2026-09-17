@@ -11,11 +11,13 @@ import {
 import type {
   ITokenService,
   TokenDuration,
-} from './interfaces/jwt-service.interface';
+} from '../../common/adapters/interfaces/token-service.interface';
 import * as bcrypt from 'bcrypt';
 import { EErrorsGlobal } from '../../common/enum/errors-global.enum';
 import type { ICacheStorageService } from '../../common/redis/interface/cache-storage.interface';
 import { EAuthErrors } from '../../common/enum/auth-errors.enum';
+import { IResponse } from '../../common/interfaces/response.interface';
+import { ITokens } from './interfaces/token.interface';
 
 type PermissionItem = EPermission | { slug: EPermission };
 
@@ -71,6 +73,7 @@ export class AuthService {
 
     return {
       message: EAuthSuccess.LOGIN,
+      mustChangePassword: user.mustChangePassword,
       data: {
         accessToken,
         refreshToken,
@@ -78,7 +81,10 @@ export class AuthService {
     };
   }
 
-  async refresh(payload: IJwtPayloadWithExpiry, newFingerprint: string) {
+  async refresh(
+    payload: IJwtPayloadWithExpiry,
+    newFingerprint: string,
+  ): Promise<IResponse<ITokens>> {
     const user = await this.authRepository.findUserByUsername(
       payload.username,
       payload.tenantId,

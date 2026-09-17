@@ -40,7 +40,7 @@ describe('AuthModule', () => {
   afterAll(async () => {
     await cleanTestDatabase(app);
     await app.close();
-  });
+  }, 30000);
 
   describe('POST /auth/', () => {
     it('should authenticate successfully and set cookies when credentials and headers are valid', async () => {
@@ -200,6 +200,7 @@ describe('AuthModule', () => {
 
       const logoutResponse = await request(httpServer)
         .post('/auth/logout')
+        .set('user-agent', 'Supertest-E2E-Agent') // <--- ADICIONAR AQUI
         .set('Cookie', cookieHeader)
         .expect(200);
 
@@ -221,6 +222,7 @@ describe('AuthModule', () => {
 
       await request(httpServer)
         .post('/auth/logout')
+        .set('user-agent', 'Supertest-E2E-Agent') // <--- ADICIONAR AQUI
         .set('Cookie', cookieHeader)
         .expect(200);
 

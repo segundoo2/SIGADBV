@@ -41,6 +41,7 @@ describe('AuthController', () => {
     it('should return the object envelope when the user logs in successfully with tenant slug', async () => {
       const mockResponseData = {
         message: EAuthSuccess.LOGIN,
+        mustChangePassword: true,
         data: { accessToken: 'access-token', refreshToken: 'refresh-token' },
       };
 
@@ -67,6 +68,7 @@ describe('AuthController', () => {
     it('should prioritize x-device-id over user-agent for fingerprint if present', async () => {
       const mockResponseData = {
         message: EAuthSuccess.LOGIN,
+        mustChangePassword: false,
         data: { accessToken: 'access-token', refreshToken: 'refresh-token' },
       };
 
@@ -100,11 +102,8 @@ describe('AuthController', () => {
   describe('refresh', () => {
     it('should call authService.refresh with user payload and return new tokens', async () => {
       const mockAuthPayload = {
-        message: EAuthSuccess.REFRESH,
-        data: {
-          accessToken: 'new-access-token',
-          refreshToken: 'new-refresh-token',
-        },
+        accessToken: 'new-access-token',
+        refreshToken: 'new-refresh-token',
       };
 
       mockService.refresh.mockResolvedValue(mockAuthPayload);
