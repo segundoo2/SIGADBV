@@ -200,6 +200,7 @@ describe('AuthModule', () => {
 
       const logoutResponse = await request(httpServer)
         .post('/auth/logout')
+        .set('user-agent', 'Supertest-E2E-Agent')
         .set('Cookie', cookieHeader)
         .expect(200);
 
@@ -221,6 +222,7 @@ describe('AuthModule', () => {
 
       await request(httpServer)
         .post('/auth/logout')
+        .set('user-agent', 'Supertest-E2E-Agent')
         .set('Cookie', cookieHeader)
         .expect(200);
 
