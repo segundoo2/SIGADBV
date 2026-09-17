@@ -1,8 +1,8 @@
 import { Response } from 'express';
 import { LoginDto } from '../dtos/login.dto';
 import { IJwtPayloadWithExpiry } from './jwt-payload.interface';
-import { IResponse } from '../../../common/interfaces/response.interface';
 import { ITokens } from './token.interface';
+import { ILoginResponse } from './login-response.interface';
 
 export interface IAuthController {
   login(
@@ -10,7 +10,7 @@ export interface IAuthController {
     deviceId: string | undefined,
     userAgent: string | undefined,
     loginDto: LoginDto,
-  ): Promise<IResponse<ITokens> & { mustChangePassword: boolean }>;
+  ): Promise<ILoginResponse>;
 
   refresh(
     userPayload: IJwtPayloadWithExpiry,
