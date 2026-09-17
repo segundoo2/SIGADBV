@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { AuthCredentialsModel, IAuthResponseModel } from '../../domain/models/auth.model';
 import { IAuthApiPort } from '../../domain/ports/auth-api.port';
 import { environment } from '../../../../environments/environments';
+import { IAuthResponseModel } from '../../domain/models/auth-response.model';
+import { IAuthCredentialsModel } from '../../domain/models/auth-credentials.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +13,7 @@ export class AuthApiAdapter implements IAuthApiPort {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/auth`;
 
-  async login(credentials: AuthCredentialsModel): Promise<IAuthResponseModel> {
+  async login(credentials: IAuthCredentialsModel): Promise<IAuthResponseModel> {
     try {
       return await firstValueFrom(
         this.http.post<IAuthResponseModel>(this.baseUrl, credentials),
@@ -32,7 +33,7 @@ export class AuthApiAdapter implements IAuthApiPort {
     }
   }
 
-  async logout(): Promise<IAuthResponseModel> {
+  async logout(): Promise<Omit<IAuthResponseModel, 'mustChangePassword'>> {
     try {
       return await firstValueFrom(
         this.http.post<IAuthResponseModel>(`${this.baseUrl}/logout`, {}),

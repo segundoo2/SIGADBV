@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from "@angular/core";
-import { AuthCredentialsModel } from "../domain/models/auth.model";
 import { IAuthStorePort } from "../domain/ports/auth-store.port";
 import { AUTH_API_PORT } from "../infra/tokens/auth.token";
+import { IAuthCredentialsModel } from "../domain/models/auth-credentials.model";
 
 export interface AuthState {
   readonly isAuthenticated: boolean;
@@ -25,7 +25,7 @@ export class AuthStore implements IAuthStorePort {
   readonly isLoading = computed(() => this._state().isLoading);
   readonly error = computed(() => this._state().error);
 
-  async login(credentials: AuthCredentialsModel): Promise<boolean> {
+  async login(credentials: IAuthCredentialsModel): Promise<boolean> {
     this._state.update((s) => ({ ...s, isLoading: true, error: null }));
     console.log(credentials)
 
