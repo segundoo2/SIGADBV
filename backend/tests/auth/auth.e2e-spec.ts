@@ -7,7 +7,7 @@ import { AppModule } from '../../src/app.module';
 import { setupTestDatabase, cleanTestDatabase } from './setup.helper';
 import { EAuthSuccess } from '../../src/common/enum/auth-success.enum';
 
-describe('AuthModule (E2E)', () => {
+describe('AuthModule', () => {
   let app: INestApplication;
   let httpServer: Server;
 
@@ -140,9 +140,9 @@ describe('AuthModule (E2E)', () => {
 
       const cookieHeader = parseAllCookies(loginResponse.get('Set-Cookie'));
 
+      // x-tenant-slug removido pois não é mais necessário nas rotas protegidas
       const refreshResponse = await request(httpServer)
         .post('/auth/refresh')
-        .set('x-tenant-slug', 'dummy-tenant')
         .set('user-agent', 'Supertest-E2E-Agent')
         .set('Cookie', cookieHeader)
         .expect(200);
@@ -166,7 +166,6 @@ describe('AuthModule (E2E)', () => {
 
       await request(httpServer)
         .post('/auth/refresh')
-        .set('x-tenant-slug', 'dummy-tenant')
         .set('user-agent', 'Malicious-Or-Different-Device-Agent')
         .set('Cookie', cookieHeader)
         .expect(401);
@@ -175,7 +174,6 @@ describe('AuthModule (E2E)', () => {
     it('should return 401 Unauthorized when refresh cookie is missing', async () => {
       await request(httpServer)
         .post('/auth/refresh')
-        .set('x-tenant-slug', 'dummy-tenant')
         .set('user-agent', 'Supertest-E2E-Agent')
         .expect(401);
     });
@@ -183,7 +181,6 @@ describe('AuthModule (E2E)', () => {
     it('should return 401 Unauthorized when refresh cookie is invalid or malformed', async () => {
       await request(httpServer)
         .post('/auth/refresh')
-        .set('x-tenant-slug', 'dummy-tenant')
         .set('user-agent', 'Supertest-E2E-Agent')
         .set('Cookie', 'refresh_token=invalid.token.here')
         .expect(401);
@@ -203,7 +200,6 @@ describe('AuthModule (E2E)', () => {
 
       const logoutResponse = await request(httpServer)
         .post('/auth/logout')
-        .set('x-tenant-slug', 'dummy-tenant')
         .set('user-agent', 'Supertest-E2E-Agent')
         .set('Cookie', cookieHeader)
         .expect(200);
@@ -226,15 +222,12 @@ describe('AuthModule (E2E)', () => {
 
       await request(httpServer)
         .post('/auth/logout')
-        .set('x-tenant-slug', 'dummy-tenant')
         .set('user-agent', 'Supertest-E2E-Agent')
         .set('Cookie', cookieHeader)
         .expect(200);
 
-      // Aqui testamos se o refresh falha (pode retornar 401 ou 400 dependendo de como o guard trata o token revogado)
       const refreshAttempt = await request(httpServer)
         .post('/auth/refresh')
-        .set('x-tenant-slug', 'dummy-tenant')
         .set('user-agent', 'Supertest-E2E-Agent')
         .set('Cookie', cookieHeader);
 

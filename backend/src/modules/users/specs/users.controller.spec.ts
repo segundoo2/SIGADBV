@@ -32,11 +32,14 @@ describe('UsersController', () => {
 
   describe('createUser', () => {
     it('should forward response data context directly from service layer', async () => {
-      const response: IResponse<string> = {
+      const response: IResponse<{ temporaryPassword: string }> = {
         message: EUsersSuccess.CREATE_USER,
-        data: '12345678',
+        data: { temporaryPassword: '12345678' },
       };
-      const userDto: UserDto = {
+      const userDto: UserDto & {
+        tenantId: string;
+        mustChangePassword: boolean;
+      } = {
         username: user.username,
         tenantId,
         mustChangePassword: true,
@@ -105,7 +108,10 @@ describe('UsersController', () => {
         message: EUsersSuccess.PASSWORD_UPDATE,
         data: '12345678',
       };
-      const userDto: UserDto = {
+      const userDto: UserDto & {
+        tenantId: string;
+        mustChangePassword: boolean;
+      } = {
         username: user.username,
         tenantId,
         mustChangePassword: true,

@@ -27,6 +27,7 @@ export class AuthStore implements IAuthStorePort {
 
   async login(credentials: AuthCredentialsModel): Promise<boolean> {
     this._state.update((s) => ({ ...s, isLoading: true, error: null }));
+    console.log(credentials)
 
     try {
       await this.authApiPort.login(credentials);
@@ -38,7 +39,7 @@ export class AuthStore implements IAuthStorePort {
       return true;
     } catch (err: unknown) {
       const errorMessage =
-        err instanceof Error ? err.message : 'An unexpected error occurred';
+        err instanceof Error ? err.message : 'Ops! Ocorreu um erro inesperado ao conectar com o servidor. Tente novamente mais tarde.';
 
       this._state.update((s) => ({
         ...s,

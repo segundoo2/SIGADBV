@@ -86,7 +86,7 @@ describe('UsersService', () => {
       const result = await service.createUser(createDto);
 
       expect(result.message).toBe(EUsersSuccess.CREATE_USER);
-      expect(result.data).toHaveLength(8);
+      expect(result.data.temporaryPassword).toHaveLength(8);
       expect(mockRolesRepository.findRolesByIds).toHaveBeenCalledWith(
         createDto.roleIds,
         createDto.tenantId,

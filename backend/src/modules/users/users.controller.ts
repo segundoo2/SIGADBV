@@ -24,7 +24,7 @@ import {
 import { IUsersController } from './interfaces/users.controller.interface';
 import type { IUsersService } from './interfaces/users.service.interface';
 import { EUsersSuccess } from '../../common/enum/users-sucess.enum';
-import { UserDto } from './dtos/user.dto';
+import { CreateUserDto, UserDto } from './dtos/user.dto';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
 // import { PermissionGuard } from '../../common/guards/permission.guard';
 import { User } from './entities/user.entity';
@@ -50,7 +50,7 @@ export class UsersController implements IUsersController {
   @Public()
   @RequiresPermission(EPermission.USERS_CREATE)
   @ApiOperation({ summary: 'Criar um novo usuário' })
-  @ApiBody({ type: UserDto })
+  @ApiBody({ type: CreateUserDto })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: EUsersSuccess.CREATE_USER,
@@ -70,7 +70,7 @@ export class UsersController implements IUsersController {
   async createUser(
     @Body() userDto: UserDto,
     @TenantId() tenantId: string,
-  ): Promise<IResponse<string>> {
+  ): Promise<IResponse<{ temporaryPassword: string }>> {
     return await this.usersService.createUser({
       ...userDto,
       tenantId,

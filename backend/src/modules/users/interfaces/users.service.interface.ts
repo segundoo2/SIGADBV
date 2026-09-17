@@ -8,7 +8,7 @@ import { User } from '../entities/user.entity';
 export interface IUsersService {
   createUser(
     userDto: UserDto & { mustChangePassword: boolean; tenantId: string },
-  ): Promise<IResponse<string>>;
+  ): Promise<IResponse<{ temporaryPassword: string }>>;
 
   findAllUsers(
     tenantId: string,

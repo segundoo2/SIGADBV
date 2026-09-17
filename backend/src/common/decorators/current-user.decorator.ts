@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { IJwtPayloadWithExpiry } from '../../modules/auth/interfaces/jwt-payload.interface';
-import { RequestWithCookies } from '../../modules/auth/interfaces/req-with-cookies.interface';
+import { RequestWithCookies } from '../strategies/interfaces/req-with-cookies.interface';
 
 function isJwtPayload(user: unknown): user is IJwtPayloadWithExpiry {
   return (

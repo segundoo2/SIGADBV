@@ -3,7 +3,7 @@ import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import {
   ITokenService,
   TokenDuration,
-} from '../../modules/auth/interfaces/jwt-service.interface';
+} from './interfaces/token-service.interface';
 
 @Injectable()
 export class JwtAdapter implements ITokenService {

@@ -22,7 +22,6 @@ import {
 import type { Response } from 'express';
 import { IAuthController } from './interfaces/auth.controller.interface';
 import type { IAuthService } from './interfaces/auth.service.interface';
-import { IAuthPayload } from './interfaces/auth-payload.interface';
 import { SetCookiesInterceptor } from '../../common/interceptors/set-cookie.interceptor';
 import type { IJwtPayloadWithExpiry } from './interfaces/jwt-payload.interface';
 import { EAuthSuccess } from '../../common/enum/auth-success.enum';
@@ -30,6 +29,8 @@ import { LoginDto } from './dtos/login.dto';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtRefreshGuard } from '../../common/guards/jwt-refresh.guard';
+import { IResponse } from '../../common/interfaces/response.interface';
+import { ITokens } from './interfaces/token.interface';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -73,7 +74,7 @@ export class AuthController implements IAuthController {
     @Headers('x-device-id') deviceId: string | undefined,
     @Headers('user-agent') userAgent: string | undefined,
     @Body() loginDto: LoginDto,
-  ): Promise<IAuthPayload> {
+  ): Promise<IResponse<ITokens> & { mustChangePassword }> {
     if (!tenantSlug) {
       throw new BadRequestException('O cabeçalho x-tenant-slug é obrigatório.');
     }
@@ -112,13 +113,14 @@ export class AuthController implements IAuthController {
     @CurrentUser() userPayload: IJwtPayloadWithExpiry,
     @Headers('x-device-id') deviceId: string | undefined,
     @Headers('user-agent') userAgent: string | undefined,
-  ): Promise<IAuthPayload> {
+  ): Promise<ITokens> {
     const fingerprint = deviceId || userAgent || 'unknown';
 
     return await this.authService.refresh(userPayload, fingerprint);
   }
 
   @Post('logout')
+  @UseGuards(JwtRefreshGuard)
   @HttpCode(HttpStatus.OK)
   @ApiCookieAuth('refresh_token')
   @ApiOperation({

@@ -4,10 +4,13 @@ import { provideHttpClient } from '@angular/common/http';
 import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import { AuthApiAdapter } from '../auth-api.adapter';
 import { AuthCredentialsModel, IAuthResponseModel } from '../../../domain/models/auth.model';
+import { environment } from '../../../../../environments/environments';
+
 
 describe('AuthApiAdapter', () => {
   let adapter: AuthApiAdapter;
   let httpMock: HttpTestingController;
+  const baseUrl = `${environment.apiUrl}/auth`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -38,7 +41,7 @@ describe('AuthApiAdapter', () => {
 
     const loginPromise = adapter.login(credentials);
 
-    const req = httpMock.expectOne('/api/v1/auth/login');
+    const req = httpMock.expectOne(`${baseUrl}`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(credentials);
 
@@ -55,7 +58,7 @@ describe('AuthApiAdapter', () => {
 
     const refreshPromise = adapter.refresh();
 
-    const req = httpMock.expectOne('/api/v1/auth/refresh');
+    const req = httpMock.expectOne(`${baseUrl}/refresh`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({});
 
@@ -72,7 +75,7 @@ describe('AuthApiAdapter', () => {
 
     const logoutPromise = adapter.logout();
 
-    const req = httpMock.expectOne('/api/v1/auth/logout');
+    const req = httpMock.expectOne(`${baseUrl}/logout`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({});
 
