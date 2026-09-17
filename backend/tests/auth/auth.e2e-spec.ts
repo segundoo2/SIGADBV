@@ -40,7 +40,7 @@ describe('AuthModule', () => {
   afterAll(async () => {
     await cleanTestDatabase(app);
     await app.close();
-  }, 30000);
+  });
 
   describe('POST /auth/', () => {
     it('should authenticate successfully and set cookies when credentials and headers are valid', async () => {
