@@ -18,6 +18,7 @@ import type { ICacheStorageService } from '../../common/redis/interface/cache-st
 import { EAuthErrors } from '../../common/enum/auth-errors.enum';
 import { IResponse } from '../../common/interfaces/response.interface';
 import { ITokens } from './interfaces/token.interface';
+import { ILoginResponse } from './interfaces/login-response.interface';
 
 type PermissionItem = EPermission | { slug: EPermission };
 
@@ -32,7 +33,10 @@ export class AuthService {
     private readonly redisService: ICacheStorageService,
   ) {}
 
-  async login(loginDto: LoginDto & { slug: string }, fingerprint: string) {
+  async login(
+    loginDto: LoginDto & { slug: string },
+    fingerprint: string,
+  ): Promise<ILoginResponse> {
     const tenantId = await this.findTenantIdBySlug(loginDto.slug);
 
     const user = await this.authRepository.findUserByUsername(
