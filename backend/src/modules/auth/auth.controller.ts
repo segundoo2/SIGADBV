@@ -29,8 +29,8 @@ import { LoginDto } from './dtos/login.dto';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtRefreshGuard } from '../../common/guards/jwt-refresh.guard';
-import { IResponse } from '../../common/interfaces/response.interface';
 import { ITokens } from './interfaces/token.interface';
+import { ILoginResponse } from './interfaces/login-response.interface';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -60,6 +60,16 @@ export class AuthController implements IAuthController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Login efetuado com sucesso e tokens gerados.',
+    schema: {
+      example: {
+        message: 'Login realizado com sucesso.',
+        mustChangePassword: false,
+        data: {
+          accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        },
+      },
+    },
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -74,7 +84,7 @@ export class AuthController implements IAuthController {
     @Headers('x-device-id') deviceId: string | undefined,
     @Headers('user-agent') userAgent: string | undefined,
     @Body() loginDto: LoginDto,
-  ): Promise<IResponse<ITokens> & { mustChangePassword }> {
+  ): Promise<ILoginResponse> {
     if (!tenantSlug) {
       throw new BadRequestException('O cabeçalho x-tenant-slug é obrigatório.');
     }
