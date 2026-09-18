@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { AuthCredentialsModel, IAuthResponseModel } from '../../domain/models/auth.model';
 import { IAuthApiPort } from '../../domain/ports/auth-api.port';
 import { environment } from '../../../../environments/environments';
+import { IAuthResponseModel } from '../../domain/models/auth-response.model';
+import { IAuthCredentialsModel } from '../../domain/models/auth-credentials.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,11 +13,9 @@ export class AuthApiAdapter implements IAuthApiPort {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/auth`;
 
-  async login(credentials: AuthCredentialsModel): Promise<IAuthResponseModel> {
+  async login(credentials: IAuthCredentialsModel): Promise<IAuthResponseModel> {
     try {
-      return await firstValueFrom(
-        this.http.post<IAuthResponseModel>(this.baseUrl, credentials),
-      );
+      return await firstValueFrom(this.http.post<IAuthResponseModel>(this.baseUrl, credentials));
     } catch (err: unknown) {
       throw this.normalizeError(err);
     }
@@ -32,11 +31,9 @@ export class AuthApiAdapter implements IAuthApiPort {
     }
   }
 
-  async logout(): Promise<IAuthResponseModel> {
+  async logout(): Promise<Omit<IAuthResponseModel, 'mustChangePassword'>> {
     try {
-      return await firstValueFrom(
-        this.http.post<IAuthResponseModel>(`${this.baseUrl}/logout`, {}),
-      );
+      return await firstValueFrom(this.http.post<IAuthResponseModel>(`${this.baseUrl}/logout`, {}));
     } catch (err: unknown) {
       throw this.normalizeError(err);
     }
@@ -44,6 +41,10 @@ export class AuthApiAdapter implements IAuthApiPort {
 
   private normalizeError(err: unknown): Error {
     if (err instanceof HttpErrorResponse) {
+      if (err.status === 0) {
+        return new Error('Ops! Ocorreu um erro inesperado ao conectar com o servidor.');
+      }
+
       const errorBody = err.error as { message?: string | string[] };
       
       if (errorBody && errorBody.message) {
@@ -56,9 +57,13 @@ export class AuthApiAdapter implements IAuthApiPort {
     }
 
     if (err instanceof Error) {
+      if (err.message.includes('Failed to fetch')) {
+        return new Error('Ops! Ocorreu um erro inesperado ao conectar com o servidor.');
+      }
       return err;
     }
 
+    // Retorno padrão garantido para satisfazer a tipagem estrita do TypeScript
     return new Error('Ops! Ocorreu um erro inesperado ao conectar com o servidor.');
   }
 }

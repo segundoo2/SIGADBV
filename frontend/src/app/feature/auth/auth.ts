@@ -1,5 +1,6 @@
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Component, effect, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 import { Title } from '@angular/platform-browser';
 import { InputFormComponent } from '../../shared/inputs/input-form/input-form';
@@ -11,7 +12,8 @@ import { InputFormComponent } from '../../shared/inputs/input-form/input-form';
 })
 export class Auth {
   private readonly authStore = inject(AUTH_STORE_PORT);
-  private titleService = inject(Title);
+  private readonly titleService = inject(Title);
+  private readonly router = inject(Router);
   
   private readonly _loginForm = new FormGroup({
     username: new FormControl('', [Validators.required, Validators.minLength(3)]),
@@ -20,10 +22,20 @@ export class Auth {
 
   constructor() {
     effect(() => {
-      if(this.authStore.isLoading()) {
-        this._loginForm.disable()
+      if (this.authStore.isLoading()) {
+        this._loginForm.disable();
       } else {
         this._loginForm.enable();
+      }
+    });
+
+    effect(() => {
+      if (this.authStore.isAuthenticated()) {
+        if (this.authStore.mustChangePassword()) {
+          this.router.navigate(['/auth/define-password']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       }
     });
   }
@@ -33,7 +45,7 @@ export class Auth {
   }
 
   get loginForm(): FormGroup {
-    return this._loginForm
+    return this._loginForm;
   }
 
   get isLoading(): boolean {
@@ -49,7 +61,7 @@ export class Auth {
       return;
     }
 
-      const { username, password } = this._loginForm.value;
-      this.authStore.login({ username: username!, password: password! })
+    const { username, password } = this._loginForm.value;
+    this.authStore.login({ username: username!, password: password! });
   }
 }

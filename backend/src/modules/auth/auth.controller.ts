@@ -31,6 +31,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtRefreshGuard } from '../../common/guards/jwt-refresh.guard';
 import { ITokens } from './interfaces/token.interface';
 import { ILoginResponse } from './interfaces/login-response.interface';
+import { EErrorsGlobal } from '../../common/enum/errors-global.enum';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -86,7 +87,7 @@ export class AuthController implements IAuthController {
     @Body() loginDto: LoginDto,
   ): Promise<ILoginResponse> {
     if (!tenantSlug) {
-      throw new BadRequestException('O cabeçalho x-tenant-slug é obrigatório.');
+      throw new BadRequestException(EErrorsGlobal.TENANT_INVALID);
     }
 
     const fingerprint = deviceId || userAgent || 'unknown';
