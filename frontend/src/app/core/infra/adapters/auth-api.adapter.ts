@@ -15,9 +15,7 @@ export class AuthApiAdapter implements IAuthApiPort {
 
   async login(credentials: IAuthCredentialsModel): Promise<IAuthResponseModel> {
     try {
-      return await firstValueFrom(
-        this.http.post<IAuthResponseModel>(this.baseUrl, credentials),
-      );
+      return await firstValueFrom(this.http.post<IAuthResponseModel>(this.baseUrl, credentials));
     } catch (err: unknown) {
       throw this.normalizeError(err);
     }
@@ -35,9 +33,7 @@ export class AuthApiAdapter implements IAuthApiPort {
 
   async logout(): Promise<Omit<IAuthResponseModel, 'mustChangePassword'>> {
     try {
-      return await firstValueFrom(
-        this.http.post<IAuthResponseModel>(`${this.baseUrl}/logout`, {}),
-      );
+      return await firstValueFrom(this.http.post<IAuthResponseModel>(`${this.baseUrl}/logout`, {}));
     } catch (err: unknown) {
       throw this.normalizeError(err);
     }
@@ -45,6 +41,10 @@ export class AuthApiAdapter implements IAuthApiPort {
 
   private normalizeError(err: unknown): Error {
     if (err instanceof HttpErrorResponse) {
+      if (err.status === 0) {
+        return new Error('Ops! Ocorreu um erro inesperado ao conectar com o servidor.');
+      }
+
       const errorBody = err.error as { message?: string | string[] };
       
       if (errorBody && errorBody.message) {
@@ -57,9 +57,13 @@ export class AuthApiAdapter implements IAuthApiPort {
     }
 
     if (err instanceof Error) {
+      if (err.message.includes('Failed to fetch')) {
+        return new Error('Ops! Ocorreu um erro inesperado ao conectar com o servidor.');
+      }
       return err;
     }
 
+    // Retorno padrão garantido para satisfazer a tipagem estrita do TypeScript
     return new Error('Ops! Ocorreu um erro inesperado ao conectar com o servidor.');
   }
 }

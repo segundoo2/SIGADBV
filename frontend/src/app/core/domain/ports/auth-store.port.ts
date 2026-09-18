@@ -2,6 +2,7 @@ import { IAuthCredentialsModel } from "../models/auth-credentials.model";
 
 export interface IAuthStorePort {
   readonly isAuthenticated: () => boolean;
+  readonly mustChangePassword: () => boolean;
   readonly isLoading: () => boolean;
   readonly error: () => string | null;
 

@@ -25,9 +25,12 @@ test.describe('/auth', () => {
   test('should login successfully and access system when password definition is not required.', async ({ page }) => {
     await page.route('**/auth', async (route) => {
       await route.fulfill({
-        status: 200,
+        status: 201,
         contentType: 'application/json',
         body: JSON.stringify({ 
+          success: true,
+          message: 'Success',
+          data: { accessToken: 'jwt-token', refreshToken: 'refresh-token' },
           mustChangePassword: false,
         }),
       });
@@ -46,8 +49,10 @@ test.describe('/auth', () => {
         status: 201,
         contentType: 'application/json',
         body: JSON.stringify({ 
-          accessToken: 'temporary-jwt-token',
-          isFirstAccess: true // Indica que precisa definir senha
+          success: true,
+          message: 'Success',
+          data: { accessToken: 'temporary-jwt-token', refreshToken: 'refresh-token' },
+          mustChangePassword: true
         }),
       });
     });
@@ -84,8 +89,8 @@ test.describe('/auth', () => {
   test('should show validation error when username format is invalid.', async ({ page }) => {
     const usernameInput = page.locator('[data-testid="username-input"]');
 
-    usernameInput.fill('ab');
-    usernameInput.blur();
+    await usernameInput.fill('ab');
+    await usernameInput.blur();
 
     const inputError = page.locator('[data-testid="username-error"]');
     await expect(inputError).toBeVisible();
@@ -94,8 +99,8 @@ test.describe('/auth', () => {
   test('should show validation error when password format is invalid.', async ({ page }) => {
     const passwordInput = page.locator('[data-testid="password-input"]');
 
-    passwordInput.fill('123456');
-    passwordInput.blur();
+    await passwordInput.fill('123456');
+    await passwordInput.blur();
 
     const inputError = page.locator('[data-testid="password-error"]');
     await expect(inputError).toBeVisible();
