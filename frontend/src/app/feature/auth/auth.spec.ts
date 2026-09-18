@@ -3,18 +3,22 @@ import { Auth } from './auth';
 import { IAuthStorePort } from '../../core/domain/ports/auth-store.port';
 import { signal, WritableSignal } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { Router } from '@angular/router';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
+import { describe, beforeEach, it, expect, vi } from 'vitest';
 
 describe('Auth', () => {
   let component: Auth;
   let fixture: ComponentFixture<Auth>;
   let authStoreMock: IAuthStorePort;
+  let router: Router;
 
   beforeEach(async () => {
     authStoreMock = {
       isAuthenticated: signal(false),
       isLoading: signal(false),
       error: signal(null),
+      mustChangePassword: signal(false),
       login: vi.fn(),
       logout: vi.fn(),
     };
@@ -29,6 +33,8 @@ describe('Auth', () => {
 
     fixture = TestBed.createComponent(Auth);
     component = fixture.componentInstance;
+    router = TestBed.inject(Router);
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
     fixture.detectChanges();
   });
 
@@ -156,5 +162,21 @@ describe('Auth', () => {
 
     expect(usernameControl?.valid).toBeFalsy();
     expect(component.loginForm.valid).toBeFalsy();
+  });
+
+  it('should redirect to /dashboard when authenticated and password change is not required', () => {
+    (authStoreMock.mustChangePassword as WritableSignal<boolean>).set(false);
+    (authStoreMock.isAuthenticated as WritableSignal<boolean>).set(true);
+    TestBed.flushEffects();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
+  });
+
+  it('should redirect to /auth/define-password when authenticated and password change is required', () => {
+    (authStoreMock.mustChangePassword as WritableSignal<boolean>).set(true);
+    (authStoreMock.isAuthenticated as WritableSignal<boolean>).set(true);
+    TestBed.flushEffects();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/auth/define-password']);
   });
 });

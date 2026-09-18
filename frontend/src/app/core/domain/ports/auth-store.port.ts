@@ -1,11 +1,11 @@
-import { InjectionToken } from '@angular/core';
-import { AuthCredentialsModel } from '../models/auth.model';
+import { IAuthCredentialsModel } from "../models/auth-credentials.model";
 
 export interface IAuthStorePort {
   readonly isAuthenticated: () => boolean;
+  readonly mustChangePassword: () => boolean;
   readonly isLoading: () => boolean;
   readonly error: () => string | null;
 
-  login(credentials: AuthCredentialsModel): Promise<boolean>;
+  login(credentials: IAuthCredentialsModel): Promise<boolean>;
   logout(): Promise<void>;
 }

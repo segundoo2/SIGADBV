@@ -14,24 +14,24 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
   ],
   template: `
     <div class="relative w-full">
-      <input
-        [type]="type"
-        [id]="id"
-        [attr.data-testid]="testId || null"
-        [placeholder]="label"
-        [disabled]="disabled()"
-        [value]="value()"
-        (input)="onInput($event)"
-        (blur)="onTouched()"
-        class="peer w-full px-4 pt-6 pb-2 sm:pt-7 sm:pb-2.5 bg-slate-950/60 border border-slate-800 rounded-xl text-white text-sm sm:text-base placeholder-transparent focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-      />
-      <label
-        [for]="id"
-        class="absolute left-4 top-4 sm:top-5 text-slate-400 text-sm sm:text-base transition-all duration-200 pointer-events-none 
-               peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-indigo-400 
-               peer-not-placeholder-shown:top-1.5 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:text-slate-400"
-      >
-        {{ label }}
+      <label class="relative block w-full cursor-text">
+        <input
+          [type]="type"
+          [attr.data-testid]="testId || null"
+          [placeholder]="label"
+          [disabled]="disabled()"
+          [value]="value()"
+          (input)="onInput($event)"
+          (blur)="onTouched()"
+          class="peer w-full px-4 pt-6 pb-2 sm:pt-7 sm:pb-2.5 bg-slate-950/60 border border-slate-800 rounded-xl text-white text-sm sm:text-base placeholder-transparent focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        />
+        <span
+          class="absolute left-4 top-4 sm:top-5 text-slate-400 text-sm sm:text-base transition-all duration-200 pointer-events-none 
+                 peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-indigo-400 
+                 peer-not-placeholder-shown:top-1.5 peer-not-placeholder-shown:text-xs peer-not-placeholder-shown:text-slate-400"
+        >
+          {{ label }}
+        </span>
       </label>
 
       <section class="min-h-4.5 sm:min-h-5 mt-1 ml-1">
@@ -45,7 +45,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
   `,
 })
 export class InputFormComponent implements ControlValueAccessor {
-  @Input({ required: true }) id!: string;
+  @Input({ required: true }) id!: string; // Mantido caso queira usar em testes unitários ou outras referências externas
   @Input({ required: true }) label!: string;
   @Input() type: 'text' | 'password' | 'email' | 'number' | 'tel' = 'text';
   @Input() testId?: string;

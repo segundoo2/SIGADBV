@@ -1,7 +1,8 @@
-import { AuthCredentialsModel, IAuthResponseModel } from '../models/auth.model';
+import { IAuthCredentialsModel } from "../models/auth-credentials.model";
+import { IAuthResponseModel } from "../models/auth-response.model";
 
 export interface IAuthApiPort {
-  login(credentials: AuthCredentialsModel): Promise<IAuthResponseModel>;
+  login(credentials: IAuthCredentialsModel): Promise<IAuthResponseModel>;
   refresh(): Promise<IAuthResponseModel>;
-  logout(): Promise<IAuthResponseModel>;
+  logout(): Promise<Omit<IAuthResponseModel, 'mustChangePassword'>>;
 }

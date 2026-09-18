@@ -25,14 +25,22 @@ describe('AuthStore', () => {
     store = TestBed.inject(AuthStore);
   });
 
-  it('should initialize with default unauthenticated state', () => {
+  it('should initialize with default unauthenticated state and no password change requirement', () => {
     expect(store.isAuthenticated()).toBe(false);
     expect(store.isLoading()).toBe(false);
     expect(store.error()).toBeNull();
+    expect(store.mustChangePassword()).toBe(false);
   });
 
-  it('should authenticate user successfully on valid credentials', async () => {
-    vi.mocked(authApiMock.login).mockResolvedValue({ message: 'Success' });
+  it('should authenticate successfully and flag mustChangePassword as true when required', async () => {
+    const mockResponse = {
+      success: true,
+      message: 'Success',
+      data: { accessToken: 'token-123', refreshToken: 'ref-123' },
+      mustChangePassword: true,
+    };
+
+    vi.mocked(authApiMock.login).mockResolvedValue(mockResponse);
 
     const credentials = { username: 'john', password: '123' };
     const success = await store.login(credentials);
@@ -41,10 +49,29 @@ describe('AuthStore', () => {
     expect(store.isAuthenticated()).toBe(true);
     expect(store.isLoading()).toBe(false);
     expect(store.error()).toBeNull();
+    expect(store.mustChangePassword()).toBe(true);
     expect(authApiMock.login).toHaveBeenCalledWith(credentials);
   });
 
-  it('should handle login error correctly', async () => {
+  it('should authenticate successfully and keep mustChangePassword as false for regular users', async () => {
+    const mockResponse = {
+      success: true,
+      message: 'Success',
+      data: { accessToken: 'token-123', refreshToken: 'ref-123' },
+      mustChangePassword: false,
+    };
+
+    vi.mocked(authApiMock.login).mockResolvedValue(mockResponse);
+
+    const credentials = { username: 'john', password: '123' };
+    const success = await store.login(credentials);
+
+    expect(success).toBe(true);
+    expect(store.isAuthenticated()).toBe(true);
+    expect(store.mustChangePassword()).toBe(false);
+  });
+
+  it('should handle login error correctly and reset flags', async () => {
     vi.mocked(authApiMock.login).mockRejectedValue(new Error('Invalid credentials'));
 
     const credentials = { username: 'john', password: 'wrong' };
@@ -54,6 +81,7 @@ describe('AuthStore', () => {
     expect(store.isAuthenticated()).toBe(false);
     expect(store.isLoading()).toBe(false);
     expect(store.error()).toBe('Invalid credentials');
+    expect(store.mustChangePassword()).toBe(false);
   });
 
   it('should reset state on logout', async () => {
@@ -64,6 +92,7 @@ describe('AuthStore', () => {
     expect(store.isAuthenticated()).toBe(false);
     expect(store.isLoading()).toBe(false);
     expect(store.error()).toBeNull();
+    expect(store.mustChangePassword()).toBe(false);
     expect(authApiMock.logout).toHaveBeenCalled();
   });
 });

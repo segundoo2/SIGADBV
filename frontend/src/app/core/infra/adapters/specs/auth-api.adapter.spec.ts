@@ -3,8 +3,9 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideHttpClient } from '@angular/common/http';
 import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import { AuthApiAdapter } from '../auth-api.adapter';
-import { AuthCredentialsModel, IAuthResponseModel } from '../../../domain/models/auth.model';
 import { environment } from '../../../../../environments/environments';
+import { IAuthCredentialsModel } from '../../../domain/models/auth-credentials.model';
+import { IAuthResponseModel } from '../../../domain/models/auth-response.model';
 
 
 describe('AuthApiAdapter', () => {
@@ -30,13 +31,14 @@ describe('AuthApiAdapter', () => {
   });
 
   it('should send POST request with credentials on login and return response', async () => {
-    const credentials: AuthCredentialsModel = {
+    const credentials: IAuthCredentialsModel = {
       username: 'john.doe',
       password: 'securePassword123',
     };
 
     const mockResponse: IAuthResponseModel = {
       message: 'Login successful',
+      mustChangePassword: true,
     };
 
     const loginPromise = adapter.login(credentials);
@@ -54,6 +56,7 @@ describe('AuthApiAdapter', () => {
   it('should send POST request to refresh token endpoint', async () => {
     const mockResponse: IAuthResponseModel = {
       message: 'Session refreshed successfully',
+      mustChangePassword: true
     };
 
     const refreshPromise = adapter.refresh();
@@ -71,6 +74,7 @@ describe('AuthApiAdapter', () => {
   it('should send POST request to logout endpoint', async () => {
     const mockResponse: IAuthResponseModel = {
       message: 'Logout successful',
+      mustChangePassword: true
     };
 
     const logoutPromise = adapter.logout();

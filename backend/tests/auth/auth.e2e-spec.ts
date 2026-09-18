@@ -6,6 +6,7 @@ import { Server } from 'http';
 import { AppModule } from '../../src/app.module';
 import { setupTestDatabase, cleanTestDatabase } from './setup.helper';
 import { EAuthSuccess } from '../../src/common/enum/auth-success.enum';
+import { EErrorsGlobal } from '../../src/common/enum/errors-global.enum';
 
 describe('AuthModule', () => {
   let app: INestApplication;
@@ -103,7 +104,7 @@ describe('AuthModule', () => {
         ? body.message[0]
         : body.message;
 
-      expect(message).toContain('O cabeçalho x-tenant-slug é obrigatório.');
+      expect(message).toContain(EErrorsGlobal.TENANT_INVALID);
     });
 
     it('should return 401 Unauthorized when username is not found', async () => {

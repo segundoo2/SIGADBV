@@ -1,4 +1,4 @@
-<main class="min-h-screen w-full flex items-center justify-center bg-slate-950 px-4 sm:px-6 py-6 sm:py-12 overflow-y-auto">
+<main class="min-h-screen w-full flex items-center justify-center px-4 sm:px-6 py-6 sm:py-12 overflow-y-auto">
   <div class="w-full max-w-sm sm:max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl my-auto">
     
     <header class="text-center mb-6 sm:mb-8">
@@ -11,7 +11,7 @@
       <p class="text-xs sm:text-sm text-slate-400 mt-2">Acesse sua conta para continuar</p>
     </header>
 
-    <!-- Bloco de Erro Global das exceptions lançadas do backend -->
+    <!-- Bloco de Erro Global das exceptions lançadas do backend (componentizar depois) -->
     <section class="transition-all duration-300 ease-in-out overflow-hidden"
          [class.max-h-40]="errorMessage"
          [class.max-h-0]="!errorMessage"
