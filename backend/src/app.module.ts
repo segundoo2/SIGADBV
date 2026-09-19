@@ -13,6 +13,7 @@ import { RolesModule } from './modules/roles/roles.module';
 import { MovementsModule } from './modules/movements/movements.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { UnitsModule } from './modules/units/units.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     LocationsModule,
     RolesModule,
     MovementsModule,
+    UnitsModule,
   ],
   controllers: [AppController],
   providers: [
