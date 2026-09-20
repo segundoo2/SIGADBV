@@ -42,7 +42,7 @@ describe('RolesRepository', () => {
     updatedAt: new Date(),
   };
 
-  const roleDto: RoleDto = {
+  const roleDto: RoleDto & { tenantId: string } = {
     tenantId,
     name: 'ADMIN',
     permissions: [],

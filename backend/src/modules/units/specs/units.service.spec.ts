@@ -1,26 +1,63 @@
-/* eslint-disable @typescript-eslint/unbound-method */
-import { ConflictException } from '@nestjs/common';
 import { EUnitGender } from '../../../common/enum/unit/unit-gender.enum';
-import { EUnitSuccess } from '../../../common/enum/unit/unit-success.enum';
-import { IResponse } from '../../../common/interfaces/response.interface';
 import { CreateUnitDto } from '../dto/create-unit.dto';
 import { UnitEntity } from '../entities/unit.entity';
-import { IUnitsRepository } from '../interfaces/units.repository.interface';
-import { UnitsService } from '../units.service';
-import { EUnitErrors } from '../../../common/enum/unit/unit-errors.enum';
+import { ObjectLiteral, Repository } from 'typeorm';
+import { Role } from '../../roles/entities/role.entity';
+import { Test, TestingModule } from '@nestjs/testing';
+import { UnitsRepository } from '../units.repository';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { InternalServerErrorException } from '@nestjs/common';
+import { EErrorsGlobal } from '../../../common/enum/global/errors-global.enum';
+
+type MockRepository<T extends ObjectLiteral> = Partial<
+  Record<keyof Repository<T>, jest.Mock>
+>;
 
 describe('UnitService', () => {
-  let service: UnitsService;
-  let repository: jest.Mocked<IUnitsRepository>;
+  let repository: UnitsRepository;
+  let ormMock: MockRepository<UnitEntity>;
 
-  beforeEach(() => {
-    repository = {
-      createUnit: jest.fn(),
-      findOneByUnitName: jest.fn(),
-    };
+  beforeEach(async () => {
+    const mockFactory = (): MockRepository<Role> => ({
+      create: jest.fn(),
+      save: jest.fn(),
+      find: jest.fn(),
+      findOne: jest.fn(),
+      findAndCount: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    });
 
-    service = new UnitsService(repository);
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        UnitsRepository,
+        {
+          provide: getRepositoryToken(UnitEntity),
+          useFactory: mockFactory,
+        },
+      ],
+    }).compile();
+
+    repository = module.get<UnitsRepository>(UnitsRepository);
+    ormMock = module.get<MockRepository<UnitEntity>>(
+      getRepositoryToken(UnitEntity),
+    );
   });
+
+  afterEach(() => jest.restoreAllMocks());
+
+  const shouldHandleDatabaseErrors = (
+    operation: () => Promise<unknown>,
+    mockMethod: () => jest.Mock | undefined,
+  ) => {
+    it('should throw InternalServerErrorException when TypeORM operation fails', async () => {
+      mockMethod()?.mockRejectedValue(new Error('Database error'));
+
+      await expect(operation()).rejects.toThrow(
+        new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR),
+      );
+    });
+  };
 
   const unit: UnitEntity = {
     id: 'uuid',
@@ -35,34 +72,38 @@ describe('UnitService', () => {
   };
 
   describe('createUnit', () => {
-    const response: IResponse<UnitEntity> = {
-      message: EUnitSuccess.CREATE,
-      data: unit,
-    };
-
-    const createUnitDto: CreateUnitDto = {
+    const createUnitDto: CreateUnitDto & { tenantId: string } = {
+      tenantId: 'uuid-club',
       name: 'Gavião-Real',
       gender: EUnitGender.FEMALE,
       maxMembers: 6,
     };
 
-    it(`should return object { message: ${EUnitSuccess.CREATE} }`, async () => {
-      repository.createUnit.mockResolvedValue(unit);
-      repository.findOneByUnitName.mockResolvedValue(null);
-      expect(
-        await service.createUnit({ ...createUnitDto, tenantId: unit.tenantId }),
-      ).toEqual(response);
-      expect(repository.createUnit).toHaveBeenCalledWith({
-        ...createUnitDto,
-        tenantId: unit.tenantId,
-      });
+    it('should return unit entity when the unit created with success', async () => {
+      ormMock.create?.mockReturnValue(unit);
+      ormMock.save?.mockResolvedValue(unit);
+      expect(await repository.createUnit(createUnitDto)).toEqual(unit);
+      expect(ormMock.create).toHaveBeenCalledWith(createUnitDto);
+      expect(ormMock.save).toHaveBeenCalledWith(unit);
     });
 
-    it('should return ConflictException when unitName found in the database', async () => {
-      repository.findOneByUnitName.mockResolvedValue(unit);
-      await expect(
-        service.createUnit({ ...createUnitDto, tenantId: unit.id }),
-      ).rejects.toThrow(new ConflictException(EUnitErrors.UNIT_CONFLICT));
+    shouldHandleDatabaseErrors(
+      () => repository.createUnit(createUnitDto),
+      () => ormMock.save,
+    );
+  });
+
+  describe('findOneByUnitName', () => {
+    it('should return unit entity when unit is found', async () => {
+      ormMock.findOne?.mockResolvedValue(unit);
+      expect(
+        await repository.findOneByUnitName(unit.name, unit.tenantId),
+      ).toEqual(unit);
     });
+
+    shouldHandleDatabaseErrors(
+      () => repository.findOneByUnitName(unit.name, unit.tenantId),
+      () => ormMock.findOne,
+    );
   });
 });
