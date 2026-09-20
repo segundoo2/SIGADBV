@@ -5,7 +5,7 @@ import { ILocationsRepository } from './interfaces/locations.repository.interfac
 import { Location } from './entities/location.entity';
 import { LocationDto } from './dtos/location.dto';
 import { UpdateLocationDto } from './dtos/update-location.dto';
-import { EErrorsGlobal } from '../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 
 @Injectable()
 export class LocationsRepository implements ILocationsRepository {

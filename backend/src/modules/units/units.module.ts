@@ -7,7 +7,7 @@ import { UnitsRepository } from './units.repository';
   controllers: [UnitsController],
   providers: [
     { provide: 'IUnitsService', useClass: UnitsService },
-    { provide: 'IUnitsService', useClass: UnitsRepository },
+    { provide: 'IUnitsRepository', useClass: UnitsRepository },
   ],
 })
 export class UnitsModule {}

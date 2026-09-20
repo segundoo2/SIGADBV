@@ -7,7 +7,7 @@ import { LocationsRepository } from '../locations.repository';
 import { ELocationType, Location } from '../entities/location.entity';
 import { LocationDto } from '../dtos/location.dto';
 import { UpdateLocationDto } from '../dtos/update-location.dto';
-import { EErrorsGlobal } from '../../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../../common/enum/global/errors-global.enum';
 
 type MockRepository<T extends ObjectLiteral> = {
   [P in keyof Repository<T>]?: Repository<T>[P] extends (

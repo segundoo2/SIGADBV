@@ -23,13 +23,13 @@ import {
 } from '@nestjs/swagger';
 import { IUsersController } from './interfaces/users.controller.interface';
 import type { IUsersService } from './interfaces/users.service.interface';
-import { EUsersSuccess } from '../../common/enum/users-sucess.enum';
+import { EUsersSuccess } from '../../common/enum/user/users-sucess.enum';
 import { CreateUserDto, UserDto } from './dtos/user.dto';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
 // import { PermissionGuard } from '../../common/guards/permission.guard';
 import { User } from './entities/user.entity';
 import { IResponse } from '../../common/interfaces/response.interface';
-import { EPermission } from '../../common/enum/permissions.enum';
+import { EPermission } from '../../common/enum/role/permissions.enum';
 import { RequiresPermission } from '../../common/decorators/permission.decorator';
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';

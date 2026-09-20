@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { ECategorySuccess } from '../../../common/enum/category-success.enum';
+import { ECategorySuccess } from '../../../common/enum/category/category-success.enum';
 import { IResponse } from '../../../common/interfaces/response.interface';
 import { CategoriesService } from '../categories.service';
 import { CategoryDto } from '../dtos/category.dto';
 import { Category } from '../entities/category.entity';
 import { ICategoriesRepository } from '../interfaces/categories.repository.interface';
 import { ICategoriesService } from '../interfaces/categories.service.interface';
-import { ECategoryErrors } from '../../../common/enum/category-errors.enum';
+import { ECategoryErrors } from '../../../common/enum/category/category-errors.enum';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { DeleteResult, UpdateResult } from 'typeorm';
 import { PaginationQueryDto } from '../../../common/dtos/pagination-query.dto';

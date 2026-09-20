@@ -33,8 +33,8 @@ import { TenantId } from '../../common/decorators/tenant-id.decorator';
 import { AllocateLocationDto } from './dtos/allocate-product-location.dto';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
 import { RequiresPermission } from '../../common/decorators/permission.decorator';
-import { EErrorsGlobal } from '../../common/enum/errors-global.enum';
-import { EPermission } from '../../common/enum/permissions.enum';
+import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
+import { EPermission } from '../../common/enum/role/permissions.enum';
 import { Movement } from './entities/movement.entity';
 import { PermissionGuard } from '../../common/guards/permission.guard';
 

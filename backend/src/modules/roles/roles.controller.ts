@@ -18,7 +18,7 @@ import { IRolesController } from './interfaces/roles.controller.interface';
 import { UpdateRoleDto } from './dtos/update-role.dto';
 import { Role } from './entities/role.entity';
 import { PermissionGuard } from '../../common/guards/permission.guard';
-import { EPermission } from '../../common/enum/permissions.enum';
+import { EPermission } from '../../common/enum/role/permissions.enum';
 import { IResponse } from '../../common/interfaces/response.interface';
 import { RoleDto } from './dtos/role.dto';
 import { RequiresPermission } from '../../common/decorators/permission.decorator';

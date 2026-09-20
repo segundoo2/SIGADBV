@@ -28,7 +28,7 @@ import { Product } from './entities/product.entity';
 import { IResponse } from '../../common/interfaces/response.interface';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { PermissionGuard } from '../../common/guards/permission.guard';
-import { EPermission } from '../../common/enum/permissions.enum';
+import { EPermission } from '../../common/enum/role/permissions.enum';
 import { RequiresPermission } from '../../common/decorators/permission.decorator';
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';

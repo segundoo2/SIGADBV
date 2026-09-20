@@ -4,7 +4,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { IJwtPayloadWithExpiry } from '../../modules/auth/interfaces/jwt-payload.interface';
 import { RequestWithCookies } from './interfaces/req-with-cookies.interface';
 import { JwtRefreshStrategy } from './refresh-token.strategy';
-import { EPermission } from '../enum/permissions.enum';
+import { EPermission } from '../enum/role/permissions.enum';
 import { ICacheStorageService } from '../redis/interface/cache-storage.interface';
 
 describe('JwtRefreshStrategy', () => {

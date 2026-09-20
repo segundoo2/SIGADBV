@@ -9,7 +9,7 @@ import {
   ALL_PERMISSIONS,
   EPermission,
   SYSTEM_ADMIN_ROLE_NAME,
-} from '../../common/enum/permissions.enum';
+} from '../../common/enum/role/permissions.enum';
 
 export class PermissionsMetadataDto {
   @ApiProperty({

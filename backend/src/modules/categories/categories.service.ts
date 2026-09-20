@@ -8,9 +8,9 @@ import { ICategoriesService } from './interfaces/categories.service.interface';
 import { IResponse } from '../../common/interfaces/response.interface';
 import { CategoryDto } from './dtos/category.dto';
 import type { ICategoriesRepository } from './interfaces/categories.repository.interface';
-import { ECategorySuccess } from '../../common/enum/category-success.enum';
+import { ECategorySuccess } from '../../common/enum/category/category-success.enum';
 import { Category } from './entities/category.entity';
-import { ECategoryErrors } from '../../common/enum/category-errors.enum';
+import { ECategoryErrors } from '../../common/enum/category/category-errors.enum';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
 

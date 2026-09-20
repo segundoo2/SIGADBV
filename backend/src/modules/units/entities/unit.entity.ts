@@ -7,7 +7,7 @@ import {
   Index,
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { UnitGender } from '../../../common/enum/unit-gender.enum';
+import { EUnitGender } from '../../../common/enum/unit/unit-gender.enum';
 
 @Entity('units')
 @Index(['tenantId', 'name'], { unique: true })
@@ -20,6 +20,14 @@ export class UnitEntity {
   id!: string;
 
   @ApiProperty({
+    description: 'Identificador do clube/inquilino (Multi-tenant)',
+    example: 'd3b07384-d113-4ec6-a4f6-53856372d681',
+  })
+  @Column({ name: 'tenant_id', type: 'uuid', nullable: false })
+  @Index()
+  tenantId!: string;
+
+  @ApiProperty({
     description: 'Nome da unidade de desbravadores',
     example: 'Unidade Alpha',
     maxLength: 150,
@@ -28,26 +36,18 @@ export class UnitEntity {
   name!: string;
 
   @ApiProperty({
-    description: 'Gênero/categoria da unidade',
-    enum: UnitGender,
-    example: UnitGender.MALE,
-    default: UnitGender.MALE,
+    description: 'Gênero da unidade',
+    enum: EUnitGender,
+    example: EUnitGender.MALE,
+    default: EUnitGender.MALE,
   })
   @Column({
     type: 'enum',
-    enum: UnitGender,
+    enum: EUnitGender,
     nullable: false,
-    default: UnitGender.MALE,
+    default: EUnitGender.MALE,
   })
-  gender!: UnitGender;
-
-  @ApiProperty({
-    description: 'Identificador do clube/inquilino (Multi-tenant)',
-    example: 'd3b07384-d113-4ec6-a4f6-53856372d681',
-  })
-  @Column({ name: 'tenant_id', type: 'uuid', nullable: false })
-  @Index()
-  tenantId!: string;
+  gender!: EUnitGender;
 
   @ApiProperty({
     description: 'Número máximo de membros permitidos na unidade',

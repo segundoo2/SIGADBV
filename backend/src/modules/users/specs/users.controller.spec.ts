@@ -3,10 +3,10 @@ import { createFakeUser } from '../../../common/helpers/create-fake-user.helper'
 import { IResponse } from '../../../common/interfaces/response.interface';
 import { UserDto } from '../dtos/user.dto';
 import { User } from '../entities/user.entity';
-import { EUsersSuccess } from '../../../common/enum/users-sucess.enum';
+import { EUsersSuccess } from '../../../common/enum/user/users-sucess.enum';
 import { IUsersService } from '../interfaces/users.service.interface';
 import { UsersController } from '../users.controller';
-import { ERolesSuccess } from '../../../common/enum/roles-success.enum';
+import { ERolesSuccess } from '../../../common/enum/role/roles-success.enum';
 import { IPaginatedResponse } from '../../../common/interfaces/paginated-response.interface';
 
 describe('UsersController', () => {

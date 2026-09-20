@@ -1,6 +1,6 @@
 import { User } from '../../modules/users/entities/user.entity';
 import { Role } from '../../modules/roles/entities/role.entity';
-import { EPermission } from '../enum/permissions.enum';
+import { EPermission } from '../enum/role/permissions.enum';
 
 export function createFakeUser(): User {
   const role = new Role();

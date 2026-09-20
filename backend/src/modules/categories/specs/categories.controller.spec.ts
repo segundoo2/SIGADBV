@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { PaginationQueryDto } from '../../../common/dtos/pagination-query.dto';
-import { ECategorySuccess } from '../../../common/enum/category-success.enum';
+import { ECategorySuccess } from '../../../common/enum/category/category-success.enum';
 import { IResponse } from '../../../common/interfaces/response.interface';
 import { CategoriesController } from '../categories.controller';
 import { CategoryDto } from '../dtos/category.dto';

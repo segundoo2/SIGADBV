@@ -6,7 +6,7 @@ import { RoleDto } from '../dtos/role.dto';
 import { UpdateRoleDto } from '../dtos/update-role.dto';
 import { Role } from '../entities/role.entity';
 import { IResponse } from '../../../common/interfaces/response.interface';
-import { ERolesSuccess } from '../../../common/enum/roles-success.enum';
+import { ERolesSuccess } from '../../../common/enum/role/roles-success.enum';
 import { PaginationQueryDto } from '../../../common/dtos/pagination-query.dto';
 import { IPaginatedResponse } from '../../../common/interfaces/paginated-response.interface';
 

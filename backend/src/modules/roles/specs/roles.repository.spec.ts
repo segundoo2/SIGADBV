@@ -16,8 +16,8 @@ import { RolesRepository } from '../roles.repository';
 import { Role } from '../entities/role.entity';
 import { RoleDto } from '../dtos/role.dto';
 import { UpdateRoleDto } from '../dtos/update-role.dto';
-import { ERolesErrors } from '../../../common/enum/roles-errors.enum';
-import { EErrorsGlobal } from '../../../common/enum/errors-global.enum';
+import { ERolesErrors } from '../../../common/enum/role/roles-errors.enum';
+import { EErrorsGlobal } from '../../../common/enum/global/errors-global.enum';
 import { IDatabaseDriverError } from '../../../common/interfaces/database-driver-Error.interface';
 import { PaginationQueryDto } from '../../../common/dtos/pagination-query.dto';
 

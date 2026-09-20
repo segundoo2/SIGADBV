@@ -6,8 +6,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
-import { ELocationErrorsMessage } from '../../common/enum/location-errors.enum';
-import { ELocationSuccessMessage } from '../../common/enum/location-success.enum';
+import { ELocationErrorsMessage } from '../../common/enum/location/location-errors.enum';
+import { ELocationSuccessMessage } from '../../common/enum/location/location-success.enum';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
 import { IPaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import { IResponse } from '../../common/interfaces/response.interface';

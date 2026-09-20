@@ -33,8 +33,8 @@ import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
 import { IResponse } from '../../common/interfaces/response.interface';
 import { IPaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
-import { EPermission } from '../../common/enum/permissions.enum';
-import { EErrorsGlobal } from '../../common/enum/errors-global.enum';
+import { EPermission } from '../../common/enum/role/permissions.enum';
+import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 import { RequiresPermission } from '../../common/decorators/permission.decorator';
 
 @ApiTags('locations')

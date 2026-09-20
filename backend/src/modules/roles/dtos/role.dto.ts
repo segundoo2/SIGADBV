@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsEnum, IsNotEmpty, IsString, Length } from 'class-validator';
-import { EPermission } from '../../../common/enum/permissions.enum';
+import { EPermission } from '../../../common/enum/role/permissions.enum';
 
 export class RoleDto {
   @ApiProperty({ example: 'Operador de Estoque' })

@@ -8,7 +8,7 @@ import {
   Min,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { UnitGender } from '../../../common/enum/unit-gender.enum';
+import { EUnitGender } from '../../../common/enum/unit/unit-gender.enum';
 
 export class CreateUnitDto {
   @ApiProperty({
@@ -25,15 +25,15 @@ export class CreateUnitDto {
 
   @ApiProperty({
     description: 'Gênero/categoria da unidade',
-    enum: UnitGender,
-    example: UnitGender.MALE,
-    default: UnitGender.MALE,
+    enum: EUnitGender,
+    example: EUnitGender.MALE,
+    default: EUnitGender.MALE,
   })
-  @IsEnum(UnitGender, {
-    message: 'Informe um gênero de unidade válido (MALE, FEMALE, COED).',
+  @IsEnum(EUnitGender, {
+    message: 'Informe um gênero de unidade válido (MALE, FEMALE ou MIXED ).',
   })
   @IsNotEmpty({ message: 'O gênero da unidade é obrigatório.' })
-  gender!: UnitGender;
+  gender!: EUnitGender;
 
   @ApiPropertyOptional({
     description: 'Número máximo de membros permitidos na unidade',

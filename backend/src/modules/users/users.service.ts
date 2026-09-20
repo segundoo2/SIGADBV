@@ -14,12 +14,12 @@ import { UserDto } from './dtos/user.dto';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
 import { UpdateResult } from 'typeorm';
 import type { ICacheStorageService } from '../../common/redis/interface/cache-storage.interface';
-import { EUsersSuccess } from '../../common/enum/users-sucess.enum';
-import { EUsersErrors } from '../../common/enum/users-errors.enum';
+import { EUsersSuccess } from '../../common/enum/user/users-sucess.enum';
+import { EUsersErrors } from '../../common/enum/user/users-errors.enum';
 import { IResponse } from '../../common/interfaces/response.interface';
 import type { IRolesRepository } from '../roles/interfaces/roles.repository.interface';
-import { ERolesErrors } from '../../common/enum/roles-errors.enum';
-import { ERolesSuccess } from '../../common/enum/roles-success.enum';
+import { ERolesErrors } from '../../common/enum/role/roles-errors.enum';
+import { ERolesSuccess } from '../../common/enum/role/roles-success.enum';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
 import { IPaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 

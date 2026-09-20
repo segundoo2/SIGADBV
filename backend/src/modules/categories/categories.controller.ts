@@ -21,7 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { RequiresPermission } from '../../common/decorators/permission.decorator';
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
-import { EPermission } from '../../common/enum/permissions.enum';
+import { EPermission } from '../../common/enum/role/permissions.enum';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PermissionGuard } from '../../common/guards/permission.guard';
 import { IResponse } from '../../common/interfaces/response.interface';

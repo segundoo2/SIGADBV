@@ -4,7 +4,7 @@ import { DeleteResult, ObjectLiteral, Repository, UpdateResult } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { UsersRepository } from '../users.repository';
 import { InternalServerErrorException } from '@nestjs/common';
-import { EErrorsGlobal } from '../../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../../common/enum/global/errors-global.enum';
 import { UserDto } from '../dtos/user.dto';
 import { createFakeUser } from '../../../common/helpers/create-fake-user.helper';
 
