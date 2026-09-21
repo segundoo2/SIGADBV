@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../../app.module';
 import { Role } from '../../modules/roles/entities/role.entity';
-import { syncAdminRolePermissions } from './sync-permissions.seed';
+import { syncAdminRolePermissions } from './run-sync-permission.seed';
 
 async function execute(): Promise<void> {
   try {
