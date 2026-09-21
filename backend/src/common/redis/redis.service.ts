@@ -52,7 +52,13 @@ export class RedisService
 
   async get(key: string): Promise<string | null> {
     this.logCommand('GET', key);
-    return await this.client.get(key);
+    const result = await this.client.get(key);
+
+    if (typeof result === 'string') {
+      return result;
+    }
+
+    return null;
   }
 
   async delete(key: string): Promise<void> {
