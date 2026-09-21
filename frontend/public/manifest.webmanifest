@@ -3,8 +3,8 @@
   "short_name": "SIGADBV",
   "start_url": "/auth",
   "display": "standalone",
-  "background_color": "#620617",
-  "theme_color": "#620617",
+  "background_color": "#020617",
+  "theme_color": "#0f172b",
   "icons": [
     {
       "src": "/icons/android-chrome-192x192.png",
