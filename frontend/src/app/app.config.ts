@@ -24,6 +24,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideHttpClient(withInterceptors([tenantInterceptor])),
+    provideServiceWorker('ngsw-worker.ts', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
     //infra
     {
       provide: TENANT_CONTEXT_PORT,
