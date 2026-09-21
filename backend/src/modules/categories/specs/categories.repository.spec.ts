@@ -5,7 +5,7 @@ import { ICategoriesRepository } from '../interfaces/categories.repository.inter
 import { CategoriesRepository } from '../categories.repository';
 import { CategoryDto } from '../dtos/category.dto';
 import { InternalServerErrorException } from '@nestjs/common';
-import { EErrorsGlobal } from '../../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../../common/enum/global/errors-global.enum';
 import { PaginationQueryDto } from '../../../common/dtos/pagination-query.dto';
 
 describe('CategoriesRepository', () => {

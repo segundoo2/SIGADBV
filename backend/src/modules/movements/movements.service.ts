@@ -1,8 +1,8 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
-import { EMovementsSuccess } from '../../common/enum/movements-success.enum';
-import { EProductsErrors } from '../../common/enum/products-errors.enum';
+import { EMovementsSuccess } from '../../common/enum/movements/movements-success.enum';
+import { EProductsErrors } from '../../common/enum/product/products-errors.enum';
 import { IPaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 import { IResponse } from '../../common/interfaces/response.interface';
 import type { ILocationsService } from '../locations/interfaces/locations.service.interface';

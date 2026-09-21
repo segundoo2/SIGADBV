@@ -3,7 +3,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { IJwtPayload } from '../../modules/auth/interfaces/jwt-payload.interface';
 import { RequestWithCookies } from './interfaces/req-with-cookies.interface';
 import { JwtStrategy, cookieJwtExtractor } from './jwt.strategy';
-import { EPermission } from '../enum/permissions.enum';
+import { EPermission } from '../enum/role/permissions.enum';
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;

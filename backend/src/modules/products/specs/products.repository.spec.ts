@@ -6,7 +6,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { ProductsRepository } from '../products.repository';
 import { ProductDto } from '../dtos/product.dto';
 import { InternalServerErrorException } from '@nestjs/common';
-import { EErrorsGlobal } from '../../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../../common/enum/global/errors-global.enum';
 import { UpdateProductDto } from '../dtos/update-product.dto';
 import { PaginationQueryDto } from '../../../common/dtos/pagination-query.dto';
 

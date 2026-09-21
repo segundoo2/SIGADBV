@@ -3,10 +3,10 @@ import { createFakeUser } from '../../../common/helpers/create-fake-user.helper'
 import { IResponse } from '../../../common/interfaces/response.interface';
 import { UserDto } from '../dtos/user.dto';
 import { User } from '../entities/user.entity';
-import { EUsersSuccess } from '../../../common/enum/users-sucess.enum';
+import { EUsersSuccess } from '../../../common/enum/user/users-sucess.enum';
 import { IUsersService } from '../interfaces/users.service.interface';
 import { UsersController } from '../users.controller';
-import { ERolesSuccess } from '../../../common/enum/roles-success.enum';
+import { ERolesSuccess } from '../../../common/enum/role/roles-success.enum';
 import { IPaginatedResponse } from '../../../common/interfaces/paginated-response.interface';
 
 describe('UsersController', () => {
@@ -34,7 +34,7 @@ describe('UsersController', () => {
     it('should forward response data context directly from service layer', async () => {
       const response: IResponse<{ temporaryPassword: string }> = {
         message: EUsersSuccess.CREATE_USER,
-        data: { temporaryPassword: '12345678' },
+        data: { temporaryPassword: '1234567890ab' },
       };
       const userDto: UserDto & {
         tenantId: string;
@@ -106,7 +106,7 @@ describe('UsersController', () => {
     it('should return corresponding payload details containing update responses', async () => {
       const response: IResponse<string | null> = {
         message: EUsersSuccess.PASSWORD_UPDATE,
-        data: '12345678',
+        data: '1234567890ab',
       };
       const userDto: UserDto & {
         tenantId: string;

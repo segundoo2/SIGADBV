@@ -9,12 +9,12 @@ import {
   IJwtPayload,
   IJwtPayloadWithExpiry,
 } from '../interfaces/jwt-payload.interface';
-import { EPermission } from '../../../common/enum/permissions.enum';
-import { EAuthSuccess } from '../../../common/enum/auth-success.enum';
+import { EPermission } from '../../../common/enum/role/permissions.enum';
+import { EAuthSuccess } from '../../../common/enum/auth/auth-success.enum';
 import { LoginDto } from '../dtos/login.dto';
-import { EErrorsGlobal } from '../../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../../common/enum/global/errors-global.enum';
 import { ICacheStorageService } from '../../../common/redis/interface/cache-storage.interface';
-import { EAuthErrors } from '../../../common/enum/auth-errors.enum';
+import { EAuthErrors } from '../../../common/enum/auth/auth-errors.enum';
 
 describe('AuthService', () => {
   let service: AuthService;

@@ -24,14 +24,14 @@ import { IAuthController } from './interfaces/auth.controller.interface';
 import type { IAuthService } from './interfaces/auth.service.interface';
 import { SetCookiesInterceptor } from '../../common/interceptors/set-cookie.interceptor';
 import type { IJwtPayloadWithExpiry } from './interfaces/jwt-payload.interface';
-import { EAuthSuccess } from '../../common/enum/auth-success.enum';
+import { EAuthSuccess } from '../../common/enum/auth/auth-success.enum';
 import { LoginDto } from './dtos/login.dto';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtRefreshGuard } from '../../common/guards/jwt-refresh.guard';
 import { ITokens } from './interfaces/token.interface';
 import { ILoginResponse } from './interfaces/login-response.interface';
-import { EErrorsGlobal } from '../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 
 @ApiTags('Authentication')
 @Controller('auth')

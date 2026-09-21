@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { NotFoundException } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
-import { EMovementsSuccess } from '../../../common/enum/movements-success.enum';
-import { EProductsErrors } from '../../../common/enum/products-errors.enum';
+import { EMovementsSuccess } from '../../../common/enum/movements/movements-success.enum';
+import { EProductsErrors } from '../../../common/enum/product/products-errors.enum';
 import { ILocationsService } from '../../locations/interfaces/locations.service.interface';
 import { Product } from '../../products/entities/product.entity';
 import { IProductsService } from '../../products/interfaces/products.service.interface';

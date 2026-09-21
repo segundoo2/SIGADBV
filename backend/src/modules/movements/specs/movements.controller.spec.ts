@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { BadRequestException } from '@nestjs/common';
-import { EMovementsSuccess } from '../../../common/enum/movements-success.enum';
-import { EErrorsGlobal } from '../../../common/enum/errors-global.enum';
+import { EMovementsSuccess } from '../../../common/enum/movements/movements-success.enum';
+import { EErrorsGlobal } from '../../../common/enum/global/errors-global.enum';
 import { IPaginatedResponse } from '../../../common/interfaces/paginated-response.interface';
 import { IResponse } from '../../../common/interfaces/response.interface';
 import { AllocateLocationDto } from '../dtos/allocate-product-location.dto';

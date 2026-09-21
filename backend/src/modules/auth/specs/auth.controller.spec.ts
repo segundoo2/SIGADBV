@@ -4,9 +4,9 @@ import { AuthController } from '../auth.controller';
 import { IAuthService } from '../interfaces/auth.service.interface';
 import { IJwtPayloadWithExpiry } from '../interfaces/jwt-payload.interface';
 import { LoginDto } from '../dtos/login.dto';
-import { EPermission } from '../../../common/enum/permissions.enum';
+import { EPermission } from '../../../common/enum/role/permissions.enum';
 import type { Response } from 'express';
-import { EAuthSuccess } from '../../../common/enum/auth-success.enum';
+import { EAuthSuccess } from '../../../common/enum/auth/auth-success.enum';
 
 describe('AuthController', () => {
   let controller: AuthController;

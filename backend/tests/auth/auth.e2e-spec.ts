@@ -5,8 +5,8 @@ import cookieParser from 'cookie-parser';
 import { Server } from 'http';
 import { AppModule } from '../../src/app.module';
 import { setupTestDatabase, cleanTestDatabase } from './setup.helper';
-import { EAuthSuccess } from '../../src/common/enum/auth-success.enum';
-import { EErrorsGlobal } from '../../src/common/enum/errors-global.enum';
+import { EAuthSuccess } from '../../src/common/enum/auth/auth-success.enum';
+import { EErrorsGlobal } from '../../src/common/enum/global/errors-global.enum';
 
 describe('AuthModule', () => {
   let app: INestApplication;
@@ -227,12 +227,12 @@ describe('AuthModule', () => {
         .set('Cookie', cookieHeader)
         .expect(200);
 
-      const refreshAttempt = await request(httpServer)
+      // Atualizado para esperar 401 Unauthorized após o token ser revogado no logout
+      await request(httpServer)
         .post('/auth/refresh')
         .set('user-agent', 'Supertest-E2E-Agent')
-        .set('Cookie', cookieHeader);
-
-      expect(refreshAttempt.status).toBeGreaterThanOrEqual(400);
+        .set('Cookie', cookieHeader)
+        .expect(401);
     });
   });
 });

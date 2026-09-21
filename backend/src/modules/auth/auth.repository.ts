@@ -3,7 +3,7 @@ import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IAuthRepository } from './interfaces/auth.repository.interface';
-import { EErrorsGlobal } from '../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 
 @Injectable()
 export class AuthRepository implements IAuthRepository {

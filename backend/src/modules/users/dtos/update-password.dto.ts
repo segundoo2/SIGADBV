@@ -7,7 +7,7 @@ import {
   Length,
   IsBoolean,
 } from 'class-validator';
-import { EUsersErrors } from '../../../common/enum/users-errors.enum';
+import { EUsersErrors } from '../../../common/enum/user/users-errors.enum';
 
 export abstract class UpdatePasswordDto {
   @ApiProperty({

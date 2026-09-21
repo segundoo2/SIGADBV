@@ -3,7 +3,7 @@ import { UserDto } from '../../users/dtos/user.dto';
 import { User } from '../../users/entities/user.entity';
 import { AuthRepository } from '../auth.repository';
 import { InternalServerErrorException } from '@nestjs/common';
-import { EErrorsGlobal } from '../../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../../common/enum/global/errors-global.enum';
 
 type MockRepository<T extends ObjectLiteral> = Record<
   keyof Repository<T>,

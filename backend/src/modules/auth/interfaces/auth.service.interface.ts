@@ -1,5 +1,5 @@
 import { IJwtPayloadWithExpiry } from './jwt-payload.interface';
-import { EAuthSuccess } from '../../../common/enum/auth-success.enum';
+import { EAuthSuccess } from '../../../common/enum/auth/auth-success.enum';
 import { LoginDto } from '../dtos/login.dto';
 import { ITokens } from './token.interface';
 import { ILoginResponse } from './login-response.interface';

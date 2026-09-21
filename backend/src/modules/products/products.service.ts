@@ -8,10 +8,10 @@ import {
 import type { IProductsRepository } from './interfaces/products.repository.interface';
 import { IProductsService } from './interfaces/products.service.interface';
 import { ProductDto } from './dtos/product.dto';
-import { EProductsSuccess } from '../../common/enum/products-success.enum';
+import { EProductsSuccess } from '../../common/enum/product/products-success.enum';
 import { Product } from './entities/product.entity';
 import { IResponse } from '../../common/interfaces/response.interface';
-import { EProductsErrors } from '../../common/enum/products-errors.enum';
+import { EProductsErrors } from '../../common/enum/product/products-errors.enum';
 import { DeleteResult, EntityManager } from 'typeorm';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';

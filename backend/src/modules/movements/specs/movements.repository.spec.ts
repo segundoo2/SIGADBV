@@ -3,7 +3,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
-import { EErrorsGlobal } from '../../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../../common/enum/global/errors-global.enum';
 import { EMovementType, MovementDto } from '../dtos/movement.dto';
 import { Movement } from '../entities/movement.entity';
 import { MovementsRepository } from '../movements.repository';

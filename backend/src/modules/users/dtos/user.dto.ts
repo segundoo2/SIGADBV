@@ -8,7 +8,7 @@ import {
   IsArray,
   IsUUID,
 } from 'class-validator';
-import { EUsersErrors } from '../../../common/enum/users-errors.enum';
+import { EUsersErrors } from '../../../common/enum/user/users-errors.enum';
 import { Type } from '@nestjs/common';
 
 export abstract class UserDto {

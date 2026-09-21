@@ -7,8 +7,8 @@ import { IRolesRepository } from '../interfaces/roles.repository.interface';
 import { RoleDto } from '../dtos/role.dto';
 import { UpdateRoleDto } from '../dtos/update-role.dto';
 import { Role } from '../entities/role.entity';
-import { ERolesSuccess } from '../../../common/enum/roles-success.enum';
-import { ERolesErrors } from '../../../common/enum/roles-errors.enum';
+import { ERolesSuccess } from '../../../common/enum/role/roles-success.enum';
+import { ERolesErrors } from '../../../common/enum/role/roles-errors.enum';
 import { PaginationQueryDto } from '../../../common/dtos/pagination-query.dto';
 
 describe('RolesService', () => {

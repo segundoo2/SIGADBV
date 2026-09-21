@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { EUsersErrors } from '../../../common/enum/users-errors.enum';
+import { EUsersErrors } from '../../../common/enum/user/users-errors.enum';
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export abstract class LoginDto {

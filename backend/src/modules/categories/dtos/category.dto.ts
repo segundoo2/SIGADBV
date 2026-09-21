@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Category } from '../entities/category.entity';
-import { ECategoryErrors } from '../../../common/enum/category-errors.enum';
+import { ECategoryErrors } from '../../../common/enum/category/category-errors.enum';
 
 export class CategoryDto implements Pick<
   Category,
