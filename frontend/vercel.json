@@ -1,6 +1,6 @@
 {
   "buildCommand": "pnpm build",
-  "outputDirectory": "dist/frontend",
+  "outputDirectory": "dist/frontend/browser",
   "rewrites": [
     {
       "source": "/((?!api/).*)",
