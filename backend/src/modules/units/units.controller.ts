@@ -76,7 +76,6 @@ export class UnitsController implements IUnitsController {
   async findAllUnits(
     @TenantId() tenantId: string,
   ): Promise<IResponse<UnitEntity[]>> {
-    console.log('TENANT ID RECEBIDO PELO DECORATOR:', tenantId);
     return await this.service.findAllUnits(tenantId);
   }
 
