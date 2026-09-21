@@ -14,6 +14,7 @@ import { MovementsModule } from './modules/movements/movements.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { UnitsModule } from './modules/units/units.module';
+import { PermissionGuard } from './common/guards/permission.guard';
 
 @Module({
   imports: [
@@ -52,6 +53,11 @@ import { UnitsModule } from './modules/units/units.module';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard,
     },
     {
       provide: APP_GUARD,

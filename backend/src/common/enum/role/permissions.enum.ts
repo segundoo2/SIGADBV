@@ -26,7 +26,12 @@ export enum EPermission {
 
   MOVEMENT_REGISTER = 'movement.register',
   MOVEMENT_ALLOCATE = 'movement.allocate',
-  MOVIMENT_READ = 'movement.read',
+  MOVEMENT_READ = 'movement.read',
+
+  UNIT_CREATE = 'unit.create',
+  UNIT_READ = 'unit.read',
+  UNIT_UPDATE = 'unit.update',
+  UNIT_DELETE = 'unit.delete',
 }
 
 export const ALL_PERMISSIONS = Object.values(EPermission);

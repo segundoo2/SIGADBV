@@ -10,7 +10,6 @@ import {
   ParseUUIDPipe,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -36,11 +35,9 @@ import { RequiresPermission } from '../../common/decorators/permission.decorator
 import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 import { EPermission } from '../../common/enum/role/permissions.enum';
 import { Movement } from './entities/movement.entity';
-import { PermissionGuard } from '../../common/guards/permission.guard';
 
 @ApiTags('Movements')
 @ApiBearerAuth()
-@UseGuards(PermissionGuard)
 @Controller('movements')
 export class MovementsController implements IMovementsController {
   constructor(
@@ -50,7 +47,7 @@ export class MovementsController implements IMovementsController {
 
   @Get('product/:productId')
   @HttpCode(HttpStatus.OK)
-  @RequiresPermission(EPermission.MOVIMENT_READ)
+  @RequiresPermission(EPermission.MOVEMENT_READ)
   @ApiOperation({
     summary: 'Listar movimentações por produto',
     description:

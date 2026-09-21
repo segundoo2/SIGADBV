@@ -16,6 +16,8 @@ import { UnitEntity } from './entities/unit.entity';
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
 import type { IUnitsService } from './interfaces/units.service.interface';
 import { UpdateUnitDto } from './dto/update-unit.dto';
+import { RequiresPermission } from '../../common/decorators/permission.decorator';
+import { EPermission } from '../../common/enum/role/permissions.enum';
 
 @ApiTags('Units')
 @Controller('units')
@@ -25,6 +27,7 @@ export class UnitsController implements IUnitsController {
   ) {}
 
   @Post()
+  @RequiresPermission(EPermission.UNIT_CREATE)
   @ApiOperation({ summary: 'Criar uma nova unidade' })
   @ApiResponse({
     status: 201,
@@ -44,6 +47,7 @@ export class UnitsController implements IUnitsController {
   }
 
   @Get(':unitName')
+  @RequiresPermission(EPermission.UNIT_READ)
   @ApiOperation({ summary: 'Buscar uma unidade pelo nome' })
   @ApiParam({
     name: 'unitName',
@@ -65,6 +69,7 @@ export class UnitsController implements IUnitsController {
   }
 
   @Get()
+  @RequiresPermission(EPermission.UNIT_READ)
   @ApiOperation({ summary: 'Listar todas as unidades do clube' })
   @ApiResponse({
     status: 200,
@@ -80,6 +85,7 @@ export class UnitsController implements IUnitsController {
   }
 
   @Put(':id')
+  @RequiresPermission(EPermission.UNIT_UPDATE)
   @ApiOperation({ summary: 'Atualizar os dados de uma unidade' })
   @ApiParam({
     name: 'id',
@@ -98,6 +104,7 @@ export class UnitsController implements IUnitsController {
   }
 
   @Delete(':id')
+  @RequiresPermission(EPermission.UNIT_DELETE)
   @ApiOperation({ summary: 'Remover uma unidade' })
   @ApiParam({
     name: 'id',

@@ -10,14 +10,12 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { IRolesService } from './interfaces/roles.service.interface';
 import { IRolesController } from './interfaces/roles.controller.interface';
 import { UpdateRoleDto } from './dtos/update-role.dto';
 import { Role } from './entities/role.entity';
-import { PermissionGuard } from '../../common/guards/permission.guard';
 import { EPermission } from '../../common/enum/role/permissions.enum';
 import { IResponse } from '../../common/interfaces/response.interface';
 import { RoleDto } from './dtos/role.dto';
@@ -25,11 +23,9 @@ import { RequiresPermission } from '../../common/decorators/permission.decorator
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
 import { IPaginatedResponse } from '../../common/interfaces/paginated-response.interface';
-import { Public } from '../../common/decorators/public.decorator';
 
 @ApiTags('Roles')
 @ApiCookieAuth('access_token')
-// @UseGuards(PermissionGuard)
 @Controller('roles')
 export class RolesController implements IRolesController {
   constructor(
@@ -39,7 +35,6 @@ export class RolesController implements IRolesController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @Public()
   @RequiresPermission(EPermission.ROLES_CREATE)
   @ApiOperation({ summary: 'Criar uma nova Role no tenant' })
   async createRole(
