@@ -21,7 +21,7 @@ function getAdminCredentialsFromEnv(): AdminCredentials {
   if (!envPassword || envPassword.trim() === '') {
     const passwordToUse = crypto.randomBytes(6).toString('hex');
     console.info(
-      'ℹ️ Nenhuma senha de admin informada via ambiente. Senha temporária gerada automaticamente.',
+      'ℹ️ Nenhuma senha de super usuário informada via ambiente. Senha temporária gerada automaticamente.',
     );
     return { username, passwordToUse, mustChangePassword: true };
   }
@@ -40,9 +40,7 @@ async function ensureAdminUser(
   });
 
   if (!adminUser) {
-    console.info(
-      `\nCriando o usuário admin automatizado: '${credentials.username}'...`,
-    );
+    console.info(`\nCriando o super usuário: '${credentials.username}'...`);
     const hashedPassword = await bcrypt.hash(credentials.passwordToUse, 10);
 
     adminUser = userRepository.create({
@@ -56,7 +54,9 @@ async function ensureAdminUser(
     await userRepository.save(adminUser);
 
     console.info(`\n--------------------------------------------------`);
-    console.info(`✅ Usuário '${credentials.username}' criado com sucesso!`);
+    console.info(
+      `✅ Super usuário '${credentials.username}' criado com sucesso!`,
+    );
     if (credentials.mustChangePassword) {
       console.info(`🔑 SENHA TEMPORÁRIA GERADA: ${credentials.passwordToUse}`);
       console.info(`⚠️ O usuário precisará alterar a senha no primeiro login.`);
@@ -89,7 +89,7 @@ export async function runCreateAdminSeed(
   const roleRepository = dataSource.getRepository(Role);
 
   console.info(
-    '🌱 Iniciando o processo automatizado de criação/configuração de administrador...',
+    '🌱 Iniciando o processo automatizado de criação/configuração de super usuário...',
   );
 
   const adminRole = await syncAdminRolePermissions(roleRepository);

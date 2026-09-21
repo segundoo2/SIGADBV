@@ -36,4 +36,4 @@ export enum EPermission {
 
 export const ALL_PERMISSIONS = Object.values(EPermission);
 
-export const SYSTEM_ADMIN_ROLE_NAME = 'Admin';
+export const SYSTEM_ADMIN_ROLE_NAME = 'Super Usuário';
