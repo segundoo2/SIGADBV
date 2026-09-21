@@ -63,7 +63,6 @@ export class AuthApiAdapter implements IAuthApiPort {
       return err;
     }
 
-    // Retorno padrão garantido para satisfazer a tipagem estrita do TypeScript
     return new Error('Ops! Ocorreu um erro inesperado ao conectar com o servidor.');
   }
 }
