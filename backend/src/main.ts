@@ -56,7 +56,7 @@ async function bootstrap() {
     }),
   );
 
-  // Configuração de CORS: libera sem origem em dev, e valida subdomínios dinâmicos
+  // Configuração de CORS: libera requisições sem origem e valida subdomínios dinâmicos
   const baseOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
     : ['http://localhost:4200'];
@@ -66,16 +66,9 @@ async function bootstrap() {
       origin: string | undefined,
       callback: (error: Error | null, allow?: boolean) => void,
     ) => {
-      // 1. Libera requisições sem origem estritamente em desenvolvimento (Postman/cURL)
       if (!origin) {
-        const isDev = process.env.NODE_ENV !== 'production';
-        if (isDev) {
-          callback(null, true);
-          return;
-        } else {
-          callback(new Error('Requisições sem origem não são permitidas.'));
-          return;
-        }
+        callback(null, true);
+        return;
       }
 
       // 2. Validação de exatidão ou subdomínios dinâmicos
