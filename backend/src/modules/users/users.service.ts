@@ -8,7 +8,7 @@ import {
 import { IUsersService } from './interfaces/users.service.interface';
 import type { IUsersRepository } from './interfaces/users.repository.interface';
 import { User } from './entities/user.entity';
-import * as generatePassword from 'generate-password';
+import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { UserDto } from './dtos/user.dto';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
@@ -221,13 +221,6 @@ export class UsersService implements IUsersService {
   }
 
   private generateTemporaryPassword(): string {
-    return generatePassword.generate({
-      length: 8,
-      numbers: true,
-      symbols: true,
-      uppercase: true,
-      lowercase: true,
-      strict: true,
-    });
+    return crypto.randomBytes(6).toString('hex');
   }
 }

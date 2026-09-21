@@ -17,10 +17,10 @@ describe('UsersRepository', () => {
   let ormRepositoryMock: MockRepository<User>;
 
   const user = createFakeUser();
-  user.password = '12345678';
+  user.password = '123456789102';
   const roleId = 'c22e5a7d-b2b2-4d76-8809-51a81231f24d';
 
-  const userDto: UserDto = {
+  const userDto: UserDto & { tenantId: string; mustChangePassword: boolean } = {
     tenantId: '1',
     username: user.username,
     roleIds: [roleId],

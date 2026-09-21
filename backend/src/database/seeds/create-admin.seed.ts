@@ -1,6 +1,5 @@
 import { DataSource, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import * as readline from 'readline';
 import * as crypto from 'crypto';
 import { User } from '../../modules/users/entities/user.entity';
 import { Role } from '../../modules/roles/entities/role.entity';
@@ -15,38 +14,19 @@ interface AdminCredentials {
 
 const DEFAULT_TENANT_ID = '00000000-0000-0000-0000-000000000000';
 
-function askQuestion(query: string): Promise<string> {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
+function getAdminCredentialsFromEnv(): AdminCredentials {
+  const username = process.env.ADMIN_USERNAME || 'admin.super';
+  const envPassword = process.env.ADMIN_PASSWORD;
 
-  return new Promise((resolve) => {
-    rl.question(query, (answer) => {
-      rl.close();
-      resolve(answer.trim());
-    });
-  });
-}
-
-async function promptAdminCredentials(): Promise<AdminCredentials> {
-  console.info('\n--- Configuração do Usuário Administrador ---');
-
-  const inputUsername = await askQuestion(
-    'Digite o username do admin (Deixe vazio para usar "admin"): ',
-  );
-  const username = inputUsername !== '' ? inputUsername : 'admin';
-
-  const inputPassword = await askQuestion(
-    'Digite a senha do admin (deixe vazio para gerar automaticamente): ',
-  );
-
-  if (inputPassword === '') {
+  if (!envPassword || envPassword.trim() === '') {
     const passwordToUse = crypto.randomBytes(6).toString('hex');
+    console.info(
+      'ℹ️ Nenhuma senha de admin informada via ambiente. Senha temporária gerada automaticamente.',
+    );
     return { username, passwordToUse, mustChangePassword: true };
   }
 
-  return { username, passwordToUse: inputPassword, mustChangePassword: false };
+  return { username, passwordToUse: envPassword, mustChangePassword: false };
 }
 
 async function ensureAdminUser(
@@ -60,7 +40,9 @@ async function ensureAdminUser(
   });
 
   if (!adminUser) {
-    console.info(`\nCriando o usuário admin: '${credentials.username}'...`);
+    console.info(
+      `\nCriando o usuário admin automatizado: '${credentials.username}'...`,
+    );
     const hashedPassword = await bcrypt.hash(credentials.passwordToUse, 10);
 
     adminUser = userRepository.create({
@@ -79,7 +61,7 @@ async function ensureAdminUser(
       console.info(`🔑 SENHA TEMPORÁRIA GERADA: ${credentials.passwordToUse}`);
       console.info(`⚠️ O usuário precisará alterar a senha no primeiro login.`);
     } else {
-      console.info(`🔑 Senha definida manualmente.`);
+      console.info(`🔑 Senha definida via variável de ambiente.`);
     }
     console.info(`--------------------------------------------------\n`);
   } else {
@@ -107,12 +89,12 @@ export async function runCreateAdminSeed(
   const roleRepository = dataSource.getRepository(Role);
 
   console.info(
-    '🌱 Iniciando o processo de criação/configuração de administrador...',
+    '🌱 Iniciando o processo automatizado de criação/configuração de administrador...',
   );
 
   const adminRole = await syncAdminRolePermissions(roleRepository);
 
-  const credentials = await promptAdminCredentials();
+  const credentials = getAdminCredentialsFromEnv();
 
   await ensureAdminUser(userRepository, adminRole, credentials);
 

@@ -86,7 +86,7 @@ describe('UsersService', () => {
       const result = await service.createUser(createDto);
 
       expect(result.message).toBe(EUsersSuccess.CREATE_USER);
-      expect(result.data.temporaryPassword).toHaveLength(8);
+      expect(result.data.temporaryPassword).toHaveLength(12);
       expect(mockRolesRepository.findRolesByIds).toHaveBeenCalledWith(
         createDto.roleIds,
         createDto.tenantId,
@@ -180,7 +180,7 @@ describe('UsersService', () => {
       const result = await service.updateUserPassword(baseDto);
 
       expect(result.message).toBe(EUsersSuccess.PASSWORD_UPDATE);
-      expect(result.data).toHaveLength(8);
+      expect(result.data).toHaveLength(12);
       expect(mockUsersRepository.updateUserPassword).toHaveBeenCalledWith(
         expect.objectContaining({
           username: user.username,

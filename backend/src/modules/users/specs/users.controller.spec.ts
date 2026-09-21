@@ -34,7 +34,7 @@ describe('UsersController', () => {
     it('should forward response data context directly from service layer', async () => {
       const response: IResponse<{ temporaryPassword: string }> = {
         message: EUsersSuccess.CREATE_USER,
-        data: { temporaryPassword: '12345678' },
+        data: { temporaryPassword: '1234567890ab' },
       };
       const userDto: UserDto & {
         tenantId: string;
@@ -106,7 +106,7 @@ describe('UsersController', () => {
     it('should return corresponding payload details containing update responses', async () => {
       const response: IResponse<string | null> = {
         message: EUsersSuccess.PASSWORD_UPDATE,
-        data: '12345678',
+        data: '1234567890ab',
       };
       const userDto: UserDto & {
         tenantId: string;
