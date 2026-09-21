@@ -1,7 +1,7 @@
 {
   "name": "SIGADBV",
   "short_name": "SIGADBV",
-  "start_url": "/",
+  "start_url": "/auth",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#df382c",
