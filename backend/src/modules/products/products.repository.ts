@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { ProductDto } from './dtos/product.dto';
-import { EErrorsGlobal } from '../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 import { DeleteResult, EntityManager, Repository, UpdateResult } from 'typeorm';
 import { UpdateProductDto } from './dtos/update-product.dto';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';

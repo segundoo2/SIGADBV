@@ -4,17 +4,17 @@ import {
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
-import { EUsersSuccess } from '../../../common/enum/users-sucess.enum';
+import { EUsersSuccess } from '../../../common/enum/user/users-sucess.enum';
 import { IUsersRepository } from '../interfaces/users.repository.interface';
 import { UsersService } from '../users.service';
-import { EUsersErrors } from '../../../common/enum/users-errors.enum';
-import { ERolesErrors } from '../../../common/enum/roles-errors.enum';
+import { EUsersErrors } from '../../../common/enum/user/users-errors.enum';
+import { ERolesErrors } from '../../../common/enum/role/roles-errors.enum';
 import { UpdateResult } from 'typeorm';
 import { ICacheStorageService } from '../../../common/redis/interface/cache-storage.interface';
 import { IRolesRepository } from '../../roles/interfaces/roles.repository.interface';
 import { createFakeUser } from '../../../common/helpers/create-fake-user.helper';
 import { Role } from '../../roles/entities/role.entity';
-import { ERolesSuccess } from '../../../common/enum/roles-success.enum';
+import { ERolesSuccess } from '../../../common/enum/role/roles-success.enum';
 import { User } from '../entities/user.entity';
 
 describe('UsersService', () => {
@@ -86,7 +86,7 @@ describe('UsersService', () => {
       const result = await service.createUser(createDto);
 
       expect(result.message).toBe(EUsersSuccess.CREATE_USER);
-      expect(result.data.temporaryPassword).toHaveLength(8);
+      expect(result.data.temporaryPassword).toHaveLength(12);
       expect(mockRolesRepository.findRolesByIds).toHaveBeenCalledWith(
         createDto.roleIds,
         createDto.tenantId,
@@ -180,7 +180,7 @@ describe('UsersService', () => {
       const result = await service.updateUserPassword(baseDto);
 
       expect(result.message).toBe(EUsersSuccess.PASSWORD_UPDATE);
-      expect(result.data).toHaveLength(8);
+      expect(result.data).toHaveLength(12);
       expect(mockUsersRepository.updateUserPassword).toHaveBeenCalledWith(
         expect.objectContaining({
           username: user.username,

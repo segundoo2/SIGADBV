@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 import { IJwtPayloadWithExpiry } from '../../modules/auth/interfaces/jwt-payload.interface';
 import { RequestWithCookies } from './interfaces/req-with-cookies.interface';
-import { EErrorsGlobal } from '../enum/errors-global.enum';
+import { EErrorsGlobal } from '../enum/global/errors-global.enum';
 import type { ICacheStorageService } from '../redis/interface/cache-storage.interface';
 
 export const cookieRefreshExtractor = (

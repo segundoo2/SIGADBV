@@ -13,6 +13,8 @@ import { RolesModule } from './modules/roles/roles.module';
 import { MovementsModule } from './modules/movements/movements.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { UnitsModule } from './modules/units/units.module';
+import { PermissionGuard } from './common/guards/permission.guard';
 
 @Module({
   imports: [
@@ -43,6 +45,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     LocationsModule,
     RolesModule,
     MovementsModule,
+    UnitsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -50,6 +53,11 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard,
     },
     {
       provide: APP_GUARD,

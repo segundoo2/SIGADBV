@@ -1,4 +1,4 @@
-import { ELocationSuccessMessage } from '../../../common/enum/location-success.enum';
+import { ELocationSuccessMessage } from '../../../common/enum/location/location-success.enum';
 import { IPaginatedResponse } from '../../../common/interfaces/paginated-response.interface';
 import { IResponse } from '../../../common/interfaces/response.interface';
 import { LocationDto } from '../dtos/location.dto';

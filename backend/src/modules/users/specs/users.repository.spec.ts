@@ -4,7 +4,7 @@ import { DeleteResult, ObjectLiteral, Repository, UpdateResult } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { UsersRepository } from '../users.repository';
 import { InternalServerErrorException } from '@nestjs/common';
-import { EErrorsGlobal } from '../../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../../common/enum/global/errors-global.enum';
 import { UserDto } from '../dtos/user.dto';
 import { createFakeUser } from '../../../common/helpers/create-fake-user.helper';
 
@@ -17,10 +17,10 @@ describe('UsersRepository', () => {
   let ormRepositoryMock: MockRepository<User>;
 
   const user = createFakeUser();
-  user.password = '12345678';
+  user.password = '123456789102';
   const roleId = 'c22e5a7d-b2b2-4d76-8809-51a81231f24d';
 
-  const userDto: UserDto = {
+  const userDto: UserDto & { tenantId: string; mustChangePassword: boolean } = {
     tenantId: '1',
     username: user.username,
     roleIds: [roleId],

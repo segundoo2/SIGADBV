@@ -4,7 +4,7 @@ import { CategoryDto } from './dtos/category.dto';
 import { Category } from './entities/category.entity';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EErrorsGlobal } from '../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
 

@@ -1,6 +1,6 @@
 import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
-import { EAuthSuccess } from '../../common/enum/auth-success.enum';
-import { EPermission } from '../../common/enum/permissions.enum';
+import { EAuthSuccess } from '../../common/enum/auth/auth-success.enum';
+import { EPermission } from '../../common/enum/role/permissions.enum';
 import { User } from '../users/entities/user.entity';
 import { LoginDto } from './dtos/login.dto';
 import type { IAuthRepository } from './interfaces/auth.repository.interface';
@@ -13,9 +13,9 @@ import type {
   TokenDuration,
 } from '../../common/adapters/interfaces/token-service.interface';
 import * as bcrypt from 'bcrypt';
-import { EErrorsGlobal } from '../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 import type { ICacheStorageService } from '../../common/redis/interface/cache-storage.interface';
-import { EAuthErrors } from '../../common/enum/auth-errors.enum';
+import { EAuthErrors } from '../../common/enum/auth/auth-errors.enum';
 import { IResponse } from '../../common/interfaces/response.interface';
 import { ITokens } from './interfaces/token.interface';
 import { ILoginResponse } from './interfaces/login-response.interface';

@@ -12,10 +12,10 @@ import {
   Repository,
   UpdateResult,
 } from 'typeorm';
-import { EErrorsGlobal } from '../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
 import { IDatabaseDriverError } from '../../common/interfaces/database-driver-Error.interface';
-import { EUsersErrors } from '../../common/enum/users-errors.enum';
+import { EUsersErrors } from '../../common/enum/user/users-errors.enum';
 import { UserDto } from './dtos/user.dto';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
 

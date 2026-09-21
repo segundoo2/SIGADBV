@@ -1,4 +1,4 @@
-import { EPermission } from '../../../common/enum/permissions.enum';
+import { EPermission } from '../../../common/enum/role/permissions.enum';
 
 export interface IJwtPayload {
   sub: string;

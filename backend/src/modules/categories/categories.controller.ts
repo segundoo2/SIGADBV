@@ -1,5 +1,4 @@
 import {
-  UseGuards,
   Controller,
   Inject,
   Post,
@@ -21,9 +20,7 @@ import {
 } from '@nestjs/swagger';
 import { RequiresPermission } from '../../common/decorators/permission.decorator';
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
-import { EPermission } from '../../common/enum/permissions.enum';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { PermissionGuard } from '../../common/guards/permission.guard';
+import { EPermission } from '../../common/enum/role/permissions.enum';
 import { IResponse } from '../../common/interfaces/response.interface';
 import { CategoryDto } from './dtos/category.dto';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
@@ -34,7 +31,6 @@ import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
 
 @ApiTags('Categories')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, PermissionGuard)
 @Controller('categories')
 export class CategoriesController implements ICategoriesController {
   constructor(

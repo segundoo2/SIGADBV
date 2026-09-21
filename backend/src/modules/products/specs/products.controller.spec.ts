@@ -2,7 +2,7 @@
 import { IResponse } from '../../../common/interfaces/response.interface';
 import { ProductDto } from '../dtos/product.dto';
 import { Product } from '../entities/product.entity';
-import { EProductsSuccess } from '../../../common/enum/products-success.enum';
+import { EProductsSuccess } from '../../../common/enum/product/products-success.enum';
 import { IProductsController } from '../interfaces/products.controller.interface';
 import { IProductsService } from '../interfaces/products.service.interface';
 import { ProductsController } from '../products.controller';

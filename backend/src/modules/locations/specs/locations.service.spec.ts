@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { BadRequestException, ConflictException } from '@nestjs/common';
-import { ELocationSuccessMessage } from '../../../common/enum/location-success.enum';
-import { ELocationErrorsMessage } from '../../../common/enum/location-errors.enum';
+import { ELocationSuccessMessage } from '../../../common/enum/location/location-success.enum';
+import { ELocationErrorsMessage } from '../../../common/enum/location/location-errors.enum';
 import { LocationDto } from '../dtos/location.dto';
 import { UpdateLocationDto } from '../dtos/update-location.dto';
 import { ELocationType, Location } from '../entities/location.entity';

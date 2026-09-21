@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { ProductDto } from '../dtos/product.dto';
 import { Product } from '../entities/product.entity';
-import { EProductsSuccess } from '../../../common/enum/products-success.enum';
-import { EProductsErrors } from '../../../common/enum/products-errors.enum';
+import { EProductsSuccess } from '../../../common/enum/product/products-success.enum';
+import { EProductsErrors } from '../../../common/enum/product/products-errors.enum';
 import { IProductsRepository } from '../interfaces/products.repository.interface';
 import { IProductsService } from '../interfaces/products.service.interface';
 import { IResponse } from '../../../common/interfaces/response.interface';

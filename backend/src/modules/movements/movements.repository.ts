@@ -4,7 +4,7 @@ import { EntityManager, Repository } from 'typeorm';
 import { Movement } from './entities/movement.entity';
 import { MovementDto } from './dtos/movement.dto';
 import { IMovementsRepository } from './interfaces/movements.repository.interface';
-import { EErrorsGlobal } from '../../common/enum/errors-global.enum';
+import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 
 @Injectable()
 export class MovementsRepository implements IMovementsRepository {
