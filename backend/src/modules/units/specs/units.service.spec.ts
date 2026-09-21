@@ -1,63 +1,18 @@
-import { EUnitGender } from '../../../common/enum/unit/unit-gender.enum';
+/* eslint-disable @typescript-eslint/unbound-method */
+import { ConflictException, NotFoundException } from '@nestjs/common';
+import { UnitsService } from '../units.service';
+import type { IUnitsRepository } from '../interfaces/units.repository.interface';
 import { CreateUnitDto } from '../dto/create-unit.dto';
 import { UnitEntity } from '../entities/unit.entity';
-import { ObjectLiteral, Repository } from 'typeorm';
-import { Role } from '../../roles/entities/role.entity';
-import { Test, TestingModule } from '@nestjs/testing';
-import { UnitsRepository } from '../units.repository';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { InternalServerErrorException } from '@nestjs/common';
-import { EErrorsGlobal } from '../../../common/enum/global/errors-global.enum';
+import { EUnitGender } from '../../../common/enum/unit/unit-gender.enum';
+import { EUnitSuccess } from '../../../common/enum/unit/unit-success.enum';
+import { EUnitErrors } from '../../../common/enum/unit/unit-errors.enum';
+import { DeleteResult, UpdateResult } from 'typeorm';
+import { UpdateUnitDto } from '../dto/update-unit.dto';
 
-type MockRepository<T extends ObjectLiteral> = Partial<
-  Record<keyof Repository<T>, jest.Mock>
->;
-
-describe('UnitService', () => {
-  let repository: UnitsRepository;
-  let ormMock: MockRepository<UnitEntity>;
-
-  beforeEach(async () => {
-    const mockFactory = (): MockRepository<Role> => ({
-      create: jest.fn(),
-      save: jest.fn(),
-      find: jest.fn(),
-      findOne: jest.fn(),
-      findAndCount: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-    });
-
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UnitsRepository,
-        {
-          provide: getRepositoryToken(UnitEntity),
-          useFactory: mockFactory,
-        },
-      ],
-    }).compile();
-
-    repository = module.get<UnitsRepository>(UnitsRepository);
-    ormMock = module.get<MockRepository<UnitEntity>>(
-      getRepositoryToken(UnitEntity),
-    );
-  });
-
-  afterEach(() => jest.restoreAllMocks());
-
-  const shouldHandleDatabaseErrors = (
-    operation: () => Promise<unknown>,
-    mockMethod: () => jest.Mock | undefined,
-  ) => {
-    it('should throw InternalServerErrorException when TypeORM operation fails', async () => {
-      mockMethod()?.mockRejectedValue(new Error('Database error'));
-
-      await expect(operation()).rejects.toThrow(
-        new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR),
-      );
-    });
-  };
+describe('UnitsService', () => {
+  let service: UnitsService;
+  let repositoryMock: jest.Mocked<IUnitsRepository>;
 
   const unit: UnitEntity = {
     id: 'uuid',
@@ -71,39 +26,148 @@ describe('UnitService', () => {
     updatedAt: new Date(),
   };
 
-  describe('createUnit', () => {
-    const createUnitDto: CreateUnitDto & { tenantId: string } = {
-      tenantId: 'uuid-club',
-      name: 'Gavião-Real',
-      gender: EUnitGender.FEMALE,
-      maxMembers: 6,
+  const createUnitDto: CreateUnitDto & { tenantId: string } = {
+    tenantId: 'uuid-club',
+    name: 'Gavião-Real',
+    gender: EUnitGender.FEMALE,
+    maxMembers: 6,
+  };
+
+  beforeEach(() => {
+    repositoryMock = {
+      createUnit: jest.fn(),
+      findOneByUnitName: jest.fn(),
+      findAllUnits: jest.fn(),
+      updateUnit: jest.fn(),
+      deleteUnit: jest.fn(),
     };
 
-    it('should return unit entity when the unit created with success', async () => {
-      ormMock.create?.mockReturnValue(unit);
-      ormMock.save?.mockResolvedValue(unit);
-      expect(await repository.createUnit(createUnitDto)).toEqual(unit);
-      expect(ormMock.create).toHaveBeenCalledWith(createUnitDto);
-      expect(ormMock.save).toHaveBeenCalledWith(unit);
+    service = new UnitsService(repositoryMock);
+  });
+
+  afterEach(() => jest.restoreAllMocks());
+
+  describe('createUnit', () => {
+    it('should return unit entity when she is created with success', async () => {
+      repositoryMock.findOneByUnitName?.mockResolvedValue(null);
+      repositoryMock.createUnit?.mockResolvedValue(unit);
+
+      const result = await service.createUnit(createUnitDto);
+
+      expect(result).toEqual({
+        message: EUnitSuccess.CREATE,
+        data: unit,
+      });
+      expect(repositoryMock.findOneByUnitName).toHaveBeenCalledWith(
+        createUnitDto.name,
+        createUnitDto.tenantId,
+      );
+      expect(repositoryMock.createUnit).toHaveBeenCalledWith(createUnitDto);
     });
 
-    shouldHandleDatabaseErrors(
-      () => repository.createUnit(createUnitDto),
-      () => ormMock.save,
-    );
+    it('should throw ConflictException when unit name already exists', async () => {
+      repositoryMock.findOneByUnitName?.mockResolvedValue(unit);
+
+      await expect(service.createUnit(createUnitDto)).rejects.toThrow(
+        new ConflictException(EUnitErrors.UNIT_CONFLICT),
+      );
+
+      expect(repositoryMock.createUnit).not.toHaveBeenCalled();
+    });
   });
 
   describe('findOneByUnitName', () => {
-    it('should return unit entity when unit is found', async () => {
-      ormMock.findOne?.mockResolvedValue(unit);
-      expect(
-        await repository.findOneByUnitName(unit.name, unit.tenantId),
-      ).toEqual(unit);
+    it(`should return {message: ${EUnitSuccess.FINDONE}, data: UnitEntity } when unit entity is found`, async () => {
+      repositoryMock.findOneByUnitName.mockResolvedValue(unit);
+      expect(await service.findOneByUnitName(unit.name, unit.tenantId)).toEqual(
+        {
+          message: EUnitSuccess.FINDONE,
+          data: unit,
+        },
+      );
     });
 
-    shouldHandleDatabaseErrors(
-      () => repository.findOneByUnitName(unit.name, unit.tenantId),
-      () => ormMock.findOne,
-    );
+    it('should return NotFoundException when the unit is not found', async () => {
+      repositoryMock.findOneByUnitName.mockResolvedValue(null);
+      await expect(
+        service.findOneByUnitName(unit.name, unit.tenantId),
+      ).rejects.toThrow(new NotFoundException(EUnitErrors.UNIT_NOT_FOUND));
+    });
+  });
+
+  describe('findAllUnits', () => {
+    it('should return all units when she is found', async () => {
+      repositoryMock.findAllUnits.mockResolvedValue([unit]);
+      expect(await service.findAllUnits(unit.tenantId)).toEqual({
+        message: EUnitSuccess.FIND,
+        data: [unit],
+      });
+    });
+
+    it('should return NotFoundException when units list not found', async () => {
+      repositoryMock.findAllUnits.mockResolvedValue([]);
+      await expect(service.findAllUnits(unit.tenantId)).rejects.toThrow(
+        new NotFoundException(EUnitErrors.UNITS_NOT_FOUND),
+      );
+    });
+  });
+
+  describe('updateUnit', () => {
+    const updateUnitDto: UpdateUnitDto = {
+      name: 'test',
+      gender: EUnitGender.MALE,
+      maxMembers: 10,
+    };
+
+    const response: UpdateResult = {
+      raw: 0,
+      generatedMaps: [],
+      affected: 1,
+    };
+
+    it(`should return { message: ${EUnitSuccess.UPDATE}, data: null } when the unit is update with success`, async () => {
+      repositoryMock.updateUnit.mockResolvedValue(response);
+      expect(
+        await service.updateUnit(unit.id, {
+          ...updateUnitDto,
+          tenantId: unit.tenantId,
+        }),
+      ).toEqual({ message: EUnitSuccess.UPDATE, data: null });
+    });
+
+    it('should return NotFoundException when the unit not found', async () => {
+      response.affected = 0;
+      repositoryMock.updateUnit.mockResolvedValue(response);
+      await expect(
+        service.updateUnit(unit.id, {
+          ...updateUnitDto,
+          tenantId: unit.tenantId,
+        }),
+      ).rejects.toThrow(new NotFoundException(EUnitErrors.UNIT_NOT_FOUND));
+    });
+  });
+
+  describe('deleteUnit', () => {
+    const response: DeleteResult = {
+      raw: [],
+      affected: 1,
+    };
+
+    it(`should return { message: ${EUnitSuccess.DELETE}, data: null } when the unit is deleted success`, async () => {
+      repositoryMock.deleteUnit.mockResolvedValue(response);
+
+      expect(await service.deleteUnit(unit.id, unit.tenantId)).toEqual({
+        message: EUnitSuccess.DELETE,
+        data: null,
+      });
+    });
+
+    it('should return NotFoundExpception when unit not found', async () => {
+      response.affected = 0;
+      repositoryMock.deleteUnit.mockResolvedValue(response);
+      await expect(service.deleteUnit(unit.id, unit.tenantId)).rejects.toThrow(
+        new NotFoundException(EUnitErrors.UNIT_NOT_FOUND),
+      );
+    });
   });
 });
