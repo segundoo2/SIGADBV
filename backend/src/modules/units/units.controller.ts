@@ -6,6 +6,7 @@ import {
   Param,
   Put,
   Delete,
+  Inject,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { CreateUnitDto } from './dto/create-unit.dto';
@@ -19,7 +20,9 @@ import { UpdateUnitDto } from './dto/update-unit.dto';
 @ApiTags('Units')
 @Controller('units')
 export class UnitsController implements IUnitsController {
-  constructor(private readonly service: IUnitsService) {}
+  constructor(
+    @Inject('IUnitsService') private readonly service: IUnitsService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Criar uma nova unidade' })
@@ -73,6 +76,7 @@ export class UnitsController implements IUnitsController {
   async findAllUnits(
     @TenantId() tenantId: string,
   ): Promise<IResponse<UnitEntity[]>> {
+    console.log('TENANT ID RECEBIDO PELO DECORATOR:', tenantId);
     return await this.service.findAllUnits(tenantId);
   }
 

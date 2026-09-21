@@ -1,12 +1,12 @@
 import {
   Entity,
-  PrimaryColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { EUnitGender } from '../../../common/enum/unit/unit-gender.enum';
 
 @Entity('units')
@@ -16,7 +16,7 @@ export class UnitEntity {
     description: 'Identificador único da unidade (UUID)',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
-  @PrimaryColumn('uuid')
+  @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @ApiProperty({
@@ -73,13 +73,7 @@ export class UnitEntity {
   // Descomentar quando members for implementado e mapear o DTO/Entity correspondente
   // @ApiPropertyOptional({ description: 'Lista de membros associados à unidade', type: () => [MemberEntity] })
   // @OneToMany(() => MemberEntity, (member) => member.unit, { cascade: true })
-  @ApiPropertyOptional({
-    description: 'Lista temporária de membros (preparado para o futuro)',
-    type: 'array',
-    items: { type: 'object' },
-  })
-  @Column({ default: null })
-  members!: unknown[];
+  // members!: unknown[];
 
   @ApiProperty({
     description: 'Data de criação do registo',
