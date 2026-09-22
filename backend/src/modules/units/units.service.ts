@@ -83,15 +83,15 @@ export class UnitsService implements IUnitsService {
     tenantId: string,
     scoreDelta: number,
   ): Promise<IResponse<{ newScore: number }>> {
-    const unitExisted = await this.repository.findOneById(id, tenantId);
+    const unitExisted = await this.repository.findOneScoreById(id, tenantId);
 
     if (!unitExisted) {
       throw new NotFoundException(EUnitErrors.UNITS_NOT_FOUND);
     }
 
-    const newScore = unitExisted.score + scoreDelta;
+    await this.repository.adjustUnitScore(id, tenantId, scoreDelta);
 
-    await this.repository.adjustUnitScore(id, tenantId, newScore);
+    const newScore = await this.repository.findOneScoreById(id, tenantId);
 
     return {
       message: EUnitSuccess.ADJUST_SCORE,

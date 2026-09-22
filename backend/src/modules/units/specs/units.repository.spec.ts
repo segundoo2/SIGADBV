@@ -123,16 +123,16 @@ describe('UnitRepository', () => {
     );
   });
 
-  describe('findOneById', () => {
+  describe('findOneScoreById', () => {
     it('should return unit entity when she is found', async () => {
-      ormMock.findOne.mockResolvedValue(unit);
-      expect(await repository.findOneById(unit.id, unit.tenantId)).toEqual(
-        unit,
+      ormMock.findOne.mockResolvedValue({ score: unit.score });
+      expect(await repository.findOneScoreById(unit.id, unit.tenantId)).toEqual(
+        unit.score,
       );
     });
 
     shouldHandleDatabaseErrors(
-      () => repository.findOneById(unit.id, unit.tenantId),
+      () => repository.findOneScoreById(unit.id, unit.tenantId),
       () => ormMock.findOne,
     );
   });
@@ -168,20 +168,51 @@ describe('UnitRepository', () => {
   });
 
   describe('adjustUnitScore', () => {
-    it('should increment or decrement score value with success', async () => {
-      ormMock.update.mockResolvedValue({ affected: 1 } as any);
-      await repository.adjustUnitScore(unit.id, unit.tenantId, unit.score);
+    let queryBuilderMock: {
+      update: jest.Mock;
+      set: jest.Mock;
+      setParameter: jest.Mock;
+      where: jest.Mock;
+      execute: jest.Mock;
+    };
 
-      expect(ormMock.update).toHaveBeenCalledTimes(1);
-      expect(ormMock.update).toHaveBeenCalledWith(
-        { id: unit.id, tenantId: unit.tenantId },
-        { score: unit.score },
+    beforeEach(() => {
+      queryBuilderMock = {
+        update: jest.fn().mockReturnThis(),
+        set: jest.fn().mockReturnThis(),
+        setParameter: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        execute: jest.fn().mockResolvedValue({ affected: 1 }),
+      };
+
+      ormMock.createQueryBuilder = jest.fn().mockReturnValue(queryBuilderMock);
+    });
+
+    it('should increment or decrement score value with success', async () => {
+      const scoreDelta = 500;
+      await repository.adjustUnitScore(unit.id, unit.tenantId, scoreDelta);
+
+      expect(ormMock.createQueryBuilder).toHaveBeenCalledTimes(1);
+
+      expect(queryBuilderMock.update).toHaveBeenCalledTimes(1);
+      expect(queryBuilderMock.set).toHaveBeenCalledWith({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        score: expect.any(Function),
+      });
+      expect(queryBuilderMock.setParameter).toHaveBeenCalledWith(
+        'scoreDelta',
+        scoreDelta,
       );
+      expect(queryBuilderMock.where).toHaveBeenCalledWith(
+        'id = :id AND tenantId = :tenantId',
+        { id: unit.id, tenantId: unit.tenantId },
+      );
+      expect(queryBuilderMock.execute).toHaveBeenCalledTimes(1);
     });
 
     shouldHandleDatabaseErrors(
       () => repository.adjustUnitScore(unit.id, unit.tenantId, unit.score),
-      () => ormMock.update,
+      () => queryBuilderMock.execute, // Alterado de ormMock.find para queryBuilderMock.execute
     );
   });
 

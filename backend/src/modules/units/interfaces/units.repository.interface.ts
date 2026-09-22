@@ -11,7 +11,7 @@ export interface IUnitsRepository {
     tenantId: string,
   ): Promise<UnitEntity | null>;
 
-  findOneById(id: string, tenantId: string): Promise<UnitEntity>;
+  findOneScoreById(id: string, tenantId: string): Promise<number | null>;
 
   findAllUnits(tenantId: string): Promise<UnitEntity[] | []>;
 
@@ -23,7 +23,7 @@ export interface IUnitsRepository {
   adjustUnitScore(
     id: string,
     tenantId: string,
-    newScore: number,
+    scoreDelta: number,
   ): Promise<void>;
 
   deleteUnit(id: string, tenantId: string): Promise<DeleteResult>;

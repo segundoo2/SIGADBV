@@ -36,7 +36,7 @@ describe('UnitsService', () => {
     repositoryMock = {
       createUnit: jest.fn(),
       findOneByUnitName: jest.fn(),
-      findOneById: jest.fn(),
+      findOneScoreById: jest.fn(),
       findAllUnits: jest.fn(),
       updateUnit: jest.fn(),
       adjustUnitScore: jest.fn(),
@@ -150,19 +150,20 @@ describe('UnitsService', () => {
 
   describe('adjustUnitScore', () => {
     it(`should return new unit score when score is adujusted with success`, async () => {
-      repositoryMock.findOneById.mockResolvedValue(unit);
+      const newScore = unit.score + unit.score;
+      repositoryMock.findOneScoreById.mockResolvedValue(newScore);
       expect(
         await service.adjustUnitScore(unit.id, unit.tenantId, unit.score),
       ).toEqual({
         message: EUnitSuccess.ADJUST_SCORE,
         data: {
-          newScore: unit.score + unit.score,
+          newScore: newScore,
         },
       });
     });
 
     it('should return NotFoundException when unit not found', async () => {
-      repositoryMock.findOneById.mockResolvedValue(null);
+      repositoryMock.findOneScoreById.mockResolvedValue(null);
       await expect(
         service.adjustUnitScore(unit.id, unit.tenantId, unit.score),
       ).rejects.toThrow(new NotFoundException(EUnitErrors.UNITS_NOT_FOUND));
