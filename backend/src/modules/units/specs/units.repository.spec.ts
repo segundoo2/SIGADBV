@@ -58,7 +58,6 @@ describe('UnitRepository', () => {
 
   const shouldHandleDatabaseErrors = (
     operation: () => Promise<unknown>,
-
     mockMethod: () => jest.Mock | undefined,
   ) => {
     it('should throw InternalServerErrorException when TypeORM operation fails', async () => {
@@ -75,9 +74,8 @@ describe('UnitRepository', () => {
     tenantId: 'uuid-club',
     name: 'Gavião-Real',
     gender: EUnitGender.FEMALE,
-    totalPoints: 10000,
+    score: 10000,
     maxMembers: 6,
-    members: ['ed'],
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -125,6 +123,20 @@ describe('UnitRepository', () => {
     );
   });
 
+  describe('findOneById', () => {
+    it('should return unit entity when she is found', async () => {
+      ormMock.findOne.mockResolvedValue(unit);
+      expect(await repository.findOneById(unit.id, unit.tenantId)).toEqual(
+        unit,
+      );
+    });
+
+    shouldHandleDatabaseErrors(
+      () => repository.findOneById(unit.id, unit.tenantId),
+      () => ormMock.findOne,
+    );
+  });
+
   describe('findAllUnits', () => {
     it('should return units list when she is found', async () => {
       ormMock.find?.mockResolvedValue([unit]);
@@ -133,7 +145,6 @@ describe('UnitRepository', () => {
 
     shouldHandleDatabaseErrors(
       () => repository.findAllUnits(unit.tenantId),
-
       () => ormMock.find,
     );
   });
@@ -152,7 +163,24 @@ describe('UnitRepository', () => {
 
     shouldHandleDatabaseErrors(
       () => repository.updateUnit(unit.id, unitDto),
+      () => ormMock.update,
+    );
+  });
 
+  describe('adjustUnitScore', () => {
+    it('should increment or decrement score value with success', async () => {
+      ormMock.update.mockResolvedValue({ affected: 1 } as any);
+      await repository.adjustUnitScore(unit.id, unit.tenantId, unit.score);
+
+      expect(ormMock.update).toHaveBeenCalledTimes(1);
+      expect(ormMock.update).toHaveBeenCalledWith(
+        { id: unit.id, tenantId: unit.tenantId },
+        { score: unit.score },
+      );
+    });
+
+    shouldHandleDatabaseErrors(
+      () => repository.adjustUnitScore(unit.id, unit.tenantId, unit.score),
       () => ormMock.update,
     );
   });

@@ -78,6 +78,29 @@ export class UnitsService implements IUnitsService {
     };
   }
 
+  async adjustUnitScore(
+    id: string,
+    tenantId: string,
+    scoreDelta: number,
+  ): Promise<IResponse<{ newScore: number }>> {
+    const unitExisted = await this.repository.findOneById(id, tenantId);
+
+    if (!unitExisted) {
+      throw new NotFoundException(EUnitErrors.UNITS_NOT_FOUND);
+    }
+
+    const newScore = unitExisted.score + scoreDelta;
+
+    await this.repository.adjustUnitScore(id, tenantId, newScore);
+
+    return {
+      message: EUnitSuccess.ADJUST_SCORE,
+      data: {
+        newScore: newScore,
+      },
+    };
+  }
+
   async deleteUnit(id: string, tenantId: string): Promise<IResponse<null>> {
     const unitDeleted = await this.repository.deleteUnit(id, tenantId);
 

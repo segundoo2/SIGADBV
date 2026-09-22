@@ -38,6 +38,19 @@ export class UnitsRepository implements IUnitsRepository {
     }
   }
 
+  async findOneById(id: string, tenantId: string): Promise<UnitEntity | null> {
+    try {
+      return await this.repository.findOne({
+        where: {
+          id,
+          tenantId,
+        },
+      });
+    } catch {
+      throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
+    }
+  }
+
   async findAllUnits(tenantId: string): Promise<UnitEntity[] | []> {
     try {
       return await this.repository.find({ where: { tenantId } });
@@ -52,6 +65,18 @@ export class UnitsRepository implements IUnitsRepository {
   ): Promise<UpdateResult> {
     try {
       return await this.repository.update({ id, tenantId: dto.tenantId }, dto);
+    } catch {
+      throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
+    }
+  }
+
+  async adjustUnitScore(
+    id: string,
+    tenantId: string,
+    newScore: number,
+  ): Promise<void> {
+    try {
+      await this.repository.update({ id, tenantId }, { score: newScore });
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
     }

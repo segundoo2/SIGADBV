@@ -4,4 +4,5 @@ export enum EUnitSuccess {
   FIND = 'Lista de unidades encontrada com sucesso!',
   UPDATE = 'Unidade alterada com sucesso!',
   DELETE = 'Unidade deletada com sucesso!',
+  ADJUST_SCORE = 'Pontuação de unidade ajustada com sucesso!',
 }

@@ -63,12 +63,12 @@ export class UnitEntity {
     default: 0,
   })
   @Column({
-    name: 'total_points',
+    name: 'score',
     type: 'integer',
     nullable: false,
     default: 0,
   })
-  totalPoints!: number;
+  score!: number;
 
   // Descomentar quando members for implementado e mapear o DTO/Entity correspondente
   // @ApiPropertyOptional({ description: 'Lista de membros associados à unidade', type: () => [MemberEntity] })

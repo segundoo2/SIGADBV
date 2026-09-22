@@ -19,9 +19,8 @@ describe('UnitsService', () => {
     tenantId: 'uuid-club',
     name: 'Gavião-Real',
     gender: EUnitGender.FEMALE,
-    totalPoints: 10000,
+    score: 10000,
     maxMembers: 6,
-    members: ['ed'],
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -37,8 +36,10 @@ describe('UnitsService', () => {
     repositoryMock = {
       createUnit: jest.fn(),
       findOneByUnitName: jest.fn(),
+      findOneById: jest.fn(),
       findAllUnits: jest.fn(),
       updateUnit: jest.fn(),
+      adjustUnitScore: jest.fn(),
       deleteUnit: jest.fn(),
     };
 
@@ -144,6 +145,27 @@ describe('UnitsService', () => {
           tenantId: unit.tenantId,
         }),
       ).rejects.toThrow(new NotFoundException(EUnitErrors.UNIT_NOT_FOUND));
+    });
+  });
+
+  describe('adjustUnitScore', () => {
+    it(`should return new unit score when score is adujusted with success`, async () => {
+      repositoryMock.findOneById.mockResolvedValue(unit);
+      expect(
+        await service.adjustUnitScore(unit.id, unit.tenantId, unit.score),
+      ).toEqual({
+        message: EUnitSuccess.ADJUST_SCORE,
+        data: {
+          newScore: unit.score + unit.score,
+        },
+      });
+    });
+
+    it('should return NotFoundException when unit not found', async () => {
+      repositoryMock.findOneById.mockResolvedValue(null);
+      await expect(
+        service.adjustUnitScore(unit.id, unit.tenantId, unit.score),
+      ).rejects.toThrow(new NotFoundException(EUnitErrors.UNITS_NOT_FOUND));
     });
   });
 
