@@ -1,9 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { IScoreHistoryService } from './interfaces/score-history.service.interface';
 import { IScoreHistoryRepository } from './interfaces/scores-history.repository.interface';
 import { IResponse } from '../../common/interfaces/response.interface';
 import { IUnitsService } from '../units/interfaces/units.service.interface';
 import { ScoreHistoryDto } from './dtos/adjust-score.dto';
+import { ScoreHistoryEntity } from './entity/score-history.entity';
+import { EScoreHistorySuccess } from '../../common/enum/score-story/score-history-success.enum';
+import { EScoreHistoryErrors } from '../../common/enum/score-story/score-history-errors.enum';
 
 @Injectable()
 export class ScoreHistoryService implements IScoreHistoryService {
@@ -27,5 +30,24 @@ export class ScoreHistoryService implements IScoreHistoryService {
     await this.repositoroy.adjustUnitScore({ unitId, tenantId, ...dto });
 
     return response;
+  }
+
+  async findHistoryByUnitId(
+    unitId: string,
+    tenantId: string,
+  ): Promise<IResponse<ScoreHistoryEntity>> {
+    const scoreHistory = await this.repositoroy.findHistoryByUnitId(
+      unitId,
+      tenantId,
+    );
+
+    if (!scoreHistory) {
+      throw new NotFoundException(EScoreHistoryErrors.NOT_FOUND);
+    }
+
+    return {
+      message: EScoreHistorySuccess.FIND,
+      data: scoreHistory,
+    };
   }
 }

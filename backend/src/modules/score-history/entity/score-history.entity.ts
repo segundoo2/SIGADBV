@@ -8,7 +8,7 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { UnitEntity } from '../../units/entities/unit.entity';
 
 @Entity('score_history')
@@ -41,12 +41,18 @@ export class ScoreHistoryEntity {
   @Index()
   unitId!: string;
 
+  @ApiPropertyOptional({
+    description: 'Dados da unidade associada ao histórico de pontuação',
+    type: () => UnitEntity,
+  })
   @ManyToOne(() => UnitEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'unit_id' })
   unit!: UnitEntity;
 
   @ApiProperty({
-    description: 'Valor do ajuste de pontuação',
+    description:
+      'Valor do ajuste de pontuação. ' +
+      'Valores positivos adicionam pontos, valores negativos subtraem pontos.',
     example: 50,
   })
   @Column({ type: 'int', nullable: false })

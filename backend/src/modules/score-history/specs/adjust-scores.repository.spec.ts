@@ -120,4 +120,25 @@ describe('UnitRepository', () => {
       () => ormMock.save,
     );
   });
+
+  describe('findHistoryByUnitId', () => {
+    it('should return score history when he is found', async () => {
+      ormMock.findOne.mockResolvedValue(mockScoreHistory);
+      expect(
+        await repository.findHistoryByUnitId(
+          mockScoreHistory.unitId,
+          mockScoreHistory.tenantId,
+        ),
+      ).toEqual(mockScoreHistory);
+    });
+
+    shouldHandleDatabaseErrors(
+      () =>
+        repository.findHistoryByUnitId(
+          mockScoreHistory.unitId,
+          mockScoreHistory.tenantId,
+        ),
+      () => ormMock.findOne,
+    );
+  });
 });
