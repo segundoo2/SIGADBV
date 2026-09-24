@@ -15,6 +15,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { UnitsModule } from './modules/units/units.module';
 import { PermissionGuard } from './common/guards/permission.guard';
+import { ScoreHistoryModule } from './modules/ScoreHistory/adjust-scores.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { PermissionGuard } from './common/guards/permission.guard';
     RolesModule,
     MovementsModule,
     UnitsModule,
+    ScoreHistoryModule,
   ],
   controllers: [AppController],
   providers: [

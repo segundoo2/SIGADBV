@@ -23,6 +23,7 @@ describe('UnitsService', () => {
     maxMembers: 6,
     createdAt: new Date(),
     updatedAt: new Date(),
+    scoreHistories: [],
   };
 
   const createUnitDto: CreateUnitDto & { tenantId: string } = {

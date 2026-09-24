@@ -5,9 +5,11 @@ import {
   UpdateDateColumn,
   Index,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EUnitGender } from '../../../common/enum/unit/unit-gender.enum';
+import { ScoreHistoryEntity } from '../../score-history/entity/score-history.entity';
 
 @Entity('units')
 @Index(['tenantId', 'name'], { unique: true })
@@ -23,7 +25,12 @@ export class UnitEntity {
     description: 'Identificador do clube/inquilino (Multi-tenant)',
     example: 'd3b07384-d113-4ec6-a4f6-53856372d681',
   })
-  @Column({ name: 'tenant_id', type: 'uuid', nullable: false })
+  @Column({
+    name: 'tenant_id',
+    type: 'uuid',
+    nullable: false,
+    default: '00000000-0000-0000-0000-000000000000',
+  })
   @Index()
   tenantId!: string;
 
@@ -69,6 +76,15 @@ export class UnitEntity {
     default: 0,
   })
   score!: number;
+
+  @ApiPropertyOptional({
+    description: 'Histórico de ajustes de pontuação da unidade',
+    type: () => [ScoreHistoryEntity],
+  })
+  @OneToMany(() => ScoreHistoryEntity, (history) => history.unit, {
+    cascade: true,
+  })
+  scoreHistories!: ScoreHistoryEntity[];
 
   // Descomentar quando members for implementado e mapear o DTO/Entity correspondente
   // @ApiPropertyOptional({ description: 'Lista de membros associados à unidade', type: () => [MemberEntity] })

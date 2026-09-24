@@ -18,6 +18,7 @@ describe('UnitController', () => {
       findOneByUnitName: jest.fn(),
       findAllUnits: jest.fn(),
       updateUnit: jest.fn(),
+      adjustUnitScore: jest.fn(),
       deleteUnit: jest.fn(),
     };
 
@@ -29,11 +30,11 @@ describe('UnitController', () => {
     tenantId: 'uuid-club',
     name: 'Gavião-Real',
     gender: EUnitGender.FEMALE,
-    totalPoints: 10000,
+    score: 10000,
     maxMembers: 6,
-    members: ['ed'],
     createdAt: new Date(),
     updatedAt: new Date(),
+    scoreHistories: [],
   };
 
   describe('createUnit', () => {

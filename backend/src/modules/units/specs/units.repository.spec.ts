@@ -21,17 +21,11 @@ describe('UnitRepository', () => {
   beforeEach(async () => {
     const mockFactory = (): MockRepository<Role> => ({
       create: jest.fn(),
-
       save: jest.fn(),
-
       find: jest.fn(),
-
       findOne: jest.fn(),
-
       findAndCount: jest.fn(),
-
       update: jest.fn(),
-
       delete: jest.fn(),
     });
 
@@ -78,6 +72,7 @@ describe('UnitRepository', () => {
     maxMembers: 6,
     createdAt: new Date(),
     updatedAt: new Date(),
+    scoreHistories: [],
   };
 
   const unitDto: CreateUnitDto & { tenantId: string } = {
@@ -102,7 +97,6 @@ describe('UnitRepository', () => {
 
     shouldHandleDatabaseErrors(
       () => repository.createUnit(unitDto),
-
       () => ormMock.save,
     );
   });
