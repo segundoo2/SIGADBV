@@ -1,5 +1,5 @@
 import { IResponse } from '../../../common/interfaces/response.interface';
-import { ScoreHistoryDto } from '../dtos/adjust-score.dto';
+import { ScoreHistoryDto } from '../dtos/score-history.dto';
 import { ScoreHistoryEntity } from '../entity/score-history.entity';
 
 export interface IScoreHistoryController {

@@ -6,7 +6,7 @@ import { EUnitGender } from '../../../common/enum/unit/unit-gender.enum';
 import { InternalServerErrorException } from '@nestjs/common';
 import { EErrorsGlobal } from '../../../common/enum/global/errors-global.enum';
 import { ScoreHistoryEntity } from '../entity/score-history.entity';
-import { ScoreHistoryDto } from '../dtos/adjust-score.dto';
+import { ScoreHistoryDto } from '../dtos/score-history.dto';
 
 type MockRepository<T extends ObjectLiteral> = Partial<
   Record<keyof Repository<T>, jest.Mock>

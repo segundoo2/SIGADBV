@@ -2,7 +2,7 @@ import { EScoreHistorySuccess } from '../../../common/enum/score-story/score-his
 import { EUnitGender } from '../../../common/enum/unit/unit-gender.enum';
 import { EUnitSuccess } from '../../../common/enum/unit/unit-success.enum';
 import { IResponse } from '../../../common/interfaces/response.interface';
-import { ScoreHistoryDto } from '../dtos/adjust-score.dto';
+import { ScoreHistoryDto } from '../dtos/score-history.dto';
 import { ScoreHistoryEntity } from '../entity/score-history.entity';
 import { IScoreHistoryService } from '../interfaces/score-history.service.interface';
 import { ScoreHistoryController } from '../score-history.controller';

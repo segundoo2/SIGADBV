@@ -1,9 +1,9 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IScoreHistoryRepository } from './interfaces/scores-history.repository.interface';
+import { IScoreHistoryRepository } from './interfaces/score-history.repository.interface';
 import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
-import { ScoreHistoryDto } from './dtos/adjust-score.dto';
+import { ScoreHistoryDto } from './dtos/score-history.dto';
 import { ScoreHistoryEntity } from './entity/score-history.entity';
 
 @Injectable()
