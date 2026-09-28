@@ -3,9 +3,11 @@ import { ScoreHistoryService } from './score-history.service';
 import { ScoreHistoryController } from './score-history.controller';
 import { ScoreHistoryRepository } from './score-history.repository';
 import { UnitsModule } from '../units/units.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScoreHistoryEntity } from './entity/score-history.entity';
 
 @Module({
-  imports: [UnitsModule],
+  imports: [UnitsModule, TypeOrmModule.forFeature([ScoreHistoryEntity])],
   controllers: [ScoreHistoryController],
   providers: [
     { provide: 'IScoreHistoryService', useClass: ScoreHistoryService },

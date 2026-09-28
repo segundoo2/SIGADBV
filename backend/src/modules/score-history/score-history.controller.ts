@@ -1,4 +1,4 @@
-import { Controller, Inject, Post, Param, Body } from '@nestjs/common';
+import { Controller, Inject, Post, Param, Body, Get } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -11,6 +11,7 @@ import { IScoreHistoryService } from './interfaces/score-history.service.interfa
 import { IResponse } from '../../common/interfaces/response.interface';
 import { ScoreHistoryDto } from './dtos/score-history.dto';
 import { ScoreHistoryEntity } from './entity/score-history.entity';
+import { TenantId } from '../../common/decorators/tenant-id.decorator';
 
 @ApiTags('Score History - Ajuste de Pontuação')
 @Controller('score-history')
@@ -20,18 +21,13 @@ export class ScoreHistoryController implements IScoreHistoryController {
     private readonly service: IScoreHistoryService,
   ) {}
 
-  @Post(':tenantId/units/:unitId')
+  @Post(':unitId')
   @ApiOperation({
     summary: 'Ajustar pontuação de uma unidade',
     description:
       'Registra um histórico de ajuste e atualiza o saldo de pontos da unidade. ' +
       '⚠️ **ATENÇÃO:** Para adicionar pontos, envie um valor **positivo** (ex: 50). ' +
       'Para subtrair/remover pontos da unidade, envie um valor **negativo** (ex: -20).',
-  })
-  @ApiParam({
-    name: 'tenantId',
-    description: 'Identificador único do clube (Multi-tenant)',
-    example: 'd3b07384-d113-4ec6-a4f6-53856372d681',
   })
   @ApiParam({
     name: 'unitId',
@@ -59,15 +55,35 @@ export class ScoreHistoryController implements IScoreHistoryController {
   @ApiResponse({ status: 404, description: 'Unidade não encontrada.' })
   async adjustUnitScore(
     @Param('unitId') unitId: string,
-    @Param('tenantId') tenantId: string,
+    @TenantId() tenantId: string,
     @Body() dto: ScoreHistoryDto,
   ): Promise<IResponse<{ newScore: number }>> {
     return await this.service.adjustUnitScore(unitId, tenantId, dto);
   }
 
+  @Get(':unitId')
+  @ApiOperation({
+    summary: 'Buscar histórico de pontuação por unidade',
+    description:
+      'Retorna o registro do histórico de pontuação associado a uma unidade específica dentro do tenant.',
+  })
+  @ApiParam({
+    name: 'unitId',
+    description: 'Identificador único da unidade',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Histórico de pontuação encontrado com sucesso.',
+    type: ScoreHistoryEntity,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Histórico não encontrado para a unidade informada.',
+  })
   async findHistoryByUnitId(
-    unitId: string,
-    tenantId: string,
+    @Param('unitId') unitId: string,
+    @TenantId() tenantId: string,
   ): Promise<IResponse<ScoreHistoryEntity>> {
     return await this.service.findHistoryByUnitId(unitId, tenantId);
   }

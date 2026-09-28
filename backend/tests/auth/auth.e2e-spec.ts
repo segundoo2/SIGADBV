@@ -4,7 +4,10 @@ import request from 'supertest';
 import cookieParser from 'cookie-parser';
 import { Server } from 'http';
 import { AppModule } from '../../src/app.module';
-import { setupTestDatabase, cleanTestDatabase } from './setup.helper';
+import {
+  setupTestDatabase,
+  cleanTestDatabase,
+} from '../setup-test-database.helper';
 import { EAuthSuccess } from '../../src/common/enum/auth/auth-success.enum';
 import { EErrorsGlobal } from '../../src/common/enum/global/errors-global.enum';
 
