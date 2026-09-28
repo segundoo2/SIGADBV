@@ -32,6 +32,8 @@ export enum EPermission {
   UNIT_READ = 'unit.read',
   UNIT_UPDATE = 'unit.update',
   UNIT_DELETE = 'unit.delete',
+
+  METRICS = 'metrics.read',
 }
 
 export const ALL_PERMISSIONS = Object.values(EPermission);

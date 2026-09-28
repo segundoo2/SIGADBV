@@ -27,7 +27,7 @@ describe('RolesController', () => {
     updatedAt: new Date(),
   };
 
-  const roleDto: RoleDto = {
+  const roleDto: RoleDto & { tenantId: string } = {
     tenantId,
     name: 'ADMIN',
     permissions: [],
@@ -94,7 +94,7 @@ describe('RolesController', () => {
       };
 
       mockService.findAllRoles.mockResolvedValue(
-        response as IPaginatedResponse<Role>,
+        response as IPaginatedResponse<Role[]>,
       );
 
       const result = await controller.findAllRoles(tenantId, paginationQuery);

@@ -114,6 +114,7 @@ describe('AuthModule', () => {
       await request(httpServer)
         .post('/auth/')
         .set('x-tenant-slug', 'dummy-tenant')
+        .set('user-agent', 'Supertest-E2E-Agent')
         .send({
           username: 'non-existent-user',
           password: 'password123',
@@ -125,6 +126,7 @@ describe('AuthModule', () => {
       await request(httpServer)
         .post('/auth/')
         .set('x-tenant-slug', 'dummy-tenant')
+        .set('user-agent', 'Supertest-E2E-Agent')
         .send({
           username: 'test.user',
           password: 'wrong-password',
@@ -144,7 +146,6 @@ describe('AuthModule', () => {
 
       const cookieHeader = parseAllCookies(loginResponse.get('Set-Cookie'));
 
-      // x-tenant-slug removido pois não é mais necessário nas rotas protegidas
       const refreshResponse = await request(httpServer)
         .post('/auth/refresh')
         .set('user-agent', 'Supertest-E2E-Agent')
@@ -230,7 +231,6 @@ describe('AuthModule', () => {
         .set('Cookie', cookieHeader)
         .expect(200);
 
-      // Atualizado para esperar 401 Unauthorized após o token ser revogado no logout
       await request(httpServer)
         .post('/auth/refresh')
         .set('user-agent', 'Supertest-E2E-Agent')
