@@ -22,9 +22,12 @@ describe('authInterceptor', () => {
 
     authStoreMock = {
       isAuthenticated: vi.fn(),
+      mustChangePassword: vi.fn(),
+      currentUsername: vi.fn(),
       isLoading: vi.fn(),
       error: vi.fn(),
       login: vi.fn(),
+      checkSession: vi.fn(),
       logout: vi.fn(),
     };
 
@@ -55,7 +58,10 @@ describe('authInterceptor', () => {
   });
 
   it('deve tentar renovar a sessão ao receber erro 401 e re-executar a requisição original', async () => {
-    vi.mocked(authApiMock.refresh).mockResolvedValue({ message: 'Session refreshed' });
+    vi.mocked(authApiMock.refresh).mockResolvedValue({
+      message: 'Session refreshed',
+      mustChangePassword: false,
+    });
 
     let responseData: unknown;
     httpClient.get('/api/v1/products').subscribe((res) => {

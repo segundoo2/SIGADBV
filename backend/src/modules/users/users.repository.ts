@@ -29,7 +29,6 @@ export class UsersRepository implements IUsersRepository {
     userDto: UserDto & { mustChangePassword: boolean; tenantId: string },
   ): Promise<void> {
     try {
-      // Mapeia o array de UUIDs (roleIds) para o formato { id } que a entity exige
       const user = this.repository.create({
         username: userDto.username,
         password: userDto.password,
@@ -103,7 +102,7 @@ export class UsersRepository implements IUsersRepository {
   }
 
   async updateUserPassword(
-    passwordDto: UpdatePasswordDto,
+    passwordDto: UpdatePasswordDto & { tenantId: string },
   ): Promise<UpdateResult> {
     try {
       return await this.repository.update(

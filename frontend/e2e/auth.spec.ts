@@ -25,7 +25,7 @@ test.describe('/auth', () => {
   test('should login successfully and access system when password definition is not required.', async ({ page }) => {
     await page.route('**/auth', async (route) => {
       await route.fulfill({
-        status: 201,
+        status: 200,
         contentType: 'application/json',
         body: JSON.stringify({ 
           success: true,
@@ -40,13 +40,14 @@ test.describe('/auth', () => {
     await page.locator('[data-testid="password-input"]').fill('senha_correta_123');
     await page.locator('[data-testid="submit-btn"]').click();
 
-    await expect(page).toHaveURL('/dashboard'); 
+    await expect(page).toHaveURL('/overview'); 
   });
 
   test('should redirect to password definition page on first login access.', async ({ page }) => {
-    await page.route('**/auth', async (route) => {
+    await page.route('**/auth**', async (route) => {
+      console.log('Interceptou a rota:', route.request().url());
       await route.fulfill({
-        status: 201,
+        status: 200,
         contentType: 'application/json',
         body: JSON.stringify({ 
           success: true,
@@ -61,19 +62,28 @@ test.describe('/auth', () => {
     await page.locator('[data-testid="password-input"]').fill('senha_temporaria');
     await page.locator('[data-testid="submit-btn"]').click();
 
-    // Caminho Feliz 2: Página protegida de definir senha
-    await expect(page).toHaveURL('/auth/define-password'); 
+    await expect(page).toHaveURL('/auth/update-password'); 
   });
 
   test('should show error message on invalid login credentials.', async ({ page }) => {
     const mensagemDinamicaDoBackend = 'Acesso negado: credenciais inválidas.';
 
-    await page.route('**/auth', async (route) => {
-      await route.fulfill({
-        status: 401,
-        contentType: 'application/json',
-        body: JSON.stringify({ message: mensagemDinamicaDoBackend }),
-      });
+    // Usando **/auth** para garantir o match exato independente de sub-rotas como /login
+    await page.route('**/auth**', async (route) => {
+      // Evita interceptar outras rotas se houverem, mas neste caso /auth serve
+      if (route.request().method() === 'POST') {
+        await route.fulfill({
+          status: 401,
+          contentType: 'application/json',
+          // Verifique se o seu componente lê de 'message' direto ou de 'error.message'
+          body: JSON.stringify({ 
+            message: mensagemDinamicaDoBackend,
+            error: { message: mensagemDinamicaDoBackend }
+          }),
+        });
+      } else {
+        await route.continue();
+      }
     });
 
     await page.locator('[data-testid="username-input"]').fill('usuario_errado');

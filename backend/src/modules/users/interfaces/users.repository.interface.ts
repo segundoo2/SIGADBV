@@ -19,7 +19,9 @@ export interface IUsersRepository {
     tenantId: string,
   ): Promise<Omit<User, 'password'> | null>;
 
-  updateUserPassword(passwordDto: UpdatePasswordDto): Promise<UpdateResult>;
+  updateUserPassword(
+    passwordDto: UpdatePasswordDto & { tenantId: string },
+  ): Promise<UpdateResult>;
 
   addRoleToUser(
     username: string,

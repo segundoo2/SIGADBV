@@ -44,9 +44,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
 
     // 1. Validação cruzada do Fingerprint
     const currentFingerprint =
-      (req.headers['x-device-id'] as string) ||
-      (req.headers['user-agent'] as string) ||
-      'unknown';
+      req.headers['x-device-id'] || req.headers['user-agent'] || 'unknown';
 
     if (payload.fingerprint !== currentFingerprint) {
       throw new UnauthorizedException('Dispositivo divergente. Acesso negado.');

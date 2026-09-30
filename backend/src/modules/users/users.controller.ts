@@ -132,7 +132,6 @@ export class UsersController implements IUsersController {
 
   @Patch()
   @HttpCode(HttpStatus.OK)
-  @RequiresPermission(EPermission.USERS_UPDATE)
   @ApiOperation({ summary: 'Atualizar a senha de um usuário autenticado' })
   @ApiBody({ type: UpdatePasswordDto })
   @ApiResponse({
@@ -152,8 +151,7 @@ export class UsersController implements IUsersController {
     @Body() userDto: UpdatePasswordDto,
     @TenantId() tenantId: string,
   ): Promise<IResponse<string | null>> {
-    userDto.tenantId = tenantId;
-    return await this.usersService.updateUserPassword(userDto);
+    return await this.usersService.updateUserPassword({ ...userDto, tenantId });
   }
 
   @Post(':username/roles/:roleId')
