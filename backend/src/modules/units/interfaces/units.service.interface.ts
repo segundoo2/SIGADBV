@@ -20,5 +20,11 @@ export interface IUnitsService {
     dto: UpdateUnitDto & { tenantId: string },
   ): Promise<IResponse<null>>;
 
+  adjustUnitScore(
+    id: string,
+    tenantId: string,
+    scoreDelta: number,
+  ): Promise<IResponse<{ newScore: number }>>;
+
   deleteUnit(id: string, tenantId: string): Promise<IResponse<null>>;
 }
