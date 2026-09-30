@@ -1,25 +1,40 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/infra/guards/auth.guard';
+import { guestGuard } from './core/infra/guards/guest.guard';
 
 export const routes: Routes = [
   {
     path: 'auth',
-    loadComponent: () => import('./feature/auth/auth').then(m => m.Auth)
+    canActivate: [guestGuard],
+    loadComponent: () => import('./feature/auth/auth').then((m) => m.Auth),
   },
   {
-    path: 'auth/define-password',
-    loadComponent: () => import('./feature/define-password/define-password').then(m => m.DefinePassword)
+    path: 'auth/update-password',
+    loadComponent: () =>
+      import('./feature/update-password/update-password').then(
+        (m) => m.UpdatePassword,
+      ),
+    canActivate: [authGuard],
   },
   {
-    path: 'dashboard',
-    loadComponent: () => import('./feature/dashboard/dashboard').then(m => m.Dashboard)
+    path: 'overview',
+    loadComponent: () =>
+      import('./feature/overview/overview').then((m) => m.Overview),
+    canActivate: [authGuard],
   },
   {
     path: '',
-    redirectTo: 'auth',
-    pathMatch: 'full'
+    loadComponent: () =>
+      import('./feature/root-redirect').then(
+        (m) => m.RootRedirect,
+      ),
+    pathMatch: 'full',
   },
   {
     path: '**',
-    redirectTo: 'auth'
-  }
+    loadComponent: () =>
+      import('./feature/not-found-redirect').then(
+        (m) => m.NotFoundRedirect,
+      ),
+  },
 ];

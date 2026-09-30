@@ -21,7 +21,7 @@ export interface IUsersService {
   ): Promise<IResponse<Omit<User, 'password'>>>;
 
   updateUserPassword(
-    passwordDto: UpdatePasswordDto,
+    passwordDto: UpdatePasswordDto & { tenantId: string },
   ): Promise<IResponse<string | null>>;
 
   addRoleToUser(

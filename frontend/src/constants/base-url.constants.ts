@@ -1,1 +1,0 @@
-export const baseUrl = 'https://api.sigadbv.sgcode.com.br';
