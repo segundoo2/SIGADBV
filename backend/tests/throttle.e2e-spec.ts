@@ -4,9 +4,12 @@ import request from 'supertest';
 import cookieParser from 'cookie-parser';
 import { Server } from 'http';
 import { AppModule } from '../src/app.module';
-import { setupTestDatabase, cleanTestDatabase } from './auth/setup.helper';
+import {
+  setupTestDatabase,
+  cleanTestDatabase,
+} from './setup-test-database.helper';
 
-describe('ThrottlerGuard (E2E)', () => {
+describe('ThrottlerGuard', () => {
   let app: INestApplication;
   let httpServer: Server;
 

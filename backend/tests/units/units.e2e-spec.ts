@@ -9,9 +9,12 @@ import { EUnitGender } from '../../src/common/enum/unit/unit-gender.enum';
 import { IResponse } from '../../src/common/interfaces/response.interface';
 import { UnitEntity } from '../../src/modules/units/entities/unit.entity';
 import { UpdateUnitDto } from '../../src/modules/units/dto/update-unit.dto';
-import { setupTestDatabase, cleanTestDatabase } from '../auth/setup.helper';
+import {
+  setupTestDatabase,
+  cleanTestDatabase,
+} from '../setup-test-database.helper';
 
-describe('UnitsModule (E2E)', () => {
+describe('UnitsModule', () => {
   let app: INestApplication;
   let httpServer: Server;
   let authCookie: string;
