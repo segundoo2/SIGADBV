@@ -44,8 +44,7 @@ import {
         <div>
           <h1 class="text-2xl font-bold text-white">Pontuação de Unidades</h1>
           <p class="text-sm text-slate-400">
-            Mantenha o ranking das unidades atualizado com o lançamento de
-            créditos e débitos de pontos.
+            Mantenha o ranking das unidades atualizado adicionando ou retirando pontos.
           </p>
         </div>
         <button
@@ -59,7 +58,7 @@ import {
 
       <app-modal
         [isOpen]="isScoreModalOpen()"
-        title="Créditar/Debitar Pontuação de Unidade"
+        title="Adicionar/Retirar Pontos da Unidade"
         size="md"
         (close)="closeScoreModal()"
       >
