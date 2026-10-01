@@ -12,7 +12,7 @@ type MockRepository<T extends ObjectLiteral> = Partial<
   Record<keyof Repository<T>, jest.Mock>
 >;
 
-describe('UnitRepository', () => {
+describe('ScoreHistoryRepository', () => {
   let repository: ScoreHistoryRepository;
   let ormMock: MockRepository<ScoreHistoryEntity>;
   const mockScoreHistory: ScoreHistoryEntity = {
@@ -122,14 +122,24 @@ describe('UnitRepository', () => {
   });
 
   describe('findHistoryByUnitId', () => {
-    it('should return score history when he is found', async () => {
-      ormMock.findOne.mockResolvedValue(mockScoreHistory);
-      expect(
-        await repository.findHistoryByUnitId(
+    it('should return score history when it is found', async () => {
+      const expectedResult = [mockScoreHistory];
+      ormMock.find.mockResolvedValue(expectedResult);
+
+      await expect(
+        repository.findHistoryByUnitId(
           mockScoreHistory.unitId,
           mockScoreHistory.tenantId,
         ),
-      ).toEqual(mockScoreHistory);
+      ).resolves.toEqual(expectedResult);
+
+      expect(ormMock.find).toHaveBeenCalledWith({
+        where: {
+          unitId: mockScoreHistory.unitId,
+          tenantId: mockScoreHistory.tenantId,
+        },
+        order: { createdAt: 'DESC' },
+      });
     });
 
     shouldHandleDatabaseErrors(
@@ -138,7 +148,7 @@ describe('UnitRepository', () => {
           mockScoreHistory.unitId,
           mockScoreHistory.tenantId,
         ),
-      () => ormMock.findOne,
+      () => ormMock.find,
     );
   });
 });

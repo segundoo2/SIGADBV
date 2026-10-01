@@ -23,17 +23,21 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'units',
+    loadComponent: () =>
+      import('./feature/units/units').then((m) => m.Units),
+    canActivate: [authGuard],
+  },
+  {
     path: '',
     loadComponent: () =>
-      import('./feature/root-redirect').then(
-        (m) => m.RootRedirect,
-      ),
+      import('./shared/common/root-redirect').then((m) => m.RootRedirect),
     pathMatch: 'full',
   },
   {
     path: '**',
     loadComponent: () =>
-      import('./feature/not-found-redirect').then(
+      import('./shared/common/not-found-redirect').then(
         (m) => m.NotFoundRedirect,
       ),
   },

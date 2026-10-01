@@ -1,11 +1,15 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideHttpClient } from '@angular/common/http';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import { UpdatePasswordApiAdapter } from '../update-password-api.adapter';
 import { IUpdatePasswordDto } from '../../../domain/models/update-password-dto.model';
 import { IResponseModel } from '../../../domain/models/response.model';
 import { URL } from '../../tokens/url.token';
+import { apiErrorInterceptor } from '../../interceptors/api-error.interceptor';
 
 describe('UpdatePasswordApiAdapter', () => {
   let adapter: UpdatePasswordApiAdapter;
@@ -16,7 +20,7 @@ describe('UpdatePasswordApiAdapter', () => {
     TestBed.configureTestingModule({
       providers: [
         UpdatePasswordApiAdapter,
-        provideHttpClient(),
+        provideHttpClient(withInterceptors([apiErrorInterceptor])),
         provideHttpClientTesting(),
       ],
     });
@@ -53,7 +57,7 @@ describe('UpdatePasswordApiAdapter', () => {
     expect(result).toEqual(mockResponse);
   });
 
-  it('should propagate error when HTTP request fails', async () => {
+  it('should normalize NestJS errors when the update request fails', async () => {
     const payload: IUpdatePasswordDto = {
       username: 'john.doe',
       password: 'newSecurePassword123',
@@ -65,8 +69,19 @@ describe('UpdatePasswordApiAdapter', () => {
     const req = httpMock.expectOne(baseUrl);
     expect(req.request.method).toBe('PATCH');
 
-    req.flush('Bad Request', { status: 400, statusText: 'Bad Request' });
+    req.flush(
+      {
+        statusCode: 400,
+        message: 'Invalid password format',
+        error: 'Bad Request',
+      },
+      { status: 400, statusText: 'Bad Request' },
+    );
 
-    await expect(updatePromise).rejects.toThrow();
+    await expect(updatePromise).rejects.toMatchObject({
+      name: 'ApiError',
+      message: 'Invalid password format',
+      status: 400,
+    });
   });
 });

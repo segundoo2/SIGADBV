@@ -2,11 +2,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { UpdatePassword } from './update-password';
 import { UPDATE_PASSWORD_STORE_PORT } from '../../core/infra/tokens/update-password.token';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
-import { IAuthStorePort } from '../../core/domain/ports/auth-store.port';
 import { provideRouter, Router } from '@angular/router';
 import { signal, WritableSignal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
+import { IAuthStorePort } from '../../core/domain/ports/stores/auth-store.port';
 
 describe('UpdatePassword Component', () => {
   let component: UpdatePassword;

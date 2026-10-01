@@ -9,5 +9,5 @@ export interface IScoreHistoryRepository {
   findHistoryByUnitId(
     unitId: string,
     tenantId: string,
-  ): Promise<ScoreHistoryEntity>;
+  ): Promise<ScoreHistoryEntity[]>;
 }

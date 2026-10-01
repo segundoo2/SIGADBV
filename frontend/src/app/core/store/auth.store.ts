@@ -1,8 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { IAuthStorePort } from '../domain/ports/auth-store.port';
 import { AUTH_API_PORT } from '../infra/tokens/auth.token';
 import { IAuthCredentialsModel } from '../domain/models/auth-credentials.model';
 import { EErrorsGlobal } from '../domain/enums/errors-global.enum';
+import { IAuthStorePort } from '../domain/ports/stores/auth-store.port';
 
 @Injectable({
   providedIn: 'root',

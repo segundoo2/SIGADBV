@@ -2,8 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree } from '@angular/router';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { guestGuard } from '../guest.guard';
-import { IAuthStorePort } from '../../../domain/ports/auth-store.port';
 import { AUTH_STORE_PORT } from '../../tokens/auth.token';
+import { IAuthStorePort } from '../../../domain/ports/stores/auth-store.port';
 
 describe('guestGuard', () => {
   let authStoreMock: IAuthStorePort;
@@ -22,7 +22,9 @@ describe('guestGuard', () => {
     };
 
     routerMock = {
-      createUrlTree: vi.fn((commands: unknown[]) => commands as unknown as UrlTree),
+      createUrlTree: vi.fn(
+        (commands: unknown[]) => commands as unknown as UrlTree,
+      ),
     } as unknown as Router;
 
     TestBed.configureTestingModule({
@@ -33,14 +35,14 @@ describe('guestGuard', () => {
     });
   });
 
-  it('should allow access to the login page when the user is not authenticated after checkSession.', async () => {
+  it('should allow unauthenticated users to access the guest route without refreshing the session.', async () => {
     vi.mocked(authStoreMock.isAuthenticated).mockReturnValue(false);
 
     const result = await TestBed.runInInjectionContext(() =>
       guestGuard({} as never, {} as never),
     );
 
-    expect(authStoreMock.checkSession).toHaveBeenCalledTimes(1);
+    expect(authStoreMock.checkSession).not.toHaveBeenCalled();
     expect(result).toBe(true);
     expect(routerMock.createUrlTree).not.toHaveBeenCalled();
   });
@@ -67,22 +69,9 @@ describe('guestGuard', () => {
     );
 
     expect(authStoreMock.checkSession).not.toHaveBeenCalled();
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/auth/update-password']);
+    expect(routerMock.createUrlTree).toHaveBeenCalledWith([
+      '/auth/update-password',
+    ]);
     expect(result).toEqual(['/auth/update-password']);
-  });
-
-  it('should restore the session and redirect to /overview when checkSession authenticates a regular user.', async () => {
-    vi.mocked(authStoreMock.isAuthenticated)
-      .mockReturnValueOnce(false)
-      .mockReturnValueOnce(true);
-    vi.mocked(authStoreMock.mustChangePassword).mockReturnValue(false);
-
-    const result = await TestBed.runInInjectionContext(() =>
-      guestGuard({} as never, {} as never),
-    );
-
-    expect(authStoreMock.checkSession).toHaveBeenCalledTimes(1);
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/overview']);
-    expect(result).toEqual(['/overview']);
   });
 });

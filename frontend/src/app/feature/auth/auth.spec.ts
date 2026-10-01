@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Auth } from './auth';
-import { IAuthStorePort } from '../../core/domain/ports/auth-store.port';
 import { signal, WritableSignal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { Router } from '@angular/router';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
+import { IAuthStorePort } from '../../core/domain/ports/stores/auth-store.port';
 
 describe('Auth', () => {
   let component: Auth;

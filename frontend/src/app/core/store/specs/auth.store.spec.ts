@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { AuthStore } from '../auth.store';
-import { IAuthApiPort } from '../../domain/ports/auth-api.port';
 import { AUTH_API_PORT } from '../../infra/tokens/auth.token';
 import { IAuthResponseModel } from '../../domain/models/auth-response.model';
 import { EErrorsGlobal } from '../../domain/enums/errors-global.enum';
+import { IAuthApiPort } from '../../domain/ports/apis/auth-api.port';
 
 describe('AuthStore', () => {
   let store: AuthStore;

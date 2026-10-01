@@ -4,6 +4,7 @@ import { UpdatePasswordStore } from '../update-password.store';
 import { UPDATE_PASSWORD_API_PORT } from '../../infra/tokens/update-password.token';
 import { IUpdatePasswordDto } from '../../domain/models/update-password-dto.model';
 import { IResponseModel } from '../../domain/models/response.model';
+import { ApiError } from '../../infra/interceptors/api-error.interceptor';
 
 describe('UpdatePasswordStore', () => {
   let store: UpdatePasswordStore;
@@ -65,7 +66,7 @@ describe('UpdatePasswordStore', () => {
       mustChangePassword: false,
     };
 
-    const mockError = { error: { message: 'Invalid password format' } };
+    const mockError = new ApiError('Invalid password format', 400);
     apiMock.updatePassword.mockRejectedValueOnce(mockError);
 
     const promise = store.updatePassword(payload);
