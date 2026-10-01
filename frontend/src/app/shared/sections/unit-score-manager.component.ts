@@ -93,7 +93,7 @@ import {
             id="score"
             label="Valor do Ajuste (ex: 50 ou -15)"
             type="number"
-            inputmode="decimal"
+            inputmode="tel"
             formControlName="score"
             testId="score-input"
             errorTestId="score-error"
