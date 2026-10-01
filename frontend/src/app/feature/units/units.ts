@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { EUnitGender } from '../../core/domain/enums/unit-gender.enum';
 import { UNITS_STORE_PORT } from '../../core/infra/tokens/units.token';
 import { HeaderComponent } from '../../shared/headers/header';
 import { ErrorMessageComponent } from '../../shared/error-message/error-message.component';
@@ -20,7 +21,12 @@ import { Title } from '@angular/platform-browser';
 export class Units implements OnInit {
   private readonly titleService = inject(Title);
   protected readonly unitsStore = inject(UNITS_STORE_PORT);
-  
+  protected readonly genderLabels: Record<EUnitGender, string> = {
+    [EUnitGender.MALE]: 'Desbravadores',
+    [EUnitGender.FEMALE]: 'Desbravadoras',
+    [EUnitGender.MIXED]: 'Mista',
+  };
+
   async ngOnInit(): Promise<void> {
     this.titleService.setTitle('SIGADBV - Unidades');
     await this.loadUnits();

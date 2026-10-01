@@ -2,6 +2,7 @@ import { Component, Input, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { IUnitEntity } from '../../core/domain/entities/unit.entity';
+import { EUnitGender } from '../../core/domain/enums/unit-gender.enum';
 import { UNITS_STORE_PORT } from '../../core/infra/tokens/units.token';
 import { Units } from './units';
 
@@ -81,6 +82,34 @@ describe('Units', () => {
     expect(
       fixture.nativeElement.querySelector('[data-testid="score-manager-stub"]'),
     ).toBeTruthy();
+  });
+
+  it('should render unit genders with Portuguese labels', () => {
+    const genders = [EUnitGender.MALE, EUnitGender.FEMALE, EUnitGender.MIXED];
+    unitsStoreMock.unitsList.set(
+      genders.map((gender, position): IUnitEntity => ({
+        id: `unit-${position}`,
+        tenantId: 'tenant-1',
+        name: `Unidade ${position}`,
+        gender,
+        maxMembers: 8,
+        score: 0,
+        createdAt: new Date('2026-09-01T10:00:00.000Z'),
+        updatedAt: new Date('2026-09-02T10:00:00.000Z'),
+      })),
+    );
+    fixture.detectChanges();
+
+    const renderedGenders = Array.from(
+      fixture.nativeElement.querySelectorAll('.rounded-full'),
+      (element: HTMLElement) => element.textContent.trim(),
+    );
+
+    expect(renderedGenders).toEqual([
+      'Desbravadores',
+      'Desbravadoras',
+      'Mista',
+    ]);
   });
 
   it('should keep the page usable when loading units fails', async () => {
