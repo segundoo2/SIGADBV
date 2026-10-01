@@ -85,7 +85,7 @@ import {
                 scoreForm.get('unitId')?.invalid
               )
             "
-            errorMessage="Selecione uma unidade válida."
+            errorMessage="Selecione uma unidade..."
           />
 
           <!-- Valor do Ajuste -->
