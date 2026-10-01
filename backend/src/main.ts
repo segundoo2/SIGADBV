@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { InternalServerErrorException, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import { Application, Response } from 'express';
@@ -95,7 +95,9 @@ async function bootstrap() {
       if (isAllowed) {
         callback(null, true);
       } else {
-        callback(new Error('Bloqueado pela política de CORS'));
+        callback(
+          new InternalServerErrorException('Bloqueado pela política de CORS'),
+        );
       }
     },
     credentials: true,

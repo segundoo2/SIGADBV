@@ -1,14 +1,8 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
-import { IAuthStorePort } from '../domain/ports/auth-store.port';
+import { Injectable, inject, signal } from '@angular/core';
 import { AUTH_API_PORT } from '../infra/tokens/auth.token';
 import { IAuthCredentialsModel } from '../domain/models/auth-credentials.model';
-
-export interface AuthState {
-  readonly isAuthenticated: boolean;
-  readonly isLoading: boolean;
-  readonly error: string | null;
-  readonly mustChangePassword: boolean;
-}
+import { EErrorsGlobal } from '../domain/enums/errors-global.enum';
+import { IAuthStorePort } from '../domain/ports/stores/auth-store.port';
 
 @Injectable({
   providedIn: 'root',
@@ -16,61 +10,68 @@ export interface AuthState {
 export class AuthStore implements IAuthStorePort {
   private readonly authApiPort = inject(AUTH_API_PORT);
 
-  private readonly _state = signal<AuthState>({
-    isAuthenticated: false,
-    isLoading: false,
-    error: null,
-    mustChangePassword: false,
-  });
+  private readonly _isAuthenticated = signal<boolean>(false);
+  private readonly _isLoading = signal<boolean>(false);
+  private readonly _error = signal<string | null>(null);
+  private readonly _mustChangePassword = signal<boolean>(false);
+  private readonly _currentUsername = signal<string>('');
 
-  readonly mustChangePassword = computed(() => this._state().mustChangePassword);
-
-  readonly isAuthenticated = computed(() => this._state().isAuthenticated);
-  readonly isLoading = computed(() => this._state().isLoading);
-  readonly error = computed(() => this._state().error);
+  readonly isAuthenticated = this._isAuthenticated.asReadonly();
+  readonly isLoading = this._isLoading.asReadonly();
+  readonly error = this._error.asReadonly();
+  readonly mustChangePassword = this._mustChangePassword.asReadonly();
+  readonly currentUsername = this._currentUsername.asReadonly();
 
   async login(credentials: IAuthCredentialsModel): Promise<boolean> {
-    this._state.update((s) => ({ ...s, isLoading: true, error: null }));
-    console.log(credentials);
+    this._isLoading.set(true);
+    this._error.set(null);
 
     try {
-      await this.authApiPort.login(credentials);
       const response = await this.authApiPort.login(credentials);
-      this._state.update((s) => ({
-        ...s,
-        isAuthenticated: true,
-        isLoading: false,
-        mustChangePassword: response.mustChangePassword,
-      }));
+      
+      this._currentUsername.set(credentials.username);
+      this._mustChangePassword.set(response.mustChangePassword);
+      this._isAuthenticated.set(true);
       return true;
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error
           ? err.message
-          : 'Ops! Ocorreu um erro inesperado ao conectar com o servidor. Tente novamente mais tarde.';
+          : EErrorsGlobal.SERVER_ERROR;
 
-      this._state.update((s) => ({
-        ...s,
-        isAuthenticated: false,
-        isLoading: false,
-        error: errorMessage,
-      }));
+      this._isAuthenticated.set(false);
+      this._error.set(errorMessage);
       return false;
+    } finally {
+      this._isLoading.set(false);
     }
   }
 
+async checkSession(): Promise<void> {
+  this._isLoading.set(true);
+  try {
+    const response = await this.authApiPort.refresh();
+    this._isAuthenticated.set(true);
+    this._mustChangePassword.set(response.mustChangePassword);
+  } catch {
+    this._isAuthenticated.set(false);
+    this._mustChangePassword.set(false);
+  } finally {
+    this._isLoading.set(false);
+  }
+}
+
   async logout(): Promise<void> {
-    this._state.update((s) => ({ ...s, isLoading: true }));
+    this._isLoading.set(true);
 
     try {
       await this.authApiPort.logout();
     } finally {
-      this._state.set({
-        isAuthenticated: false,
-        mustChangePassword: false,
-        isLoading: false,
-        error: null,
-      });
+      this._isAuthenticated.set(false);
+      this._mustChangePassword.set(false);
+      this._currentUsername.set('');
+      this._error.set(null);
+      this._isLoading.set(false);
     }
   }
 }

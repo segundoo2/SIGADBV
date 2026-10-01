@@ -35,7 +35,7 @@ export class ScoreHistoryService implements IScoreHistoryService {
   async findHistoryByUnitId(
     unitId: string,
     tenantId: string,
-  ): Promise<IResponse<ScoreHistoryEntity>> {
+  ): Promise<IResponse<ScoreHistoryEntity[]>> {
     const scoreHistory = await this.repositoroy.findHistoryByUnitId(
       unitId,
       tenantId,

@@ -4,7 +4,7 @@ import * as crypto from 'crypto';
 import { User } from '../../modules/users/entities/user.entity';
 import { Role } from '../../modules/roles/entities/role.entity';
 import { SYSTEM_ADMIN_ROLE_NAME } from '../../common/enum/role/permissions.enum';
-import { syncAdminRolePermissions } from './sync-permissions.seed';
+import { syncAdminRolePermissions } from './run-sync-permission.seed';
 
 interface AdminCredentials {
   username: string;

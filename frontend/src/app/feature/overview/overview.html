@@ -1,0 +1,85 @@
+<app-header />
+<div class="p-6 max-w-7xl mx-auto space-y-6">
+  <div
+    class="flex justify-between items-center bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm"
+  >
+    <div>
+      <h1 class="text-2xl font-bold text-white">Visão Geral do Sistema</h1>
+      <p class="text-sm text-slate-400">
+        Acompanhe o desempenho das unidades de desbravadores e visualize o
+        histórico de pontuação.
+      </p>
+      <p class="text-sm text-yellow-400">
+        Atenção: os dados apresentados são fictícios e servem apenas para fins de demonstração.
+      </p>
+      <p class="text-sm text-yellow-400">
+        Esta não é a versão final! A página ainda será refinada e aprimorada com mais funcionalidades e melhorias de usabilidade.
+      </p>
+    </div>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div
+      class="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col items-center justify-center"
+    >
+      <h2 class="text-xl font-semibold text-white mb-4">Pontuação Total</h2>
+      <p class="text-3xl font-bold text-indigo-500">{{ totalScore }}</p>
+    </div>
+    <div
+      class="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col items-center justify-center"
+    >
+      <h2 class="text-xl font-semibold text-white mb-4">Unidades Ativas</h2>
+      <p class="text-3xl font-bold text-indigo-500">{{ activeUnits }}</p>
+    </div>
+  </div>
+  <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm">
+    <h2 class="text-xl font-semibold text-white mb-4">
+      Histórico de Pontuação
+    </h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-slate-800 text-white rounded-lg">
+        <thead>
+          <tr>
+            <th
+              class="px-6 py-3 text-left text-sm font-medium text-gray-300 uppercase tracking-wider"
+            >
+              Unidade
+            </th>
+            <th
+              class="px-6 py-3 text-left text-sm font-medium text-gray-300 uppercase tracking-wider"
+            >
+              Pontuação
+            </th>
+            <th
+              class="px-6 py-3 text-left text-sm font-medium text-gray-300 uppercase tracking-wider"
+            >
+              Data
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (record of scoreHistory; track trackById($index, record)) {
+          <tr>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-300"
+            >
+              {{ record.unitName }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+              {{ record.score }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+              {{ record.createdAt | date: 'dd/MM/yyyy' }}
+            </td>
+          </tr>
+          } @if (scoreHistory.length === 0) {
+          <tr>
+            <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-400">
+              Nenhum registro de pontuação encontrado.
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

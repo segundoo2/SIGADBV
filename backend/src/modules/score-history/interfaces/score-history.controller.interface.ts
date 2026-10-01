@@ -12,5 +12,5 @@ export interface IScoreHistoryController {
   findHistoryByUnitId(
     unitId: string,
     tenantId: string,
-  ): Promise<IResponse<ScoreHistoryEntity>>;
+  ): Promise<IResponse<ScoreHistoryEntity[]>>;
 }

@@ -3,15 +3,15 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideHttpClient } from '@angular/common/http';
 import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import { AuthApiAdapter } from '../auth-api.adapter';
-import { environment } from '../../../../../environments/environments';
 import { IAuthCredentialsModel } from '../../../domain/models/auth-credentials.model';
 import { IAuthResponseModel } from '../../../domain/models/auth-response.model';
+import { URL } from '../../tokens/url.token';
 
 
 describe('AuthApiAdapter', () => {
   let adapter: AuthApiAdapter;
   let httpMock: HttpTestingController;
-  const baseUrl = `${environment.apiUrl}/auth`;
+  const baseUrl = `${URL}/auth`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
