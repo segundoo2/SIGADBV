@@ -92,8 +92,8 @@ import {
           <app-input-form
             id="score"
             label="Valor do Ajuste (ex: 50 ou -15)"
-            type="number"
-            inputmode="decimal"
+            type="text"
+            inputmode="tel"
             formControlName="score"
             testId="score-input"
             errorTestId="score-error"
