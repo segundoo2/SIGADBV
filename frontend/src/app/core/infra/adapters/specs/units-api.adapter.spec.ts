@@ -1,7 +1,4 @@
-import {
-  provideHttpClient,
-  withInterceptors,
-} from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   HttpTestingController,
   provideHttpClientTesting,
@@ -66,7 +63,11 @@ describe('UnitsApiAdapter', () => {
     const request = httpMock.expectOne(baseUrl);
 
     request.flush(
-      { statusCode: 403, message: 'Access denied for this tenant', error: 'Forbidden' },
+      {
+        statusCode: 403,
+        message: 'Access denied for this tenant',
+        error: 'Forbidden',
+      },
       { status: 403, statusText: 'Forbidden' },
     );
 

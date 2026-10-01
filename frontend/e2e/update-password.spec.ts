@@ -33,7 +33,9 @@ async function fillMatchingPasswords(
   await page.getByTestId('confirm-password-input').fill(password);
 }
 
-test('should redirect to login when the protected password page has no valid session', async ({ page }) => {
+test('should redirect to login when the protected password page has no valid session', async ({
+  page,
+}) => {
   await page.route(`${API_BASE_URL}/auth/refresh`, async (route) => {
     await route.fulfill({
       status: 401,
@@ -57,20 +59,28 @@ test.describe('/auth/update-password', () => {
     await loginForPasswordChange(page);
   });
 
-  test('should render the password update form with submit disabled initially', async ({ page }) => {
-    await expect(page.getByText('Defina sua nova senha para continuar')).toBeVisible();
+  test('should render the password update form with submit disabled initially', async ({
+    page,
+  }) => {
+    await expect(
+      page.getByText('Defina sua nova senha para continuar'),
+    ).toBeVisible();
     await expect(page.getByTestId('password-input')).toBeVisible();
     await expect(page.getByTestId('confirm-password-input')).toBeVisible();
     await expect(page.getByTestId('submit-btn')).toBeDisabled();
   });
 
-  test('should enable submit when matching passwords are valid', async ({ page }) => {
+  test('should enable submit when matching passwords are valid', async ({
+    page,
+  }) => {
     await fillMatchingPasswords(page);
 
     await expect(page.getByTestId('submit-btn')).toBeEnabled();
   });
 
-  test('should show a validation error for passwords shorter than eight characters', async ({ page }) => {
+  test('should show a validation error for passwords shorter than eight characters', async ({
+    page,
+  }) => {
     const passwordInput = page.getByTestId('password-input');
     await passwordInput.fill('123456');
     await passwordInput.blur();
@@ -81,7 +91,9 @@ test.describe('/auth/update-password', () => {
     await expect(page.getByTestId('submit-btn')).toBeDisabled();
   });
 
-  test('should show a validation error when confirmation does not match', async ({ page }) => {
+  test('should show a validation error when confirmation does not match', async ({
+    page,
+  }) => {
     await page.getByTestId('password-input').fill('nova_senha_segura_123');
     const confirmationInput = page.getByTestId('confirm-password-input');
     await confirmationInput.fill('senha_diferente_123');
@@ -93,13 +105,18 @@ test.describe('/auth/update-password', () => {
     await expect(page.getByTestId('submit-btn')).toBeDisabled();
   });
 
-  test('should submit the authenticated username and redirect to overview on success', async ({ page }) => {
+  test('should submit the authenticated username and redirect to overview on success', async ({
+    page,
+  }) => {
     await page.route(UPDATE_PASSWORD_URL, async (route) => {
       expect(route.request().method()).toBe('PATCH');
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({ message: 'Password updated successfully', data: null }),
+        body: JSON.stringify({
+          message: 'Password updated successfully',
+          data: null,
+        }),
       });
     });
 
@@ -119,7 +136,9 @@ test.describe('/auth/update-password', () => {
     await expect(page).toHaveURL(/\/overview$/);
   });
 
-  test('should show a NestJS error message and stay on the password page', async ({ page }) => {
+  test('should show a NestJS error message and stay on the password page', async ({
+    page,
+  }) => {
     const backendMessage = 'A senha atual não pode ser igual à anterior.';
 
     await page.route(UPDATE_PASSWORD_URL, async (route) => {
@@ -141,7 +160,9 @@ test.describe('/auth/update-password', () => {
     await expect(page).toHaveURL(/\/auth\/update-password$/);
   });
 
-  test('should display joined validation messages returned by NestJS', async ({ page }) => {
+  test('should display joined validation messages returned by NestJS', async ({
+    page,
+  }) => {
     await page.route(UPDATE_PASSWORD_URL, async (route) => {
       await route.fulfill({
         status: 400,
@@ -163,7 +184,9 @@ test.describe('/auth/update-password', () => {
     await expect(page).toHaveURL(/\/auth\/update-password$/);
   });
 
-  test('should show loading state and disable the form while updating', async ({ page }) => {
+  test('should show loading state and disable the form while updating', async ({
+    page,
+  }) => {
     let releaseUpdate!: () => void;
     const updateGate = new Promise<void>((resolve) => {
       releaseUpdate = resolve;
@@ -174,7 +197,10 @@ test.describe('/auth/update-password', () => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({ message: 'Password updated successfully', data: null }),
+        body: JSON.stringify({
+          message: 'Password updated successfully',
+          data: null,
+        }),
       });
     });
 

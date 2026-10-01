@@ -4,7 +4,7 @@ import { signal } from '@angular/core';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { NotFoundRedirect } from '../not-found-redirect';
 import { AUTH_STORE_PORT } from '../../../core/infra/tokens/auth.token';
-import { IAuthStorePort } from '../../../core/domain/ports/auth-store.port';
+import { IAuthStorePort } from '../../../core/domain/ports/stores/auth-store.port';
 
 describe('NotFoundRedirect', () => {
   let authStoreMock: IAuthStorePort;

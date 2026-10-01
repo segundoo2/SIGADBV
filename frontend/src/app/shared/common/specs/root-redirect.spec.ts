@@ -4,7 +4,7 @@ import { signal, WritableSignal } from '@angular/core';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { RootRedirect } from '../root-redirect';
 import { AUTH_STORE_PORT } from '../../../core/infra/tokens/auth.token';
-import { IAuthStorePort } from '../../../core/domain/ports/auth-store.port';
+import { IAuthStorePort } from '../../../core/domain/ports/stores/auth-store.port';
 
 describe('RootRedirect', () => {
   let fixture: ComponentFixture<RootRedirect>;
@@ -46,7 +46,9 @@ describe('RootRedirect', () => {
     await fixture.componentInstance.ngOnInit();
 
     expect(authStoreMock.checkSession).not.toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/auth'], { replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['/auth'], {
+      replaceUrl: true,
+    });
   });
 
   it('should redirect authenticated users to /overview without checking session', async () => {
@@ -56,7 +58,9 @@ describe('RootRedirect', () => {
     await fixture.componentInstance.ngOnInit();
 
     expect(authStoreMock.checkSession).not.toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/overview'], { replaceUrl: true });
+    expect(router.navigate).toHaveBeenCalledWith(['/overview'], {
+      replaceUrl: true,
+    });
   });
 
   it('should redirect authenticated users that must change password to /auth/update-password', async () => {
@@ -70,5 +74,4 @@ describe('RootRedirect', () => {
       replaceUrl: true,
     });
   });
-
 });

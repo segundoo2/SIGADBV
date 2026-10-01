@@ -1,4 +1,10 @@
-import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpEvent, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpInterceptorFn,
+  HttpRequest,
+  HttpHandlerFn,
+  HttpEvent,
+  HttpErrorResponse,
+} from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Observable, throwError, from, BehaviorSubject } from 'rxjs';
 import { catchError, switchMap, filter, take } from 'rxjs/operators';
@@ -11,7 +17,7 @@ const refreshTokenSubject = new BehaviorSubject<boolean | null>(null);
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
-  next: HttpHandlerFn
+  next: HttpHandlerFn,
 ): Observable<HttpEvent<unknown>> => {
   const authApi = inject(AUTH_API_PORT);
   const authStore = inject(AUTH_STORE_PORT);
@@ -25,7 +31,7 @@ export const authInterceptor: HttpInterceptorFn = (
       }
 
       return throwError(() => error);
-    })
+    }),
   );
 };
 
@@ -34,7 +40,7 @@ function handle401Error(
   next: HttpHandlerFn,
   authApi: IAuthApiPort,
   authStore: IAuthStorePort,
-  error: HttpErrorResponse
+  error: HttpErrorResponse,
 ): Observable<HttpEvent<unknown>> {
   if (!isRefreshing) {
     isRefreshing = true;
@@ -50,8 +56,8 @@ function handle401Error(
         isRefreshing = false;
         refreshTokenSubject.next(false);
 
-        const isUnauthorizedRefresh = 
-          refreshError instanceof HttpErrorResponse && 
+        const isUnauthorizedRefresh =
+          refreshError instanceof HttpErrorResponse &&
           (refreshError.status === 401 || refreshError.status === 403);
 
         if (isUnauthorizedRefresh) {
@@ -59,7 +65,7 @@ function handle401Error(
         }
 
         return throwError(() => refreshError);
-      })
+      }),
     );
   }
 
@@ -71,6 +77,6 @@ function handle401Error(
         return next(req);
       }
       return throwError(() => error);
-    })
+    }),
   );
 }

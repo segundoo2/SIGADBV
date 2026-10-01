@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SCORE_HISTORY_STORE_PORT } from '../../core/infra/tokens/score-history.token';
+import { UNITS_STORE_PORT } from '../../core/infra/tokens/units.token';
 import { UnitScoreManagerComponent } from './unit-score-manager.component';
 
 describe('UnitScoreManagerComponent', () => {
@@ -14,6 +15,14 @@ describe('UnitScoreManagerComponent', () => {
     registerScore: vi.fn(),
   };
 
+  const unitsStoreMock = {
+    unitsList: signal([]),
+    successMessage: signal(''),
+    isLoading: signal(false),
+    error: signal<string | null>(null),
+    getAllUnits: vi.fn(),
+  };
+
   const validFormValue = {
     unitId: '123e4567-e89b-12d3-a456-426614174000',
     score: '-15',
@@ -24,6 +33,21 @@ describe('UnitScoreManagerComponent', () => {
     scoreStoreMock.error.set(null);
     scoreStoreMock.isLoading.set(false);
     scoreStoreMock.registerScore.mockReset();
+    unitsStoreMock.getAllUnits.mockReset().mockResolvedValue({
+      message: 'Units loaded',
+      data: [
+        {
+          id: validFormValue.unitId,
+          tenantId: 'tenant-1',
+          name: 'Unidade Alpha',
+          gender: 'MIXED',
+          maxMembers: 8,
+          score: 120,
+          createdAt: new Date('2026-09-01T10:00:00.000Z'),
+          updatedAt: new Date('2026-09-02T10:00:00.000Z'),
+        },
+      ],
+    });
 
     await TestBed.configureTestingModule({
       imports: [UnitScoreManagerComponent],
@@ -32,12 +56,14 @@ describe('UnitScoreManagerComponent', () => {
           provide: SCORE_HISTORY_STORE_PORT,
           useValue: scoreStoreMock,
         },
+        { provide: UNITS_STORE_PORT, useValue: unitsStoreMock },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(UnitScoreManagerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   it('should create the component with an invalid initial form', () => {
@@ -46,7 +72,7 @@ describe('UnitScoreManagerComponent', () => {
     expect(component.isScoreModalOpen()).toBe(false);
   });
 
-  it('should open the modal and reset the form', () => {
+  it('should open the modal and reset the form', async () => {
     component.scoreForm.setValue({
       unitId: validFormValue.unitId,
       score: 50,
@@ -54,7 +80,7 @@ describe('UnitScoreManagerComponent', () => {
     });
     component.scoreForm.markAllAsTouched();
 
-    component.openScoreModal();
+    await component.openScoreModal();
 
     expect(component.isScoreModalOpen()).toBe(true);
     expect(component.scoreForm.getRawValue()).toEqual({
@@ -75,8 +101,8 @@ describe('UnitScoreManagerComponent', () => {
     expect(component.isScoreModalOpen()).toBe(true);
   });
 
-  it('should close the modal', () => {
-    component.openScoreModal();
+  it('should close the modal', async () => {
+    await component.openScoreModal();
 
     component.closeScoreModal();
 
@@ -84,7 +110,7 @@ describe('UnitScoreManagerComponent', () => {
   });
 
   it('should mark all form controls as touched and not submit an invalid form', async () => {
-    component.openScoreModal();
+    await component.openScoreModal();
 
     await component.onSubmitScore();
 
@@ -96,7 +122,7 @@ describe('UnitScoreManagerComponent', () => {
   });
 
   it('should reject a non-integer score without calling the store', async () => {
-    component.openScoreModal();
+    await component.openScoreModal();
     component.scoreForm.setValue({
       ...validFormValue,
       score: '1.5',
@@ -110,7 +136,7 @@ describe('UnitScoreManagerComponent', () => {
   });
 
   it('should reject a description longer than 255 characters', async () => {
-    component.openScoreModal();
+    await component.openScoreModal();
     component.scoreForm.setValue({
       ...validFormValue,
       description: 'a'.repeat(256),
@@ -124,7 +150,7 @@ describe('UnitScoreManagerComponent', () => {
 
   it('should submit a valid form and close the modal when the store succeeds', async () => {
     scoreStoreMock.registerScore.mockResolvedValue(true);
-    component.openScoreModal();
+    await component.openScoreModal();
     component.scoreForm.setValue(validFormValue);
 
     await component.onSubmitScore();
@@ -142,7 +168,7 @@ describe('UnitScoreManagerComponent', () => {
 
   it('should keep the modal open when the store returns false', async () => {
     scoreStoreMock.registerScore.mockResolvedValue(false);
-    component.openScoreModal();
+    await component.openScoreModal();
     component.scoreForm.setValue(validFormValue);
 
     await component.onSubmitScore();

@@ -1,5 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import { UpdatePasswordApiAdapter } from '../update-password-api.adapter';

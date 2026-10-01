@@ -30,7 +30,9 @@ test.describe('/auth', () => {
     await page.goto('/auth');
   });
 
-  test('should render the login form with submit disabled initially', async ({ page }) => {
+  test('should render the login form with submit disabled initially', async ({
+    page,
+  }) => {
     await expect(page).toHaveURL(/\/auth$/);
     await expect(page.getByRole('heading', { name: 'SIGADBV' })).toBeVisible();
     await expect(page.getByTestId('username-input')).toBeVisible();
@@ -38,13 +40,17 @@ test.describe('/auth', () => {
     await expect(page.getByTestId('submit-btn')).toBeDisabled();
   });
 
-  test('should enable submit when credentials satisfy form validation', async ({ page }) => {
+  test('should enable submit when credentials satisfy form validation', async ({
+    page,
+  }) => {
     await fillLoginForm(page);
 
     await expect(page.getByTestId('submit-btn')).toBeEnabled();
   });
 
-  test('should display username and password validation errors', async ({ page }) => {
+  test('should display username and password validation errors', async ({
+    page,
+  }) => {
     const usernameInput = page.getByTestId('username-input');
     const passwordInput = page.getByTestId('password-input');
 
@@ -62,7 +68,9 @@ test.describe('/auth', () => {
     await expect(page.getByTestId('submit-btn')).toBeDisabled();
   });
 
-  test('should navigate to overview after a successful login', async ({ page }) => {
+  test('should navigate to overview after a successful login', async ({
+    page,
+  }) => {
     await mockSuccessfulLogin(page);
     await fillLoginForm(page, 'usuario_normal');
     await page.getByTestId('submit-btn').click();
@@ -73,7 +81,9 @@ test.describe('/auth', () => {
     ).toBeVisible();
   });
 
-  test('should navigate to password update when the account requires a password change', async ({ page }) => {
+  test('should navigate to password update when the account requires a password change', async ({
+    page,
+  }) => {
     await mockSuccessfulLogin(page, true);
     await fillLoginForm(page, 'usuario_primeiro_acesso', 'senha_temporaria');
     await page.getByTestId('submit-btn').click();
@@ -84,7 +94,9 @@ test.describe('/auth', () => {
     ).toBeVisible();
   });
 
-  test('should show the backend message when login is rejected', async ({ page }) => {
+  test('should show the backend message when login is rejected', async ({
+    page,
+  }) => {
     const backendMessage = 'Acesso negado: credenciais inválidas.';
 
     await page.route(LOGIN_URL, async (route) => {
@@ -106,7 +118,9 @@ test.describe('/auth', () => {
     await expect(page).toHaveURL(/\/auth$/);
   });
 
-  test('should show loading state and prevent duplicate submission', async ({ page }) => {
+  test('should show loading state and prevent duplicate submission', async ({
+    page,
+  }) => {
     let releaseLogin!: () => void;
     const loginGate = new Promise<void>((resolve) => {
       releaseLogin = resolve;
@@ -117,7 +131,10 @@ test.describe('/auth', () => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({ message: 'Login successful', mustChangePassword: false }),
+        body: JSON.stringify({
+          message: 'Login successful',
+          mustChangePassword: false,
+        }),
       });
     });
 
@@ -132,7 +149,9 @@ test.describe('/auth', () => {
     await expect(page).toHaveURL(/\/overview$/);
   });
 
-  test('should log out from the profile menu and return to login', async ({ page }) => {
+  test('should log out from the profile menu and return to login', async ({
+    page,
+  }) => {
     await mockSuccessfulLogin(page);
     await fillLoginForm(page, 'usuario_normal');
     await page.getByTestId('submit-btn').click();
@@ -156,7 +175,9 @@ test.describe('/auth', () => {
     expect(logoutRequestReceived).toBe(true);
   });
 
-  test('should redirect to login when a protected route has no valid session', async ({ page }) => {
+  test('should redirect to login when a protected route has no valid session', async ({
+    page,
+  }) => {
     await page.route(`${API_BASE_URL}/auth/refresh`, async (route) => {
       await route.fulfill({
         status: 401,

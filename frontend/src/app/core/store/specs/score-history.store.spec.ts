@@ -70,7 +70,9 @@ describe('ScoreHistoryStore', () => {
       const mockError = new ApiError('Unit score limit exceeded', 400);
       apiPortMock.registerScore.mockRejectedValueOnce(mockError);
 
-      await expect(store.registerScore(unitId, payload)).rejects.toThrow(mockError);
+      await expect(store.registerScore(unitId, payload)).rejects.toThrow(
+        mockError,
+      );
 
       expect(store.isLoading()).toBe(false);
       expect(store.error()).toBe('Unit score limit exceeded');

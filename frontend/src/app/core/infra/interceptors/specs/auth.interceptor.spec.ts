@@ -1,12 +1,20 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClient, HttpErrorResponse, provideHttpClient, withInterceptors } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  provideHttpClient,
+  withInterceptors,
+} from '@angular/common/http';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { firstValueFrom } from 'rxjs';
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { authInterceptor } from '../auth.interceptor';
-import { IAuthApiPort } from '../../../domain/ports/auth-api.port';
-import { IAuthStorePort } from '../../../domain/ports/auth-store.port';
 import { AUTH_API_PORT, AUTH_STORE_PORT } from '../../tokens/auth.token';
+import { IAuthApiPort } from '../../../domain/ports/apis/auth-api.port';
+import { IAuthStorePort } from '../../../domain/ports/stores/auth-store.port';
 
 describe('authInterceptor', () => {
   let httpClient: HttpClient;
@@ -70,7 +78,10 @@ describe('authInterceptor', () => {
     });
 
     const initialReq = httpMock.expectOne('/api/v1/products');
-    initialReq.flush({ message: 'Unauthorized' }, { status: 401, statusText: 'Unauthorized' });
+    initialReq.flush(
+      { message: 'Unauthorized' },
+      { status: 401, statusText: 'Unauthorized' },
+    );
 
     await Promise.resolve();
 
@@ -90,7 +101,10 @@ describe('authInterceptor', () => {
     const request = firstValueFrom(httpClient.get('/api/v1/products'));
 
     const initialReq = httpMock.expectOne('/api/v1/products');
-    initialReq.flush({ message: 'Unauthorized' }, { status: 401, statusText: 'Unauthorized' });
+    initialReq.flush(
+      { message: 'Unauthorized' },
+      { status: 401, statusText: 'Unauthorized' },
+    );
 
     await expect(request).rejects.toBeInstanceOf(HttpErrorResponse);
 
@@ -108,7 +122,10 @@ describe('authInterceptor', () => {
     });
 
     const req = httpMock.expectOne('/api/v1/auth/login');
-    req.flush({ message: 'Invalid credentials' }, { status: 401, statusText: 'Unauthorized' });
+    req.flush(
+      { message: 'Invalid credentials' },
+      { status: 401, statusText: 'Unauthorized' },
+    );
 
     expect(authApiMock.refresh).not.toHaveBeenCalled();
     expect(authStoreMock.logout).not.toHaveBeenCalled();

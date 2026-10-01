@@ -28,10 +28,7 @@ describe('UnitsStore', () => {
     apiMock.getAllUnits.mockReset();
 
     TestBed.configureTestingModule({
-      providers: [
-        UnitsStore,
-        { provide: UNITS_API_PORT, useValue: apiMock },
-      ],
+      providers: [UnitsStore, { provide: UNITS_API_PORT, useValue: apiMock }],
     });
 
     store = TestBed.inject(UnitsStore);

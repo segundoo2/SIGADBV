@@ -1,6 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
+import {
+  provideHttpClientTesting,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 import { IResponseModel } from '../../../domain/models/response.model';
 import { IScoreHistoryEntity } from '../../../domain/entities/score-history.entity';
 import { IScoreHistoryPayload } from '../../../domain/models/score-history-payload.model';
@@ -78,7 +81,7 @@ describe('ScoreHistoryApiAdapter', () => {
         { status: 400, statusText: 'Bad Request' },
       );
 
-      await expect(promise).rejects.toMatchObject<ApiError>({
+      await expect(promise).rejects.toMatchObject({
         name: 'ApiError',
         message: errorMessage,
         status: 400,

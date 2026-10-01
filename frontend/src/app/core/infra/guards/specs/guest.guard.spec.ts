@@ -2,8 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree } from '@angular/router';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { guestGuard } from '../guest.guard';
-import { IAuthStorePort } from '../../../domain/ports/auth-store.port';
 import { AUTH_STORE_PORT } from '../../tokens/auth.token';
+import { IAuthStorePort } from '../../../domain/ports/stores/auth-store.port';
 
 describe('guestGuard', () => {
   let authStoreMock: IAuthStorePort;
@@ -22,7 +22,9 @@ describe('guestGuard', () => {
     };
 
     routerMock = {
-      createUrlTree: vi.fn((commands: unknown[]) => commands as unknown as UrlTree),
+      createUrlTree: vi.fn(
+        (commands: unknown[]) => commands as unknown as UrlTree,
+      ),
     } as unknown as Router;
 
     TestBed.configureTestingModule({
@@ -67,8 +69,9 @@ describe('guestGuard', () => {
     );
 
     expect(authStoreMock.checkSession).not.toHaveBeenCalled();
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/auth/update-password']);
+    expect(routerMock.createUrlTree).toHaveBeenCalledWith([
+      '/auth/update-password',
+    ]);
     expect(result).toEqual(['/auth/update-password']);
   });
-
 });

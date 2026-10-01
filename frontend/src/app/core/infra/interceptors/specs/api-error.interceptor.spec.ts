@@ -11,10 +11,7 @@ import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { EErrorsGlobal } from '../../../domain/enums/errors-global.enum';
-import {
-  apiErrorInterceptor,
-  ApiError,
-} from '../api-error.interceptor';
+import { apiErrorInterceptor, ApiError } from '../api-error.interceptor';
 
 describe('apiErrorInterceptor', () => {
   let http: HttpClient;
@@ -36,10 +33,12 @@ describe('apiErrorInterceptor', () => {
 
   it('should convert a NestJS string message to ApiError', async () => {
     const request = firstValueFrom(http.get('/api/resource'));
-    httpMock.expectOne('/api/resource').flush(
-      { statusCode: 400, message: 'Invalid request', error: 'Bad Request' },
-      { status: 400, statusText: 'Bad Request' },
-    );
+    httpMock
+      .expectOne('/api/resource')
+      .flush(
+        { statusCode: 400, message: 'Invalid request', error: 'Bad Request' },
+        { status: 400, statusText: 'Bad Request' },
+      );
 
     await expect(request).rejects.toMatchObject({
       name: 'ApiError',
@@ -79,10 +78,12 @@ describe('apiErrorInterceptor', () => {
 
   it('should use the HTTP status when the response has no message', async () => {
     const request = firstValueFrom(http.get('/api/resource'));
-    httpMock.expectOne('/api/resource').flush(
-      { statusCode: 500 },
-      { status: 500, statusText: 'Internal Server Error' },
-    );
+    httpMock
+      .expectOne('/api/resource')
+      .flush(
+        { statusCode: 500 },
+        { status: 500, statusText: 'Internal Server Error' },
+      );
 
     await expect(request).rejects.toMatchObject({
       name: 'ApiError',

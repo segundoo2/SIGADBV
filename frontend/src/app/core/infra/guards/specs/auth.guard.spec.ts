@@ -2,8 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree } from '@angular/router';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { authGuard } from '../auth.guard';
-import { IAuthStorePort } from '../../../domain/ports/auth-store.port';
 import { AUTH_STORE_PORT } from '../../tokens/auth.token';
+import { IAuthStorePort } from '../../../domain/ports/stores/auth-store.port';
 
 describe('authGuard', () => {
   let authStoreMock: IAuthStorePort;
