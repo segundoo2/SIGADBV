@@ -85,7 +85,7 @@ export class UnitsService implements IUnitsService {
   ): Promise<IResponse<{ newScore: number }>> {
     const unitExisted = await this.repository.findOneScoreById(id, tenantId);
 
-    if (!unitExisted) {
+    if (unitExisted === null) {
       throw new NotFoundException(EUnitErrors.UNITS_NOT_FOUND);
     }
 
