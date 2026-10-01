@@ -12,7 +12,7 @@ import { EScoreHistoryErrors } from '../../common/enum/score-story/score-history
 export class ScoreHistoryService implements IScoreHistoryService {
   constructor(
     @Inject('IScoreHistoryRepository')
-    private readonly repositoroy: IScoreHistoryRepository,
+    private readonly repository: IScoreHistoryRepository,
     @Inject('IUnitsService')
     private readonly unitsService: IUnitsService,
   ) {}
@@ -27,7 +27,7 @@ export class ScoreHistoryService implements IScoreHistoryService {
       tenantId,
       dto.score,
     );
-    await this.repositoroy.adjustUnitScore({ unitId, tenantId, ...dto });
+    await this.repository.adjustUnitScore({ unitId, tenantId, ...dto });
 
     return response;
   }
@@ -36,7 +36,7 @@ export class ScoreHistoryService implements IScoreHistoryService {
     unitId: string,
     tenantId: string,
   ): Promise<IResponse<ScoreHistoryEntity[]>> {
-    const scoreHistory = await this.repositoroy.findHistoryByUnitId(
+    const scoreHistory = await this.repository.findHistoryByUnitId(
       unitId,
       tenantId,
     );
