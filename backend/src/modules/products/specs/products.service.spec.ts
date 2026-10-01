@@ -74,6 +74,7 @@ describe('ProductsService', () => {
       updateStockAtomic: jest.fn(),
       findOneCurrentStockById: jest.fn(),
       findOneBySku: jest.fn(),
+      findOneById: jest.fn(),
       findAllProducts: jest.fn(),
       deleteProduct: jest.fn(),
     };

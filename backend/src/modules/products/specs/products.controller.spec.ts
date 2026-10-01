@@ -20,6 +20,7 @@ describe('ProductsController', () => {
       updateProduct: jest.fn(),
       applyStockDelta: jest.fn(),
       findOneBySku: jest.fn(),
+      findOneById: jest.fn(),
       findAllProducts: jest.fn(),
       deleteProduct: jest.fn(),
     };

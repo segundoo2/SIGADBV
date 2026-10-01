@@ -66,11 +66,11 @@ export class AuthService {
 
     const [accessToken, refreshToken] = await Promise.all([
       this.tokenService.signAsync(payload, {
-        secret: process.env.JWT_SECRET as string,
+        secret: process.env.JWT_SECRET,
         expiresIn: accessTokenExpiresIn,
       }),
       this.tokenService.signAsync(payload, {
-        secret: process.env.JWT_REFRESH_SECRET as string,
+        secret: process.env.JWT_REFRESH_SECRET,
         expiresIn: refreshTokenExpiresIn,
       }),
     ]);
@@ -118,11 +118,11 @@ export class AuthService {
 
     const [accessToken, refreshToken] = await Promise.all([
       this.tokenService.signAsync(newPayload, {
-        secret: process.env.JWT_SECRET as string,
+        secret: process.env.JWT_SECRET,
         expiresIn: accessTokenExpiresIn,
       }),
       this.tokenService.signAsync(newPayload, {
-        secret: process.env.JWT_REFRESH_SECRET as string,
+        secret: process.env.JWT_REFRESH_SECRET,
         expiresIn: refreshTokenExpiresIn,
       }),
     ]);

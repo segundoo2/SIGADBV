@@ -119,7 +119,7 @@ export class UsersService implements IUsersService {
   }
 
   async updateUserPassword(
-    passwordDto: UpdatePasswordDto,
+    passwordDto: UpdatePasswordDto & { tenantId: string },
   ): Promise<IResponse<string | null>> {
     const plainPassword =
       passwordDto.password || this.generateTemporaryPassword();

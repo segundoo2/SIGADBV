@@ -1,12 +1,24 @@
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Component, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 import { Title } from '@angular/platform-browser';
 import { InputFormComponent } from '../../shared/inputs/input-form/input-form';
+import { ErrorMessageComponent } from '../../shared/error-message/error-message.component';
+import { ButtonComponent } from '../../shared/buttons/button.component';
 
 @Component({
-  imports: [ReactiveFormsModule, InputFormComponent],
+  imports: [
+    ReactiveFormsModule,
+    InputFormComponent,
+    ErrorMessageComponent,
+    ButtonComponent,
+  ],
   selector: 'app-auth',
   templateUrl: './auth.html',
 })
@@ -14,10 +26,16 @@ export class Auth {
   private readonly authStore = inject(AUTH_STORE_PORT);
   private readonly titleService = inject(Title);
   private readonly router = inject(Router);
-  
+
   private readonly _loginForm = new FormGroup({
-    username: new FormControl('', [Validators.required, Validators.minLength(3)]),
-    password: new FormControl('', [Validators.required, Validators.minLength(8)]),
+    username: new FormControl('', [
+      Validators.required,
+      Validators.minLength(3),
+    ]),
+    password: new FormControl('', [
+      Validators.required,
+      Validators.minLength(8),
+    ]),
   });
 
   constructor() {
@@ -32,9 +50,9 @@ export class Auth {
     effect(() => {
       if (this.authStore.isAuthenticated()) {
         if (this.authStore.mustChangePassword()) {
-          this.router.navigate(['/auth/define-password']);
+          this.router.navigate(['/auth/update-password']);
         } else {
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/overview']);
         }
       }
     });

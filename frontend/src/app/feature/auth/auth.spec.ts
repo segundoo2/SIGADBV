@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Auth } from './auth';
-import { IAuthStorePort } from '../../core/domain/ports/auth-store.port';
 import { signal, WritableSignal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { Router } from '@angular/router';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
+import { IAuthStorePort } from '../../core/domain/ports/stores/auth-store.port';
 
 describe('Auth', () => {
   let component: Auth;
@@ -19,6 +19,8 @@ describe('Auth', () => {
       isLoading: signal(false),
       error: signal(null),
       mustChangePassword: signal(false),
+      currentUsername: signal(''),
+      checkSession: vi.fn().mockResolvedValue(undefined),
       login: vi.fn(),
       logout: vi.fn(),
     };
@@ -164,19 +166,19 @@ describe('Auth', () => {
     expect(component.loginForm.valid).toBeFalsy();
   });
 
-  it('should redirect to /dashboard when authenticated and password change is not required', () => {
+  it('should redirect to /overview when authenticated and password change is not required', () => {
     (authStoreMock.mustChangePassword as WritableSignal<boolean>).set(false);
     (authStoreMock.isAuthenticated as WritableSignal<boolean>).set(true);
     TestBed.flushEffects();
 
-    expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
+    expect(router.navigate).toHaveBeenCalledWith(['/overview']);
   });
 
-  it('should redirect to /auth/define-password when authenticated and password change is required', () => {
+  it('should redirect to /auth/update-password when authenticated and password change is required', () => {
     (authStoreMock.mustChangePassword as WritableSignal<boolean>).set(true);
     (authStoreMock.isAuthenticated as WritableSignal<boolean>).set(true);
     TestBed.flushEffects();
 
-    expect(router.navigate).toHaveBeenCalledWith(['/auth/define-password']);
+    expect(router.navigate).toHaveBeenCalledWith(['/auth/update-password']);
   });
 });

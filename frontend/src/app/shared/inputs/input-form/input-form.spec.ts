@@ -34,7 +34,7 @@ describe('InputFormComponent', () => {
 
   it('should render data-testid on the native input when provided', () => {
     component.testId = 'custom-input-test-id';
-    fixture.detectChanges(); // Detecta após definir antes do render completo
+    fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
     const inputElement = compiled.querySelector('[data-testid="custom-input-test-id"]');
@@ -48,7 +48,7 @@ describe('InputFormComponent', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
-    const errorElement = compiled.querySelector('span');
+    const errorElement = compiled.querySelector('#error-message');
 
     expect(errorElement).toBeFalsy();
   });

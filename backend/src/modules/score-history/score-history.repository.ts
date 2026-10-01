@@ -1,0 +1,40 @@
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { IScoreHistoryRepository } from './interfaces/score-history.repository.interface';
+import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
+import { ScoreHistoryDto } from './dtos/score-history.dto';
+import { ScoreHistoryEntity } from './entity/score-history.entity';
+
+@Injectable()
+export class ScoreHistoryRepository implements IScoreHistoryRepository {
+  constructor(
+    @InjectRepository(ScoreHistoryEntity)
+    private readonly repository: Repository<ScoreHistoryEntity>,
+  ) {}
+
+  async adjustUnitScore(
+    dto: ScoreHistoryDto & { unitId: string; tenantId: string },
+  ): Promise<void> {
+    try {
+      const entity = this.repository.create(dto);
+      await this.repository.save(entity);
+    } catch {
+      throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
+    }
+  }
+
+  async findHistoryByUnitId(
+    unitId: string,
+    tenantId: string,
+  ): Promise<ScoreHistoryEntity[]> {
+    try {
+      return await this.repository.find({
+        where: { unitId, tenantId },
+        order: { createdAt: 'DESC' },
+      });
+    } catch {
+      throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
+    }
+  }
+}

@@ -36,7 +36,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
 
       <section class="min-h-4.5 sm:min-h-5 mt-1 ml-1">
         @if (showError && errorMessage) {
-          <span [attr.data-testid]="errorTestId || null" class="block text-[11px] sm:text-xs text-red-400 animate-fadeIn">
+          <span [attr.data-testid]="errorTestId || null" id="error-message" class="block text-[11px] sm:text-xs text-red-400 animate-fadeIn">
             {{ errorMessage }}
           </span>
         }
@@ -45,7 +45,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
   `,
 })
 export class InputFormComponent implements ControlValueAccessor {
-  @Input({ required: true }) id!: string; // Mantido caso queira usar em testes unitários ou outras referências externas
+  @Input({ required: true }) id!: string;
   @Input({ required: true }) label!: string;
   @Input() type: 'text' | 'password' | 'email' | 'number' | 'tel' = 'text';
   @Input() testId?: string;
