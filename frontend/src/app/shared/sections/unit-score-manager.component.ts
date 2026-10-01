@@ -92,7 +92,7 @@ import {
           <!-- Valor do Ajuste -->
           <app-input-form
             id="score"
-            label="Valor do Ajuste (ex: 50 para crédito ou -15 para débito)"
+            label="Valor do Ajuste (ex: 50 ou -15)"
             type="number"
             formControlName="score"
             testId="score-input"
