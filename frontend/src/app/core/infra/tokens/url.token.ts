@@ -1,1 +1,1 @@
-export const URL = 'https://api.sigadbv.sgc.com.br';
+export const URL = 'https://api.sigadbv.sgcode.com.br';
