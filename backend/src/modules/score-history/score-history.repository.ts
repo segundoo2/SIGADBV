@@ -27,9 +27,12 @@ export class ScoreHistoryRepository implements IScoreHistoryRepository {
   async findHistoryByUnitId(
     unitId: string,
     tenantId: string,
-  ): Promise<ScoreHistoryEntity> {
+  ): Promise<ScoreHistoryEntity[]> {
     try {
-      return await this.repository.findOne({ where: { unitId, tenantId } });
+      return await this.repository.find({
+        where: { unitId, tenantId },
+        order: { createdAt: 'DESC' },
+      });
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
     }

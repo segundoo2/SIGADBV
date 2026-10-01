@@ -1,1 +1,1 @@
-export const URL = 'https://api.sigadbv.sgcode.com.br/';
+export const URL = 'http://localhost:3000';

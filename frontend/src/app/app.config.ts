@@ -24,13 +24,32 @@ import {
 import { UpdatePasswordStore } from './core/store/update-password.store';
 import { UpdatePasswordApiAdapter } from './core/infra/adapters/update-password-api.adapter';
 import { authInterceptor } from './core/infra/interceptors/auth.interceptor';
+import {
+  SCORE_HISTORY_API_PORT,
+  SCORE_HISTORY_STORE_PORT,
+} from './core/infra/tokens/score-history.token';
+import { ScoreHistoryApiAdapter } from './core/infra/adapters/score-history-api.adapter';
+import { ScoreHistoryStore } from './core/store/score-history.store';
+import { UnitsStore } from './core/store/units.store';
+import {
+  UNITS_API_PORT,
+  UNITS_STORE_PORT,
+} from './core/infra/tokens/units.token';
+import { UnitsApiAdapter } from './core/infra/adapters/units-api.adapter';
+import { apiErrorInterceptor } from './core/infra/interceptors/api-error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideHttpClient(withInterceptors([tenantInterceptor, authInterceptor])),
+    provideHttpClient(
+      withInterceptors([
+        apiErrorInterceptor,
+        tenantInterceptor,
+        authInterceptor,
+      ]),
+    ),
     provideServiceWorker('ngsw-worker.ts', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
@@ -45,12 +64,17 @@ export const appConfig: ApplicationConfig = {
       useClass: AuthApiAdapter,
     },
     { provide: UPDATE_PASSWORD_API_PORT, useClass: UpdatePasswordApiAdapter },
-    //store
+    { provide: SCORE_HISTORY_API_PORT, useClass: ScoreHistoryApiAdapter },
+    { provide: UNITS_API_PORT, useClass: UnitsApiAdapter },
+
+    // store
     {
       provide: AUTH_STORE_PORT,
       useClass: AuthStore,
     },
     { provide: UPDATE_PASSWORD_STORE_PORT, useClass: UpdatePasswordStore },
+    { provide: SCORE_HISTORY_STORE_PORT, useClass: ScoreHistoryStore },
+    { provide: UNITS_STORE_PORT, useClass: UnitsStore },
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',

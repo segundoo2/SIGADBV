@@ -1,9 +1,9 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { IResponseModel } from '../domain/models/response.model';
 import { IUpdatePasswordDto } from '../domain/models/update-password-dto.model';
-import { IUpdatePasswordStorePort } from '../domain/ports/update-password-store.port';
 import { UPDATE_PASSWORD_API_PORT } from '../infra/tokens/update-password.token';
-import { EErrorsGlobal } from '../domain/enums/errors-global.enum';
+import { IUpdatePasswordStorePort } from '../domain/ports/stores/update-password-store.port';
+import { getApiErrorMessage } from '../infra/interceptors/api-error-message.helper';
 
 @Injectable()
 export class UpdatePasswordStore implements IUpdatePasswordStorePort {
@@ -17,7 +17,9 @@ export class UpdatePasswordStore implements IUpdatePasswordStorePort {
   readonly error = this._error.asReadonly();
   readonly successMessage = this._successMessage.asReadonly();
 
-  async updatePassword(updatePassword: IUpdatePasswordDto): Promise<IResponseModel<null>> {
+  async updatePassword(
+    updatePassword: IUpdatePasswordDto,
+  ): Promise<IResponseModel<null>> {
     this._isLoading.set(true);
     this._error.set(null);
     this._successMessage.set('');
@@ -27,10 +29,7 @@ export class UpdatePasswordStore implements IUpdatePasswordStorePort {
       this._successMessage.set(response.message);
       return response;
     } catch (err: unknown) {
-      const errorObj = err as { error?: { message?: string }; message?: string };
-      const errorMessage =
-        errorObj?.error?.message || errorObj?.message || EErrorsGlobal.SERVER_ERROR;
-
+      const errorMessage = getApiErrorMessage(err);
       this._error.set(errorMessage);
 
       return {

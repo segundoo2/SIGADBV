@@ -1,10 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { IAuthApiPort } from '../../domain/ports/auth-api.port';
 import { IAuthResponseModel } from '../../domain/models/auth-response.model';
 import { IAuthCredentialsModel } from '../../domain/models/auth-credentials.model';
 import { URL } from '../tokens/url.token';
+import { IAuthApiPort } from '../../domain/ports/apis/auth-api.port';
 
 @Injectable({
   providedIn: 'root',

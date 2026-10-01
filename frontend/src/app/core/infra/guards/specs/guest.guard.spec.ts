@@ -33,14 +33,14 @@ describe('guestGuard', () => {
     });
   });
 
-  it('should allow access to the login page when the user is not authenticated after checkSession.', async () => {
+  it('should allow unauthenticated users to access the guest route without refreshing the session.', async () => {
     vi.mocked(authStoreMock.isAuthenticated).mockReturnValue(false);
 
     const result = await TestBed.runInInjectionContext(() =>
       guestGuard({} as never, {} as never),
     );
 
-    expect(authStoreMock.checkSession).toHaveBeenCalledTimes(1);
+    expect(authStoreMock.checkSession).not.toHaveBeenCalled();
     expect(result).toBe(true);
     expect(routerMock.createUrlTree).not.toHaveBeenCalled();
   });
@@ -71,18 +71,4 @@ describe('guestGuard', () => {
     expect(result).toEqual(['/auth/update-password']);
   });
 
-  it('should restore the session and redirect to /overview when checkSession authenticates a regular user.', async () => {
-    vi.mocked(authStoreMock.isAuthenticated)
-      .mockReturnValueOnce(false)
-      .mockReturnValueOnce(true);
-    vi.mocked(authStoreMock.mustChangePassword).mockReturnValue(false);
-
-    const result = await TestBed.runInInjectionContext(() =>
-      guestGuard({} as never, {} as never),
-    );
-
-    expect(authStoreMock.checkSession).toHaveBeenCalledTimes(1);
-    expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/overview']);
-    expect(result).toEqual(['/overview']);
-  });
 });

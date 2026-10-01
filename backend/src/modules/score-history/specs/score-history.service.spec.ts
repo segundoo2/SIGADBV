@@ -42,7 +42,7 @@ describe('ScoreHistoryService', () => {
       updatedAt: new Date('2026-09-18T22:00:00.000Z'),
     },
   };
-  const response: IResponse<{ newScore: number } | ScoreHistoryEntity> = {
+  const response: IResponse<{ newScore: number } | ScoreHistoryEntity[]> = {
     message: EUnitSuccess.ADJUST_SCORE,
     data: {
       newScore: 1000,
@@ -90,10 +90,10 @@ describe('ScoreHistoryService', () => {
 
   describe('findHistoryByUnitId', () => {
     response.message = EScoreHistorySuccess.FIND;
-    response.data = mockScoreHistory;
+    response.data = [mockScoreHistory];
 
     it(`should return { ${EScoreHistorySuccess.FIND} } when the score history is found with success`, async () => {
-      repository.findHistoryByUnitId.mockResolvedValue(mockScoreHistory);
+      repository.findHistoryByUnitId.mockResolvedValue([mockScoreHistory]);
 
       expect(
         await service.findHistoryByUnitId(unit.unitId, unit.tenantId),

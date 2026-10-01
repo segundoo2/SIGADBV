@@ -1,4 +1,4 @@
-import { IAuthCredentialsModel } from "../models/auth-credentials.model";
+import { IAuthCredentialsModel } from "../../models/auth-credentials.model";
 
 export interface IAuthStorePort {
   readonly isAuthenticated: () => boolean;

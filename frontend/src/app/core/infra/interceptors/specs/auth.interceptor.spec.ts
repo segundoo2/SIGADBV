@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClient, HttpErrorResponse, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { firstValueFrom } from 'rxjs';
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { authInterceptor } from '../auth.interceptor';
 import { IAuthApiPort } from '../../../domain/ports/auth-api.port';
@@ -82,23 +83,19 @@ describe('authInterceptor', () => {
   });
 
   it('deve deslogar o usuário se a tentativa de refresh falhar com 401', async () => {
-    vi.mocked(authApiMock.refresh).mockRejectedValue(new Error('Refresh failed'));
+    vi.mocked(authApiMock.refresh).mockRejectedValue(
+      new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' }),
+    );
 
-    let errorResponse: HttpErrorResponse | undefined;
-    httpClient.get('/api/v1/products').subscribe({
-      error: (err: HttpErrorResponse) => {
-        errorResponse = err;
-      },
-    });
+    const request = firstValueFrom(httpClient.get('/api/v1/products'));
 
     const initialReq = httpMock.expectOne('/api/v1/products');
     initialReq.flush({ message: 'Unauthorized' }, { status: 401, statusText: 'Unauthorized' });
 
-    await Promise.resolve();
+    await expect(request).rejects.toBeInstanceOf(HttpErrorResponse);
 
     expect(authApiMock.refresh).toHaveBeenCalledTimes(1);
     expect(authStoreMock.logout).toHaveBeenCalledTimes(1);
-    expect(errorResponse).toBeDefined();
   });
 
   it('não deve tentar refresh quando a rota com erro 401 for /auth/login ou /auth/refresh', () => {
@@ -112,6 +109,26 @@ describe('authInterceptor', () => {
 
     const req = httpMock.expectOne('/api/v1/auth/login');
     req.flush({ message: 'Invalid credentials' }, { status: 401, statusText: 'Unauthorized' });
+
+    expect(authApiMock.refresh).not.toHaveBeenCalled();
+    expect(authStoreMock.logout).not.toHaveBeenCalled();
+    expect(errorResponse?.status).toBe(401);
+  });
+
+  it('não deve tentar refresh quando o endpoint exato de login /auth retornar 401', () => {
+    let errorResponse: HttpErrorResponse | undefined;
+
+    httpClient.post('/api/v1/auth', {}).subscribe({
+      error: (err: HttpErrorResponse) => {
+        errorResponse = err;
+      },
+    });
+
+    const req = httpMock.expectOne('/api/v1/auth');
+    req.flush(
+      { statusCode: 401, message: 'Invalid credentials' },
+      { status: 401, statusText: 'Unauthorized' },
+    );
 
     expect(authApiMock.refresh).not.toHaveBeenCalled();
     expect(authStoreMock.logout).not.toHaveBeenCalled();

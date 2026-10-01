@@ -26,7 +26,7 @@ export class SetCookiesInterceptor implements NestInterceptor {
           const cookieOptions: CookieOptions = {
             httpOnly: true,
             secure: !isDev,
-            sameSite: isDev ? 'lax' : 'strict',
+            sameSite: 'strict',
             path: '/',
           };
 

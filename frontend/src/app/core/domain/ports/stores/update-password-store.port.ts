@@ -1,5 +1,5 @@
-import { IResponseModel } from "../models/response.model";
-import { IUpdatePasswordDto } from "../models/update-password-dto.model";
+import { IResponseModel } from "../../models/response.model";
+import { IUpdatePasswordDto } from "../../models/update-password-dto.model";
 
 export interface IUpdatePasswordStorePort {
   readonly isLoading: () => boolean;

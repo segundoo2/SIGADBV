@@ -84,7 +84,7 @@ export class ScoreHistoryController implements IScoreHistoryController {
   async findHistoryByUnitId(
     @Param('unitId') unitId: string,
     @TenantId() tenantId: string,
-  ): Promise<IResponse<ScoreHistoryEntity>> {
+  ): Promise<IResponse<ScoreHistoryEntity[]>> {
     return await this.service.findHistoryByUnitId(unitId, tenantId);
   }
 }
