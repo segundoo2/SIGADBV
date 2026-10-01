@@ -18,7 +18,10 @@ import { ButtonComponent } from '../buttons/button.component';
 import { ErrorMessageComponent } from '../error-message/error-message.component';
 import { InputFormComponent } from '../inputs/input-form/input-form';
 import { ModalComponent } from '../modals/modal.component';
-import { SelectFormComponent, SelectOption } from '../selects/select-form.component';
+import {
+  SelectFormComponent,
+  SelectOption,
+} from '../selects/select-form.component';
 
 @Component({
   selector: 'app-unit-score-manager',
@@ -39,11 +42,10 @@ import { SelectFormComponent, SelectOption } from '../selects/select-form.compon
         class="flex justify-between items-center bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm"
       >
         <div>
-          <h1 class="text-2xl font-bold text-white">
-            Pontuação de Unidades
-          </h1>
+          <h1 class="text-2xl font-bold text-white">Pontuação de Unidades</h1>
           <p class="text-sm text-slate-400">
-            Mantenha o ranking das unidades atualizado com o lançamento de créditos e débitos de pontos.
+            Mantenha o ranking das unidades atualizado com o lançamento de
+            créditos e débitos de pontos.
           </p>
         </div>
         <button
@@ -67,7 +69,9 @@ import { SelectFormComponent, SelectOption } from '../selects/select-form.compon
           class="space-y-4"
           novalidate
         >
-          <app-error-message [message]="scoreStore.error() || unitsStore.error()" />
+          <app-error-message
+            [message]="scoreStore.error() || unitsStore.error()"
+          />
 
           <!-- Seleção da Unidade real vinda do UnitsStore -->
           <app-select-form
@@ -191,6 +195,7 @@ export class UnitScoreManagerComponent implements OnInit {
       });
 
       if (response) {
+        await this.loadUnits();
         this.isScoreModalOpen.set(false);
       }
     } catch {
