@@ -58,7 +58,7 @@ import {
 
       <app-modal
         [isOpen]="isScoreModalOpen()"
-        title="Adicionar/Retirar Pontos da Unidade"
+        title="Adicionar/Retirar Pontos"
         size="md"
         (close)="closeScoreModal()"
       >
