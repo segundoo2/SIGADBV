@@ -162,7 +162,7 @@ export class UsersService implements IUsersService {
       throw new ConflictException(EUsersErrors.USER_ALREADY_HAS_ROLE);
     }
 
-    await this.usersRepository.addRoleToUser(username, roleId, tenantId);
+    await this.usersRepository.addRoleToUser(user.id, roleId, tenantId);
 
     return {
       message: ERolesSuccess.ROLE_ADDED,
