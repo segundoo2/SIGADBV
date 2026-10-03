@@ -14,10 +14,9 @@ import { URL } from '../../tokens/url.token';
 describe('UsersApiAdapter', () => {
   let adapter: UsersApiAdapter;
   let httpMock: HttpTestingController;
-  const baseUrl = `${URL}/users`; // Ajuste se a const URL for diferente
+  const baseUrl = `${URL}/users`;
 
   beforeEach(() => {
-    // 1. Limpa o TestBed antes de reconfigurar
     TestBed.resetTestingModule();
 
     TestBed.configureTestingModule({
@@ -28,7 +27,6 @@ describe('UsersApiAdapter', () => {
       ],
     });
 
-    // 2. Injeta apenas DEPOIS de configurar o módulo
     adapter = TestBed.inject(UsersApiAdapter);
     httpMock = TestBed.inject(HttpTestingController);
   });
