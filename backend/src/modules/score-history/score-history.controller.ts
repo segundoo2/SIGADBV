@@ -12,6 +12,8 @@ import { IResponse } from '../../common/interfaces/response.interface';
 import { ScoreHistoryDto } from './dtos/score-history.dto';
 import { ScoreHistoryEntity } from './entity/score-history.entity';
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
+import { RequiresPermission } from '../../common/decorators/permission.decorator';
+import { EPermission } from '../../common/enum/role/permissions.enum';
 
 @ApiTags('Score History - Ajuste de Pontuação')
 @Controller('score-history')
@@ -22,6 +24,7 @@ export class ScoreHistoryController implements IScoreHistoryController {
   ) {}
 
   @Post(':unitId')
+  @RequiresPermission(EPermission.SCORE_HISTORY_ADJUST)
   @ApiOperation({
     summary: 'Ajustar pontuação de uma unidade',
     description:
@@ -62,6 +65,7 @@ export class ScoreHistoryController implements IScoreHistoryController {
   }
 
   @Get(':unitId')
+  @RequiresPermission(EPermission.SCORE_HISTORY_READ)
   @ApiOperation({
     summary: 'Buscar histórico de pontuação por unidade',
     description:
