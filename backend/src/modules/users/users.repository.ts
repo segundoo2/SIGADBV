@@ -54,7 +54,7 @@ export class UsersRepository implements IUsersRepository {
     tenantId: string,
   ): Promise<Omit<User, 'password'> | null> {
     try {
-      return await this.repository.findOne({
+      const user = await this.repository.findOne({
         where: { username, tenantId },
         relations: {
           roles: true,
@@ -65,8 +65,14 @@ export class UsersRepository implements IUsersRepository {
           mustChangePassword: true,
           createdAt: true,
           updatedAt: true,
+          roles: {
+            id: true,
+            name: true,
+            permissions: true,
+          },
         },
       });
+      return user;
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
     }

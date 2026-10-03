@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DataSource } from 'typeorm';
 import { AppModule } from '../../app.module';
-import { seedUnits } from './units.seed'; // Função de inserção dos dados
+import { seedUnits } from './units.seed';
 
 async function execute(): Promise<void> {
   try {
