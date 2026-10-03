@@ -151,6 +151,7 @@ describe('UnitScoreManagerComponent', () => {
   it('should submit a valid form and close the modal when the store succeeds', async () => {
     scoreStoreMock.registerScore.mockResolvedValue(true);
     await component.openScoreModal();
+    unitsStoreMock.getAllUnits.mockClear();
     component.scoreForm.setValue(validFormValue);
 
     await component.onSubmitScore();
@@ -163,6 +164,7 @@ describe('UnitScoreManagerComponent', () => {
         description: validFormValue.description,
       },
     );
+    expect(unitsStoreMock.getAllUnits).toHaveBeenCalledOnce();
     expect(component.isScoreModalOpen()).toBe(false);
   });
 
