@@ -31,7 +31,10 @@ import { MetricsModule } from './modules/metrics/metrics.module';
         url: configService.get<string>('DATABASE_URL'),
         autoLoadEntities: true,
         synchronize: configService.get<string>('NODE_ENV') === 'development',
-        logging: configService.get<string>('NODE_ENV') === 'development',
+        logging:
+          configService.get<string>('NODE_ENV') === 'development'
+            ? ['query', 'error']
+            : ['error'],
       }),
     }),
     ThrottlerModule.forRoot([

@@ -15,7 +15,7 @@ interface AdminCredentials {
 const DEFAULT_TENANT_ID = '00000000-0000-0000-0000-000000000000';
 
 function getAdminCredentialsFromEnv(): AdminCredentials {
-  const username = process.env.ADMIN_USERNAME || 'super.user';
+  const username = process.env.ADMIN_USERNAME || 'sgcode';
   const envPassword = process.env.ADMIN_PASSWORD;
 
   if (!envPassword || envPassword.trim() === '') {
