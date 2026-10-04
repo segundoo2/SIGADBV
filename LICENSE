@@ -1,21 +1,30 @@
-MIT License
+# Terms of Use and Licensing - SIGADBV
 
-Copyright (c) 2026 Edilson Segundo
+Copyright (c) 2026 SG Code by Edilson Segundo
+All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This repository and its source code are made publicly available strictly for
+viewing, evaluation, and portfolio purposes by recruiters, hiring managers,
+and academic instructors.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+RESTRICTIONS:
 
+1. NO COMMERCIAL USE: You may not use, adapt, or distribute this software,
+   in whole or in part, for any commercial purposes.
+2. NO ACADEMIC PLAGIARISM: You may not submit this code, or any derivative
+   portions of it, as academic work, school projects, or coursework without
+   express prior written authorization.
+3. NO UNAUTHORIZED MODIFICATION OR COPYING: Copying, forking with intent to
+   republish, or modifying this codebase for unauthorized use is strictly prohibited.
+4. HOSTING AND MAINTENANCE: The author and owner (Edilson Segundo) retains
+   exclusive and sole rights to host, maintain, modify, and deploy this software.
+   Any unauthorized deployment, hosting, or operation of this software, or parts
+   thereof, outside of the official domain (sgcode.com.br) is strictly prohibited
+   and will result in legal action and prosecution to the maximum extent
+   permitted by law.
+
+DISCLAIMER:
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OFBasta criar um arquivo chamado **`LICENSE`** (sem extensão, ou `LICENSE.md`) na raiz do seu repositório no GitHub e colar o texto acima.
+
+Fazendo isso, o repositório continuará público para que professores e recrutadores possam inspecionar o seu código livremente, mas você garante o respaldo legal de que o uso, cópia, alteração ou hospedagem externa sem a sua autorização expressa é proibido.

@@ -56,7 +56,7 @@ import {
         [isOpen]="isScoreModalOpen()"
         title="Adicionar/Retirar Pontos"
         size="md"
-        (close)="closeScoreModal()"
+        (closed)="closeScoreModal()"
       >
         <form
           [formGroup]="scoreForm"

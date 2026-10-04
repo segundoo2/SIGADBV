@@ -106,6 +106,19 @@ describe('UnitScoreManagerComponent', () => {
     expect(component.isScoreModalOpen()).toBe(false);
   });
 
+  it('should close the modal when the close button is clicked', () => {
+    component.openScoreModal();
+    fixture.detectChanges();
+
+    const closeButton = (fixture.nativeElement as HTMLElement).querySelector(
+      'article button[aria-label="Fechar modal"]',
+    ) as HTMLButtonElement;
+    closeButton.click();
+    fixture.detectChanges();
+
+    expect(component.isScoreModalOpen()).toBe(false);
+  });
+
   it('should mark all form controls as touched and not submit an invalid form', async () => {
     component.openScoreModal();
 
