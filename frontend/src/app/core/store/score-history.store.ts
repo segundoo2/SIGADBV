@@ -37,12 +37,13 @@ export class ScoreHistoryStore implements IScoreHistoryStorePort {
 
   async fetchHistory(
     unitId: string,
+    limit?: number,
   ): Promise<IResponseModel<IScoreHistoryEntity[]>> {
     this._isLoading.set(true);
     this._error.set(null);
 
     try {
-      return await this.scorePort.getHistoryByUnitId(unitId);
+      return await this.scorePort.getHistoryByUnitId(unitId, limit);
     } catch (err: unknown) {
       this._error.set(getApiErrorMessage(err));
       throw err;

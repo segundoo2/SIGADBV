@@ -1,7 +1,6 @@
 import { Response } from 'express';
 import { LoginDto } from '../dtos/login.dto';
 import { IJwtPayloadWithExpiry } from './jwt-payload.interface';
-import { ITokens } from './token.interface';
 import { ILoginResponse } from './login-response.interface';
 
 export interface IAuthController {
@@ -16,7 +15,7 @@ export interface IAuthController {
     userPayload: IJwtPayloadWithExpiry,
     deviceId: string | undefined,
     userAgent: string | undefined,
-  ): Promise<ITokens>;
+  ): Promise<ILoginResponse>;
 
   logout(userPayload: IJwtPayloadWithExpiry, res: Response): Promise<Response>;
 }

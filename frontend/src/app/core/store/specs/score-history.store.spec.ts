@@ -2,7 +2,6 @@ import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ScoreHistoryStore } from '../score-history.store';
 import { SCORE_HISTORY_API_PORT } from '../../infra/tokens/score-history.token';
-import { IScoreHistoryApiPort } from '../../domain/ports/apis/score-history-api.port';
 import { IScoreHistoryPayload } from '../../domain/models/score-history-payload.model';
 import { IScoreHistoryEntity } from '../../domain/entities/score-history.entity';
 import { IResponseModel } from '../../domain/models/response.model';
@@ -54,7 +53,6 @@ describe('ScoreHistoryStore', () => {
 
       const promise = store.registerScore(unitId, payload);
 
-      // Verifica se o loading foi ativado e o erro limpo imediatamente
       expect(store.isLoading()).toBe(true);
       expect(store.error()).toBeNull();
 
@@ -81,23 +79,25 @@ describe('ScoreHistoryStore', () => {
 
   describe('fetchHistory', () => {
     const unitId = '123e4567-e89b-12d3-a456-426614174000';
+    const mockResponse: IResponseModel<IScoreHistoryEntity[]> = {
+      message: 'Success',
+      data: [],
+    };
 
-    it('should successfully fetch history, manage loading state, and return response', async () => {
-      const mockResponse: IResponseModel<IScoreHistoryEntity[]> = {
-        message: 'Success',
-        data: [
-          {
-            id: 'hist-1',
-            tenantId: 'tenant-1',
-            unitId,
-            score: 20,
-            description: 'Teste',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        ],
-      };
+    it('should successfully fetch history with limit, manage loading state, and return response', async () => {
+      apiPortMock.getHistoryByUnitId.mockResolvedValueOnce(mockResponse);
 
+      const promise = store.fetchHistory(unitId, 10);
+
+      expect(store.isLoading()).toBe(true);
+      const result = await promise;
+
+      expect(result).toEqual(mockResponse);
+      expect(apiPortMock.getHistoryByUnitId).toHaveBeenCalledWith(unitId, 10);
+      expect(store.isLoading()).toBe(false);
+    });
+
+    it('should successfully fetch history without limit, manage loading state, and return response', async () => {
       apiPortMock.getHistoryByUnitId.mockResolvedValueOnce(mockResponse);
 
       const promise = store.fetchHistory(unitId);

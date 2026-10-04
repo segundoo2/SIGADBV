@@ -34,13 +34,13 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
         </span>
       </label>
 
-      <section class="min-h-4.5 sm:min-h-5 mt-1 ml-1">
+      <p class="mt-2 ml-2">
         @if (showError && errorMessage) {
           <span [attr.data-testid]="errorTestId || null" id="error-message" class="block text-[11px] sm:text-xs text-red-400 animate-fadeIn">
             {{ errorMessage }}
           </span>
         }
-      </section>
+      </p>
     </div>
   `,
 })

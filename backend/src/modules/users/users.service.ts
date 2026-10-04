@@ -148,7 +148,7 @@ export class UsersService implements IUsersService {
       username,
       tenantId,
     );
-    if (!user) {
+    if (user === null) {
       throw new NotFoundException(EUsersErrors.USER_NOT_FOUND);
     }
 

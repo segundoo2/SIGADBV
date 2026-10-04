@@ -83,7 +83,6 @@ describe('AuthService', () => {
 
   describe('findTenantIdBySlug', () => {
     it('should return default tenant id when slug is provided', async () => {
-      // Accessing private method for testing purpose
       const tenantId = await service['findTenantIdBySlug']('bergcell');
 
       expect(tenantId).toBe(DEFAULT_TENANT_ID);
@@ -111,7 +110,7 @@ describe('AuthService', () => {
       ).rejects.toThrow(new UnauthorizedException(EAuthErrors.USER_NOT_FOUND));
     });
 
-    it('should return tokens envelope when user logs in successfully', async () => {
+    it('should return tokens envelope and user data when user logs in successfully', async () => {
       const tokens = {
         accessToken: 'access-token',
         refreshToken: 'refresh-token',
@@ -131,12 +130,19 @@ describe('AuthService', () => {
         },
       );
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...expectedUser } = mockUser;
+
       const result = await service.login({ ...userDto, slug }, testFingerprint);
 
       expect(result).toEqual({
         message: EAuthSuccess.LOGIN,
         mustChangePassword: false,
-        data: tokens,
+        data: {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          user: expectedUser,
+        },
       });
 
       const expectedPayload: IJwtPayload = {
@@ -175,7 +181,7 @@ describe('AuthService', () => {
       );
     });
 
-    it('should blacklist old token and return new token pair', async () => {
+    it('should blacklist old token, rotate tokens and return new token pair with user data', async () => {
       const tokens = {
         accessToken: 'new-access-token',
         refreshToken: 'new-refresh-token',
@@ -187,11 +193,19 @@ describe('AuthService', () => {
         .mockResolvedValueOnce(tokens.refreshToken);
       mockRedisService.setWithExpiry.mockResolvedValue(undefined);
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...expectedUser } = mockUser;
+
       const result = await service.refresh(mockJwtPayload, 'new-fingerprint');
 
       expect(result).toEqual({
         message: EAuthSuccess.REFRESH,
-        data: tokens,
+        mustChangePassword: mockUser.mustChangePassword,
+        data: {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          user: expectedUser,
+        },
       });
 
       expect(mockRedisService.setWithExpiry).toHaveBeenCalledWith(

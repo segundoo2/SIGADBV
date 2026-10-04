@@ -8,19 +8,30 @@ import { map, Observable } from 'rxjs';
 import { CookieOptions, Response } from 'express';
 import { IResponse } from '../interfaces/response.interface';
 import { ITokens } from '../../modules/auth/interfaces/token.interface';
+import { User } from '../../modules/users/entities/user.entity';
+import { ILoginResponse } from '../../modules/auth/interfaces/login-response.interface';
+
+type SanitizedResponsePayload = IResponse<
+  Partial<ITokens> & { user?: Omit<User, 'password'> }
+> & {
+  mustChangePassword?: boolean;
+};
 
 @Injectable()
-export class SetCookiesInterceptor implements NestInterceptor {
+export class SetCookiesInterceptor implements NestInterceptor<
+  ILoginResponse,
+  SanitizedResponsePayload
+> {
   intercept(
     context: ExecutionContext,
-    next: CallHandler<IResponse<ITokens>>,
-  ): Observable<Omit<IResponse<ITokens>, 'data'>> {
+    next: CallHandler<ILoginResponse>,
+  ): Observable<SanitizedResponsePayload> {
     const ctx = context.switchToHttp();
     const response = ctx.getResponse<Response>();
 
     return next.handle().pipe(
-      map((result: IResponse<ITokens> & { mustChangePassword?: boolean }) => {
-        if (result.data.accessToken && result.data.refreshToken) {
+      map((result: ILoginResponse): SanitizedResponsePayload => {
+        if (result?.data?.accessToken && result?.data?.refreshToken) {
           const isDev = process.env.NODE_ENV === 'development';
 
           const cookieOptions: CookieOptions = {
@@ -41,9 +52,12 @@ export class SetCookiesInterceptor implements NestInterceptor {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
           });
 
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { accessToken, refreshToken, ...restData } = result.data;
+
           return {
-            message: result.message,
-            mustChangePassword: result.mustChangePassword,
+            ...result,
+            data: restData,
           };
         }
 

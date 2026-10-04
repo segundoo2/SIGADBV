@@ -9,14 +9,16 @@ import {
 import { Component, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-import { InputFormComponent } from '../../shared/inputs/input-form/input-form';
+import { InputFormComponent } from '../../shared/inputs/input-form';
 import { ErrorMessageComponent } from '../../shared/error-message/error-message.component';
 import { ButtonComponent } from '../../shared/buttons/button.component';
 import { UPDATE_PASSWORD_STORE_PORT } from '../../core/infra/tokens/update-password.token';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 
 // Validador customizado para comparar os campos de senha
-function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
+function passwordMatchValidator(
+  control: AbstractControl,
+): ValidationErrors | null {
   const password = control.get('password');
   const confirmPassword = control.get('confirmPassword');
 
@@ -50,7 +52,7 @@ export class UpdatePassword {
       ]),
       confirmPassword: new FormControl('', [Validators.required]),
     },
-    { validators: passwordMatchValidator }
+    { validators: passwordMatchValidator },
   );
 
   constructor() {

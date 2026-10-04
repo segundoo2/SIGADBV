@@ -90,26 +90,16 @@ describe('ScoreHistoryApiAdapter', () => {
   });
 
   describe('getHistoryByUnitId', () => {
-    it('should send a GET request to the correct url and return the score history list', async () => {
+    it('should send a GET request with limit query param to the correct url and return the score history list', async () => {
       const unitId = '123e4567-e89b-12d3-a456-426614174000';
       const mockResponse: IResponseModel<IScoreHistoryEntity[]> = {
         message: 'Score history retrieved successfully',
-        data: [
-          {
-            id: 'uuid-hist-1',
-            tenantId: 'uuid-tenant-1',
-            unitId,
-            score: 50,
-            description: 'Presença com uniforme completo',
-            createdAt: new Date('2026-09-18T22:00:00.000Z'),
-            updatedAt: new Date('2026-09-18T22:00:00.000Z'),
-          },
-        ],
+        data: [],
       };
 
-      const promise = adapter.getHistoryByUnitId(unitId);
+      const promise = adapter.getHistoryByUnitId(unitId, 10);
 
-      const req = httpMock.expectOne(`${mockBaseUrl}/score-history/${unitId}`);
+      const req = httpMock.expectOne(`${mockBaseUrl}/score-history/${unitId}?limit=10`);
       expect(req.request.method).toBe('GET');
 
       req.flush(mockResponse);

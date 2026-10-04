@@ -8,6 +8,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
+import { USERS_STORE_PORT } from '../../core/infra/tokens/users.token'; // Importar o token de usuários
 
 interface SubmenuItem {
   readonly label: string;
@@ -30,10 +31,26 @@ interface NavItem {
 export class HeaderComponent {
   private readonly router = inject(Router);
   private readonly authStore = inject(AUTH_STORE_PORT);
+  private readonly usersStore = inject(USERS_STORE_PORT); // Injetar store de usuários
 
   readonly activeDropdown = signal<string | null>(null);
   readonly isProfileMenuOpen = signal<boolean>(false);
   readonly isMobileMenuOpen = signal<boolean>(false);
+
+  // Obter o username do usuário atual
+  protected readonly currentUsername = (): string => {
+    const user = this.usersStore.userCurrentEntity();
+    return user?.username ?? 'Usuário';
+  };
+
+  // Obter a role principal do usuário atual
+  protected readonly currentUserRole = (): string => {
+    const user = this.usersStore.userCurrentEntity();
+    if (!user || !user.roles || user.roles.length === 0) {
+      return '';
+    }
+    return user.roles[0].name;
+  };
 
   readonly navItems: readonly NavItem[] = [
     { label: 'Visão Geral', route: '/overview' },

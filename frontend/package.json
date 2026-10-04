@@ -21,6 +21,8 @@
     "@angular/router": "^22.1.0",
     "@angular/service-worker": "^22.1.0",
     "@lucide/angular": "^1.49.0",
+    "chart.js": "^4.5.1",
+    "ng2-charts": "^11.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "^0.16.3"

@@ -1,10 +1,19 @@
-import { Controller, Inject, Post, Param, Body, Get } from '@nestjs/common';
+import {
+  Controller,
+  Inject,
+  Post,
+  Param,
+  Body,
+  Get,
+  Query,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiParam,
   ApiBody,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { IScoreHistoryController } from './interfaces/score-history.controller.interface';
 import { IScoreHistoryService } from './interfaces/score-history.service.interface';
@@ -76,6 +85,12 @@ export class ScoreHistoryController implements IScoreHistoryController {
     description: 'Identificador único da unidade',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
+  @ApiQuery({
+    name: 'limit',
+    description: 'Limite de registros a serem retornados',
+    required: false,
+    example: 10,
+  })
   @ApiResponse({
     status: 200,
     description: 'Histórico de pontuação encontrado com sucesso.',
@@ -88,7 +103,8 @@ export class ScoreHistoryController implements IScoreHistoryController {
   async findHistoryByUnitId(
     @Param('unitId') unitId: string,
     @TenantId() tenantId: string,
+    @Query('limit') limit?: number,
   ): Promise<IResponse<ScoreHistoryEntity[]>> {
-    return await this.service.findHistoryByUnitId(unitId, tenantId);
+    return await this.service.findHistoryByUnitId(unitId, tenantId, limit);
   }
 }
