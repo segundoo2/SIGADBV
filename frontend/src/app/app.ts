@@ -1,9 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AUTH_STORE_PORT } from './core/infra/tokens/auth.token';
+import { FooterComponent } from './shared/footers/footer.component';
 
 @Component({
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, FooterComponent],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',

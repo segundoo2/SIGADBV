@@ -1,1 +1,9 @@
-<router-outlet />
+<div class="h-screen w-full flex flex-col justify-between overflow-hidden">
+  <!-- Container do topo/router que ocupa o espaço livre -->
+  <div class="flex-1 w-full overflow-y-auto">
+    <router-outlet />
+  </div>
+  
+  <!-- Footer preso na base, sem estourar a tela -->
+  <app-footer />
+</div>

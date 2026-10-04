@@ -1,7 +1,6 @@
 <app-header />
 
-<main class="p-6 max-w-7xl mx-auto my-10">
-  <!-- Cabeçalho da Página -->
+<main class="p-6 max-w-7xl mx-auto">
   <header class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
     <div>
       <h1 class="text-2xl font-bold text-white">Bem-vindo, {{ currentUsername() }}!</h1>
@@ -16,7 +15,6 @@
     />
   </header>
 
-  <!-- Seção protegida -->
   <app-access-denied-card 
     [requiredPermission]="EPermission.SCORE_HISTORY_READ"
     message="Acesso restrito: você não possui permissão para visualizar o histórico de pontuações recentes e o gráfico de pontuação geral."
@@ -30,7 +28,7 @@
       />
 
       <app-table-card
-        class="h-full flex flex-col [&>div]:h-full [&>div]:flex [&>div]:flex-col"
+        class="h-full flex flex-col"
         title="Histórico de Pontuações recentes"
         [headers]="['Pontos', 'Motivo']"
         [selectOptions]="unitOptions()"
