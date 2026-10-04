@@ -13,7 +13,7 @@ describe('InputFormComponent', () => {
 
     fixture = TestBed.createComponent(InputFormComponent);
     component = fixture.componentInstance;
-    
+
     component.id = 'test-id';
     component.label = 'Test Label';
   });
@@ -25,7 +25,7 @@ describe('InputFormComponent', () => {
 
   it('should render the label correctly', () => {
     fixture.detectChanges();
-    const compiled = fixture.nativeElement;
+    const compiled = fixture.nativeElement as HTMLElement;
     const label = compiled.querySelector('label');
 
     expect(label).toBeTruthy();
@@ -36,8 +36,10 @@ describe('InputFormComponent', () => {
     component.testId = 'custom-input-test-id';
     fixture.detectChanges();
 
-    const compiled = fixture.nativeElement;
-    const inputElement = compiled.querySelector('[data-testid="custom-input-test-id"]');
+    const compiled = fixture.nativeElement as HTMLElement;
+    const inputElement = compiled.querySelector(
+      '[data-testid="custom-input-test-id"]',
+    );
 
     expect(inputElement).toBeTruthy();
   });
@@ -47,7 +49,7 @@ describe('InputFormComponent', () => {
     component.errorMessage = 'Campo obrigatório';
     fixture.detectChanges();
 
-    const compiled = fixture.nativeElement;
+    const compiled = fixture.nativeElement as HTMLElement;
     const errorElement = compiled.querySelector('#error-message');
 
     expect(errorElement).toBeFalsy();
@@ -59,8 +61,10 @@ describe('InputFormComponent', () => {
     component.errorTestId = 'custom-error-test-id';
     fixture.detectChanges();
 
-    const compiled = fixture.nativeElement;
-    const errorElement = compiled.querySelector('[data-testid="custom-error-test-id"]');
+    const compiled = fixture.nativeElement as HTMLElement;
+    const errorElement = compiled.querySelector(
+      '[data-testid="custom-error-test-id"]',
+    );
 
     expect(errorElement).toBeTruthy();
     expect(errorElement.textContent?.trim()).toBe('Campo obrigatório');
@@ -71,7 +75,7 @@ describe('InputFormComponent', () => {
     const fn = vi.fn();
     component.registerOnChange(fn);
 
-    const compiled = fixture.nativeElement;
+    const compiled = fixture.nativeElement as HTMLElement;
     const inputElement = compiled.querySelector('input');
 
     inputElement.value = 'novo valor';
@@ -96,7 +100,7 @@ describe('InputFormComponent', () => {
 
     expect(component.disabled()).toBeTruthy();
 
-    const compiled = fixture.nativeElement;
+    const compiled = fixture.nativeElement as HTMLElement;
     const inputElement = compiled.querySelector('input');
     expect(inputElement.disabled).toBeTruthy();
   });

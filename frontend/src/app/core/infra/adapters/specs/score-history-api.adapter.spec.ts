@@ -4,17 +4,17 @@ import {
   provideHttpClientTesting,
   HttpTestingController,
 } from '@angular/common/http/testing';
-import { IResponseModel } from '../../../domain/models/response.model';
 import { IScoreHistoryEntity } from '../../../domain/entities/score-history.entity';
-import { IScoreHistoryPayload } from '../../../domain/models/score-history-payload.model';
+import { IScoreHistoryPayload } from '../../../application/models/score-history-payload.model';
 import { URL } from '../../../infra/tokens/url.token';
 import { ScoreHistoryApiAdapter } from '../score-history-api.adapter';
 import { apiErrorInterceptor } from '../../interceptors/api-error.interceptor';
+import { ApiResponseDto } from '../dtos/api-response.dto';
 
 describe('ScoreHistoryApiAdapter', () => {
   let adapter: ScoreHistoryApiAdapter;
   let httpMock: HttpTestingController;
-  const mockBaseUrl = 'http://localhost:3000';
+  const mockBaseUrl = URL;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -22,7 +22,6 @@ describe('ScoreHistoryApiAdapter', () => {
         ScoreHistoryApiAdapter,
         provideHttpClient(withInterceptors([apiErrorInterceptor])),
         provideHttpClientTesting(),
-        { provide: URL, useValue: mockBaseUrl },
       ],
     });
 
@@ -38,7 +37,7 @@ describe('ScoreHistoryApiAdapter', () => {
     expect(adapter).toBeTruthy();
   });
 
-  describe('registerScore', () => {
+  describe('registerUnitScore', () => {
     it('should send a POST request with the correct url and payload, returning the updated score', async () => {
       const unitId = '123e4567-e89b-12d3-a456-426614174000';
       const payload: IScoreHistoryPayload = {
@@ -46,12 +45,12 @@ describe('ScoreHistoryApiAdapter', () => {
         description: 'Presença com uniforme completo',
       };
 
-      const mockResponse: IResponseModel<{ newScore: number }> = {
+      const mockResponse: ApiResponseDto<{ newScore: number }> = {
         message: 'Score registered successfully',
         data: { newScore: 150 },
       };
 
-      const promise = adapter.registerScore(unitId, payload);
+      const promise = adapter.registerUnitScore(unitId, payload);
 
       const req = httpMock.expectOne(`${mockBaseUrl}/score-history/${unitId}`);
       expect(req.request.method).toBe('POST');
@@ -60,7 +59,7 @@ describe('ScoreHistoryApiAdapter', () => {
       req.flush(mockResponse);
       const result = await promise;
 
-      expect(result).toEqual(mockResponse);
+      expect(result).toBeUndefined();
     });
 
     it('should normalize NestJS errors when registerScore fails', async () => {
@@ -70,7 +69,7 @@ describe('ScoreHistoryApiAdapter', () => {
         description: 'Presença com uniforme completo',
       };
 
-      const promise = adapter.registerScore(unitId, payload);
+      const promise = adapter.registerUnitScore(unitId, payload);
 
       const req = httpMock.expectOne(`${mockBaseUrl}/score-history/${unitId}`);
       expect(req.request.method).toBe('POST');
@@ -89,29 +88,31 @@ describe('ScoreHistoryApiAdapter', () => {
     });
   });
 
-  describe('getHistoryByUnitId', () => {
+  describe('fetchUnitScoreHistory', () => {
     it('should send a GET request with limit query param to the correct url and return the score history list', async () => {
       const unitId = '123e4567-e89b-12d3-a456-426614174000';
-      const mockResponse: IResponseModel<IScoreHistoryEntity[]> = {
+      const mockResponse: ApiResponseDto<IScoreHistoryEntity[]> = {
         message: 'Score history retrieved successfully',
         data: [],
       };
 
-      const promise = adapter.getHistoryByUnitId(unitId, 10);
+      const promise = adapter.fetchUnitScoreHistory(unitId, 10);
 
-      const req = httpMock.expectOne(`${mockBaseUrl}/score-history/${unitId}?limit=10`);
+      const req = httpMock.expectOne(
+        `${mockBaseUrl}/score-history/${unitId}?limit=10`,
+      );
       expect(req.request.method).toBe('GET');
 
       req.flush(mockResponse);
       const result = await promise;
 
-      expect(result).toEqual(mockResponse);
+      expect(result).toEqual(mockResponse.data);
     });
 
     it('should normalize NestJS errors when getHistoryByUnitId fails', async () => {
       const unitId = '123e4567-e89b-12d3-a456-426614174000';
 
-      const promise = adapter.getHistoryByUnitId(unitId);
+      const promise = adapter.fetchUnitScoreHistory(unitId);
 
       const req = httpMock.expectOne(`${mockBaseUrl}/score-history/${unitId}`);
       expect(req.request.method).toBe('GET');

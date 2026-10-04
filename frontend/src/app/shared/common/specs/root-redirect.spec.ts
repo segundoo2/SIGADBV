@@ -4,7 +4,7 @@ import { signal, WritableSignal } from '@angular/core';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { RootRedirect } from '../root-redirect';
 import { AUTH_STORE_PORT } from '../../../core/infra/tokens/auth.token';
-import { IAuthStorePort } from '../../../core/domain/ports/stores/auth-store.port';
+import { IAuthStorePort } from '../../../core/application/ports/stores/auth-store.port';
 
 describe('RootRedirect', () => {
   let fixture: ComponentFixture<RootRedirect>;
@@ -22,8 +22,8 @@ describe('RootRedirect', () => {
       isLoading: signal(false),
       error: signal(null),
       mustChangePassword,
-      currentUsername: signal(''),
-      checkSession: vi.fn().mockResolvedValue(undefined),
+      currentUserEntity: () => null,
+      restoreAuthenticationSession: vi.fn().mockResolvedValue(undefined),
       login: vi.fn(),
       logout: vi.fn(),
     };
@@ -42,34 +42,34 @@ describe('RootRedirect', () => {
     fixture = TestBed.createComponent(RootRedirect);
   });
 
-  it('should redirect unauthenticated users to /auth without checking the session', async () => {
-    await fixture.componentInstance.ngOnInit();
+  it('should redirect unauthenticated users to /auth without checking the session', () => {
+    fixture.componentInstance.ngOnInit();
 
-    expect(authStoreMock.checkSession).not.toHaveBeenCalled();
+    expect(authStoreMock.restoreAuthenticationSession).not.toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/auth'], {
       replaceUrl: true,
     });
   });
 
-  it('should redirect authenticated users to /overview without checking session', async () => {
+  it('should redirect authenticated users to /overview without checking session', () => {
     isAuthenticated.set(true);
     mustChangePassword.set(false);
 
-    await fixture.componentInstance.ngOnInit();
+    fixture.componentInstance.ngOnInit();
 
-    expect(authStoreMock.checkSession).not.toHaveBeenCalled();
+    expect(authStoreMock.restoreAuthenticationSession).not.toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/overview'], {
       replaceUrl: true,
     });
   });
 
-  it('should redirect authenticated users that must change password to /auth/update-password', async () => {
+  it('should redirect authenticated users that must change password to /auth/update-password', () => {
     isAuthenticated.set(true);
     mustChangePassword.set(true);
 
-    await fixture.componentInstance.ngOnInit();
+    fixture.componentInstance.ngOnInit();
 
-    expect(authStoreMock.checkSession).not.toHaveBeenCalled();
+    expect(authStoreMock.restoreAuthenticationSession).not.toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/auth/update-password'], {
       replaceUrl: true,
     });

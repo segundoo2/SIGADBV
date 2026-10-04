@@ -1,21 +1,22 @@
 <app-header />
 
 <main class="p-6 max-w-7xl mx-auto">
-  <header class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+  <header
+    class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6"
+  >
     <div>
-      <h1 class="text-2xl font-bold text-white">Bem-vindo, {{ currentUsername() }}!</h1>
+      <h1 class="text-2xl font-bold text-white">
+        Bem-vindo, {{ currentUserEntity()?.username ?? '' }}!
+      </h1>
       <p class="text-sm text-slate-400">
         Visualize o ranking de unidades e o histórico de pontuações recentes
       </p>
     </div>
 
-    <app-card
-      label="Unidades Cadastradas"
-      [value]="totalUnitsCount()"
-    />
+    <app-card label="Unidades Cadastradas" [value]="totalUnitsCount()" />
   </header>
 
-  <app-access-denied-card 
+  <app-access-denied-card
     [requiredPermission]="EPermission.SCORE_HISTORY_READ"
     message="Acesso restrito: você não possui permissão para visualizar o histórico de pontuações recentes e o gráfico de pontuação geral."
   >
@@ -36,25 +37,24 @@
         selectId="unit-history-select"
       >
         @for (row of historyRows(); track trackById($index, row)) {
-          <tr class="hover:bg-slate-800/30 transition-colors">
-            @if (row.score > 0) {
-              <td class="py-3 px-4 text-emerald-400 font-semibold">
-                {{ '+' + row.score }}
-              </td>
-            } @else {
-              <td class="py-3 px-4 text-red-400 font-semibold">
-                {{ row.score }}
-              </td>
-            }
-            <td class="py-3 px-4 text-slate-300 text-justify">{{ row.description }}</td>
-          </tr>
-        }
-        @empty {
-          <tr>
-            <td colspan="2" class="py-6 text-center text-slate-500 text-sm">
-              Selecione uma unidade para visualizar o histórico recente.
-            </td>
-          </tr>
+        <tr class="hover:bg-slate-800/30 transition-colors">
+          @if (row.score > 0) {
+          <td class="py-3 px-4 text-emerald-400 font-semibold">
+            {{ '+' + row.score }}
+          </td>
+          } @else {
+          <td class="py-3 px-4 text-red-400 font-semibold">{{ row.score }}</td>
+          }
+          <td class="py-3 px-4 text-slate-300 text-justify">
+            {{ row.description }}
+          </td>
+        </tr>
+        } @empty {
+        <tr>
+          <td colspan="2" class="py-6 text-center text-slate-500 text-sm">
+            Selecione uma unidade para visualizar o histórico recente.
+          </td>
+        </tr>
         }
       </app-table-card>
     </section>

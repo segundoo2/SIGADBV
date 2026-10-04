@@ -29,7 +29,7 @@ describe('BarChartCardComponent', () => {
     component.items = [];
     fixture.detectChanges();
 
-    const element: HTMLElement = fixture.nativeElement;
+    const element: HTMLElement = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('Sem dados disponíveis');
   });
 
@@ -71,7 +71,7 @@ describe('BarChartCardComponent', () => {
     fixture.detectChanges();
 
     expect(component.hasData()).toBe(false);
-    expect(fixture.nativeElement.textContent).toContain(
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
       'Não há dados suficientes para exibir o gráfico',
     );
   });

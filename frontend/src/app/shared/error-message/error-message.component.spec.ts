@@ -17,7 +17,7 @@ describe('ErrorMessageComponent', () => {
 
   it('should display the error message when input is provided', () => {
     const fixture = TestBed.createComponent(ErrorMessageComponent);
-    
+
     // Passa o valor para o input signal usando setInput
     fixture.componentRef.setInput('message', 'Credenciais inválidas');
     fixture.detectChanges();
@@ -32,7 +32,7 @@ describe('ErrorMessageComponent', () => {
 
   it('should apply collapse classes when message is null', () => {
     const fixture = TestBed.createComponent(ErrorMessageComponent);
-    
+
     fixture.componentRef.setInput('message', null);
     fixture.detectChanges();
 

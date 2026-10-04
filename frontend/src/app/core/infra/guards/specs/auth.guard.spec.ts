@@ -3,7 +3,7 @@ import { Router, UrlTree } from '@angular/router';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { authGuard } from '../auth.guard';
 import { AUTH_STORE_PORT } from '../../tokens/auth.token';
-import { IAuthStorePort } from '../../../domain/ports/stores/auth-store.port';
+import { IAuthStorePort } from '../../../application/ports/stores/auth-store.port';
 
 describe('authGuard', () => {
   let authStoreMock: IAuthStorePort;
@@ -13,16 +13,18 @@ describe('authGuard', () => {
     authStoreMock = {
       isAuthenticated: vi.fn(),
       mustChangePassword: vi.fn(),
-      currentUsername: vi.fn(),
+      currentUserEntity: vi.fn().mockReturnValue(null),
       isLoading: vi.fn(),
       error: vi.fn(),
       login: vi.fn(),
-      checkSession: vi.fn().mockResolvedValue(undefined),
+      restoreAuthenticationSession: vi.fn().mockResolvedValue(undefined),
       logout: vi.fn(),
     };
 
     routerMock = {
-      createUrlTree: vi.fn((commands: unknown[]) => commands as unknown as UrlTree),
+      createUrlTree: vi.fn(
+        (commands: unknown[]) => commands as unknown as UrlTree,
+      ),
     } as unknown as Router;
 
     TestBed.configureTestingModule({
@@ -41,34 +43,38 @@ describe('authGuard', () => {
     );
 
     expect(result).toBe(true);
-    expect(authStoreMock.checkSession).not.toHaveBeenCalled();
+    expect(authStoreMock.restoreAuthenticationSession).not.toHaveBeenCalled();
     expect(routerMock.createUrlTree).not.toHaveBeenCalled();
   });
 
-  it('should restore the session and allow access when checkSession authenticates the user.', async () => {
+  it('should restore the authentication session and allow access when it succeeds.', async () => {
     vi.mocked(authStoreMock.isAuthenticated)
       .mockReturnValueOnce(false)
       .mockReturnValueOnce(true);
-    vi.mocked(authStoreMock.checkSession).mockResolvedValue(undefined);
+    vi.mocked(authStoreMock.restoreAuthenticationSession).mockResolvedValue(
+      undefined,
+    );
 
     const result = await TestBed.runInInjectionContext(() =>
       authGuard({} as never, {} as never),
     );
 
-    expect(authStoreMock.checkSession).toHaveBeenCalledTimes(1);
+    expect(authStoreMock.restoreAuthenticationSession).toHaveBeenCalledTimes(1);
     expect(result).toBe(true);
     expect(routerMock.createUrlTree).not.toHaveBeenCalled();
   });
 
-  it('should redirect to /auth/ when the user is not authenticated after checkSession', async () => {
+  it('should redirect to /auth/ when the restored session is unauthenticated', async () => {
     vi.mocked(authStoreMock.isAuthenticated).mockReturnValue(false);
-    vi.mocked(authStoreMock.checkSession).mockResolvedValue(undefined);
+    vi.mocked(authStoreMock.restoreAuthenticationSession).mockResolvedValue(
+      undefined,
+    );
 
     const result = await TestBed.runInInjectionContext(() =>
       authGuard({} as never, {} as never),
     );
 
-    expect(authStoreMock.checkSession).toHaveBeenCalledTimes(1);
+    expect(authStoreMock.restoreAuthenticationSession).toHaveBeenCalledTimes(1);
     expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/auth/']);
     expect(result).toEqual(['/auth/']);
   });

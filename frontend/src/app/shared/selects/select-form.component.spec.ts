@@ -25,8 +25,9 @@ describe('SelectFormComponent', () => {
   });
 
   it('should create the component and render its options', () => {
-    const select: HTMLSelectElement =
-      fixture.nativeElement.querySelector('select');
+    const select: HTMLSelectElement = (
+      fixture.nativeElement as HTMLElement
+    ).querySelector('select');
     const renderedOptions = Array.from(select.options).map((option) =>
       option.textContent?.trim(),
     );
@@ -43,7 +44,9 @@ describe('SelectFormComponent', () => {
     fixture.detectChanges();
 
     expect(
-      fixture.nativeElement.querySelector('[data-testid="unit-select-test"]'),
+      (fixture.nativeElement as HTMLElement).querySelector(
+        '[data-testid="unit-select-test"]',
+      ),
     ).toBeTruthy();
   });
 
@@ -51,8 +54,9 @@ describe('SelectFormComponent', () => {
     component.writeValue('unit-1');
     fixture.detectChanges();
 
-    const select: HTMLSelectElement =
-      fixture.nativeElement.querySelector('select');
+    const select: HTMLSelectElement = (
+      fixture.nativeElement as HTMLElement
+    ).querySelector('select');
 
     expect(component.value()).toBe('unit-1');
     expect(select.value).toBe('unit-1');
@@ -62,8 +66,9 @@ describe('SelectFormComponent', () => {
     component.writeValue(2);
     fixture.detectChanges();
 
-    const select: HTMLSelectElement =
-      fixture.nativeElement.querySelector('select');
+    const select: HTMLSelectElement = (
+      fixture.nativeElement as HTMLElement
+    ).querySelector('select');
 
     expect(component.value()).toBe(2);
     expect(select.value).toBe('2');
@@ -73,8 +78,9 @@ describe('SelectFormComponent', () => {
     component.writeValue(null as unknown as string);
     fixture.detectChanges();
 
-    const select: HTMLSelectElement =
-      fixture.nativeElement.querySelector('select');
+    const select: HTMLSelectElement = (
+      fixture.nativeElement as HTMLElement
+    ).querySelector('select');
 
     expect(component.value()).toBe('');
     expect(select.value).toBe('');
@@ -84,8 +90,9 @@ describe('SelectFormComponent', () => {
     const onChange = vi.fn();
     component.registerOnChange(onChange);
 
-    const select: HTMLSelectElement =
-      fixture.nativeElement.querySelector('select');
+    const select: HTMLSelectElement = (
+      fixture.nativeElement as HTMLElement
+    ).querySelector('select');
     select.value = 'unit-1';
     select.dispatchEvent(new Event('change'));
     fixture.detectChanges();
@@ -99,8 +106,9 @@ describe('SelectFormComponent', () => {
     const onTouched = vi.fn();
     component.registerOnTouched(onTouched);
 
-    const select: HTMLSelectElement =
-      fixture.nativeElement.querySelector('select');
+    const select: HTMLSelectElement = (
+      fixture.nativeElement as HTMLElement
+    ).querySelector('select');
     select.dispatchEvent(new Event('blur'));
     fixture.detectChanges();
 
@@ -111,8 +119,9 @@ describe('SelectFormComponent', () => {
     component.setDisabledState(true);
     fixture.detectChanges();
 
-    const select: HTMLSelectElement =
-      fixture.nativeElement.querySelector('select');
+    const select: HTMLSelectElement = (
+      fixture.nativeElement as HTMLElement
+    ).querySelector('select');
 
     expect(component.disabled()).toBe(true);
     expect(select.disabled).toBe(true);
@@ -123,8 +132,9 @@ describe('SelectFormComponent', () => {
     component.setDisabledState(false);
     fixture.detectChanges();
 
-    const select: HTMLSelectElement =
-      fixture.nativeElement.querySelector('select');
+    const select: HTMLSelectElement = (
+      fixture.nativeElement as HTMLElement
+    ).querySelector('select');
 
     expect(component.disabled()).toBe(false);
     expect(select.disabled).toBe(false);
@@ -136,9 +146,9 @@ describe('SelectFormComponent', () => {
     fixture.componentRef.setInput('errorTestId', 'unit-select-error');
     fixture.detectChanges();
 
-    const error: HTMLElement | null = fixture.nativeElement.querySelector(
-      '[data-testid="unit-select-error"]',
-    );
+    const error: HTMLElement | null = (
+      fixture.nativeElement as HTMLElement
+    ).querySelector('[data-testid="unit-select-error"]');
 
     expect(error).toBeTruthy();
     expect(error?.textContent?.trim()).toBe('Selecione uma unidade.');
@@ -149,7 +159,9 @@ describe('SelectFormComponent', () => {
     fixture.componentRef.setInput('errorMessage', 'Selecione uma unidade.');
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('#error-message')).toBeNull();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('#error-message'),
+    ).toBeNull();
   });
 
   it('should not display an error message when no message is provided', () => {
@@ -157,6 +169,8 @@ describe('SelectFormComponent', () => {
     fixture.componentRef.setInput('errorMessage', undefined);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('#error-message')).toBeNull();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('#error-message'),
+    ).toBeNull();
   });
 });

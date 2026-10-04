@@ -1,17 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { UpdatePassword } from './update-password';
+import { PasswordUpdatePage } from './update-password';
 import { UPDATE_PASSWORD_STORE_PORT } from '../../core/infra/tokens/update-password.token';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 import { provideRouter, Router } from '@angular/router';
 import { signal, WritableSignal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
-import { IAuthStorePort } from '../../core/domain/ports/stores/auth-store.port';
+import { IAuthStorePort } from '../../core/application/ports/stores/auth-store.port';
 
-describe('UpdatePassword Component', () => {
-  let component: UpdatePassword;
-  let fixture: ComponentFixture<UpdatePassword>;
-  let mockUpdatePasswordStore: any;
+describe('PasswordUpdatePage', () => {
+  let component: PasswordUpdatePage;
+  let fixture: ComponentFixture<PasswordUpdatePage>;
+  let mockUpdatePasswordStore: {
+    isLoading: WritableSignal<boolean>;
+    error: WritableSignal<string | null>;
+    successMessage: WritableSignal<string>;
+    updatePassword: ReturnType<typeof vi.fn>;
+  };
   let mockAuthStore: IAuthStorePort;
   let router: Router;
   let titleService: Title;
@@ -21,7 +26,7 @@ describe('UpdatePassword Component', () => {
     mockUpdatePasswordStore = {
       isLoading: signal(false),
       error: signal<string | null>(null),
-      successMessage: signal<string | null>(null),
+      successMessage: signal(''),
       updatePassword: vi.fn(),
     };
 
@@ -30,55 +35,68 @@ describe('UpdatePassword Component', () => {
       isLoading: signal(false),
       error: signal(null),
       mustChangePassword: signal(true),
-      currentUsername: signal('testuser'),
-      checkSession: vi.fn().mockResolvedValue(undefined),
+      currentUserEntity: signal({
+        id: 'test-user',
+        tenantId: 'test-tenant',
+        username: 'testuser',
+        mustChangePassword: true,
+        roles: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
+      restoreAuthenticationSession: vi.fn().mockResolvedValue(undefined),
       login: vi.fn(),
       logout: vi.fn(),
     };
 
     await TestBed.configureTestingModule({
-      imports: [UpdatePassword],
+      imports: [PasswordUpdatePage],
       providers: [
         provideRouter([]),
-        { provide: UPDATE_PASSWORD_STORE_PORT, useValue: mockUpdatePasswordStore },
+        {
+          provide: UPDATE_PASSWORD_STORE_PORT,
+          useValue: mockUpdatePasswordStore,
+        },
         { provide: AUTH_STORE_PORT, useValue: mockAuthStore },
       ],
     }).compileComponents();
 
     router = TestBed.inject(Router);
     titleService = TestBed.inject(Title);
-    
+
     // Espiona o método navigate do router para validar redirecionamentos
     vi.spyOn(router, 'navigate').mockResolvedValue(true);
     // Espiona a definição do título
     vi.spyOn(titleService, 'setTitle');
 
-    fixture = TestBed.createComponent(UpdatePassword);
+    fixture = TestBed.createComponent(PasswordUpdatePage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
   it('should create the component and set the page title on init', () => {
     expect(component).toBeTruthy();
-    expect(titleService.setTitle).toHaveBeenCalledWith('SIGADBV - Atualizar Senha');
+    expect(titleService.setTitle).toHaveBeenCalledWith(
+      'SIGADBV - Atualizar Senha',
+    );
   });
 
   it('should invalidate form if passwords do not match', () => {
     const form = component.updatePasswordForm;
-    
+
     form.controls['password'].setValue('12345678');
     form.controls['confirmPassword'].setValue('87654321');
-    
+
     expect(form.invalid).toBe(true);
     expect(form.hasError('mismatch')).toBe(true);
   });
 
   it('should validate form if passwords match and meet min length', () => {
     const form = component.updatePasswordForm;
-    
+
     form.controls['password'].setValue('12345678');
     form.controls['confirmPassword'].setValue('12345678');
-    
+
     expect(form.valid).toBe(true);
     expect(form.hasError('mismatch')).toBe(false);
   });
@@ -108,7 +126,7 @@ describe('UpdatePassword Component', () => {
   });
 
   it('should disable form controls when store is loading', () => {
-    (mockUpdatePasswordStore.isLoading as WritableSignal<boolean>).set(true);
+    mockUpdatePasswordStore.isLoading.set(true);
     fixture.detectChanges();
 
     expect(component.updatePasswordForm.disabled).toBe(true);
@@ -116,12 +134,12 @@ describe('UpdatePassword Component', () => {
 
   it('should enable form controls when store finishes loading', () => {
     // Primeiro bota em loading
-    (mockUpdatePasswordStore.isLoading as WritableSignal<boolean>).set(true);
+    mockUpdatePasswordStore.isLoading.set(true);
     fixture.detectChanges();
     expect(component.updatePasswordForm.disabled).toBe(true);
 
     // Depois tira do loading
-    (mockUpdatePasswordStore.isLoading as WritableSignal<boolean>).set(false);
+    mockUpdatePasswordStore.isLoading.set(false);
     fixture.detectChanges();
     expect(component.updatePasswordForm.enabled).toBe(true);
   });
@@ -130,7 +148,7 @@ describe('UpdatePassword Component', () => {
     expect(router.navigate).not.toHaveBeenCalled();
 
     // Emite uma mensagem de sucesso na store
-    (mockUpdatePasswordStore.successMessage as WritableSignal<string | null>).set('Senha atualizada com sucesso!');
+    mockUpdatePasswordStore.successMessage.set('Senha atualizada com sucesso!');
     fixture.detectChanges();
 
     expect(router.navigate).toHaveBeenCalledWith(['/overview']);

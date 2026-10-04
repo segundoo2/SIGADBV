@@ -22,7 +22,7 @@ describe('TableCardComponent', () => {
     fixture.detectChanges();
 
     expect(component).toBeTruthy();
-    const element: HTMLElement = fixture.nativeElement;
+    const element: HTMLElement = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('Histórico');
     expect(element.textContent).toContain('Pontos');
     expect(element.textContent).toContain('Motivo');
@@ -35,11 +35,15 @@ describe('TableCardComponent', () => {
       { id: '1', name: 'Unidade A' },
       { id: '2', name: 'Unidade B' },
     ];
-    component.selectControl = new FormControl<string>('', { nonNullable: true });
+    component.selectControl = new FormControl<string>('', {
+      nonNullable: true,
+    });
     component.selectId = 'test-select';
     fixture.detectChanges();
 
-    const selectElement = fixture.nativeElement.querySelector('app-select-form');
+    const selectElement = (fixture.nativeElement as HTMLElement).querySelector(
+      'app-select-form',
+    );
     expect(selectElement).toBeTruthy();
   });
 });

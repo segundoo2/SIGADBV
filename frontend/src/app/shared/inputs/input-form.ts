@@ -1,5 +1,9 @@
 import { Component, Input, forwardRef, signal } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
+} from '@angular/forms';
 
 @Component({
   selector: 'app-input-form',
@@ -36,7 +40,11 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
 
       <p class="mt-2 ml-2">
         @if (showError && errorMessage) {
-          <span [attr.data-testid]="errorTestId || null" id="error-message" class="block text-[11px] sm:text-xs text-red-400 animate-fadeIn">
+          <span
+            [attr.data-testid]="errorTestId || null"
+            id="error-message"
+            class="block text-[11px] sm:text-xs text-red-400 animate-fadeIn"
+          >
             {{ errorMessage }}
           </span>
         }

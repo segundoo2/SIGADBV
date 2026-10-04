@@ -37,11 +37,7 @@ export class HeaderComponent {
   readonly isProfileMenuOpen = signal<boolean>(false);
   readonly isMobileMenuOpen = signal<boolean>(false);
 
-  // Obter o username do usuário atual
-  protected readonly currentUsername = (): string => {
-    const user = this.usersStore.userCurrentEntity();
-    return user?.username ?? 'Usuário';
-  };
+  protected readonly currentUserEntity = this.usersStore.userCurrentEntity;
 
   // Obter a role principal do usuário atual
   protected readonly currentUserRole = (): string => {
@@ -56,7 +52,7 @@ export class HeaderComponent {
     { label: 'Visão Geral', route: '/overview' },
     {
       label: 'Unidades',
-      route: '/units'
+      route: '/units',
     },
   ];
 

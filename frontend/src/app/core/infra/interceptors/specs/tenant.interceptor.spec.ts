@@ -1,9 +1,16 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  HttpClient,
+  provideHttpClient,
+  withInterceptors,
+} from '@angular/common/http';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { tenantInterceptor } from '../tenant.interceptor';
-import { ITenantContextPort } from '../../../domain/ports/tenant-context.port';
+import { ITenantContextPort } from '../../../application/ports/tenant-context.port';
 import { TENANT_CONTEXT_PORT } from '../../tokens/auth.token';
 
 describe('tenantInterceptor', () => {

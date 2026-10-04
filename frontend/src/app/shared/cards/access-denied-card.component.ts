@@ -11,17 +11,21 @@ import { EPermission } from '../../core/domain/enums/permissions.enum';
     @if (hasPermission()) {
       <ng-content />
     } @else {
-      <aside role="alert" class="p-6 bg-amber-950/40 border border-amber-800/60 rounded-xl text-amber-200 text-sm text-center">
+      <aside
+        role="alert"
+        class="p-6 bg-amber-950/40 border border-amber-800/60 rounded-xl text-amber-200 text-sm text-center"
+      >
         {{ message }}
       </aside>
     }
-  `
+  `,
 })
 export class AccessDeniedCard {
   private readonly usersStore = inject(USERS_STORE_PORT);
 
   @Input() requiredPermission: EPermission | null = null;
-  @Input() message: string = 'Você não possui permissão para visualizar este conteúdo.';
+  @Input() message: string =
+    'Você não possui permissão para visualizar este conteúdo.';
 
   protected hasPermission = (): boolean => {
     const perm = this.requiredPermission;

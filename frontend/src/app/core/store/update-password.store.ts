@@ -1,13 +1,12 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { IResponseModel } from '../domain/models/response.model';
-import { IUpdatePasswordDto } from '../domain/models/update-password-dto.model';
+import { IUpdatePasswordInput } from '../application/models/update-password-input.model';
 import { UPDATE_PASSWORD_API_PORT } from '../infra/tokens/update-password.token';
-import { IUpdatePasswordStorePort } from '../domain/ports/stores/update-password-store.port';
-import { getApiErrorMessage } from '../infra/interceptors/api-error-message.helper';
+import { IUpdatePasswordStorePort } from '../application/ports/stores/update-password-store.port';
+import { getErrorMessage } from '../application/errors/get-error-message';
 
 @Injectable()
-export class UpdatePasswordStore implements IUpdatePasswordStorePort {
-  private readonly api = inject(UPDATE_PASSWORD_API_PORT);
+export class PasswordUpdateStore implements IUpdatePasswordStorePort {
+  private readonly passwordApi = inject(UPDATE_PASSWORD_API_PORT);
 
   private readonly _isLoading = signal<boolean>(false);
   private readonly _error = signal<string | null>(null);
@@ -17,25 +16,16 @@ export class UpdatePasswordStore implements IUpdatePasswordStorePort {
   readonly error = this._error.asReadonly();
   readonly successMessage = this._successMessage.asReadonly();
 
-  async updatePassword(
-    updatePassword: IUpdatePasswordDto,
-  ): Promise<IResponseModel<null>> {
+  async updatePassword(input: IUpdatePasswordInput): Promise<void> {
     this._isLoading.set(true);
     this._error.set(null);
     this._successMessage.set('');
 
     try {
-      const response = await this.api.updatePassword(updatePassword);
-      this._successMessage.set(response.message);
-      return response;
+      await this.passwordApi.updatePassword(input);
+      this._successMessage.set('Senha atualizada com sucesso.');
     } catch (err: unknown) {
-      const errorMessage = getApiErrorMessage(err);
-      this._error.set(errorMessage);
-
-      return {
-        message: errorMessage,
-        data: null,
-      };
+      this._error.set(getErrorMessage(err));
     } finally {
       this._isLoading.set(false);
     }

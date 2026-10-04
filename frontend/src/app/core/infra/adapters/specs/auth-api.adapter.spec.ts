@@ -1,28 +1,31 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { describe, beforeEach, afterEach, it, expect } from 'vitest';
-import { AuthApiAdapter } from '../auth-api.adapter';
-import { IAuthCredentialsModel } from '../../../domain/models/auth-credentials.model';
-import { IAuthResponseModel } from '../../../domain/models/auth-response.model';
+import { AuthenticationApiAdapter } from '../auth-api.adapter';
+import { IAuthCredentialsModel } from '../../../application/models/auth-credentials.model';
+import { AuthResponseDto } from '../dtos/auth-response.dto';
+import { UserEntity } from '../../../domain/entities/user.entity';
 import { URL } from '../../tokens/url.token';
 
-
 describe('AuthApiAdapter', () => {
-  let adapter: AuthApiAdapter;
+  let adapter: AuthenticationApiAdapter;
   let httpMock: HttpTestingController;
   const baseUrl = `${URL}/auth`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        AuthApiAdapter,
+        AuthenticationApiAdapter,
         provideHttpClient(),
         provideHttpClientTesting(),
       ],
     });
 
-    adapter = TestBed.inject(AuthApiAdapter);
+    adapter = TestBed.inject(AuthenticationApiAdapter);
     httpMock = TestBed.inject(HttpTestingController);
   });
 
@@ -30,15 +33,26 @@ describe('AuthApiAdapter', () => {
     httpMock.verify();
   });
 
+  const mockUser: UserEntity = {
+    id: 'user-id',
+    tenantId: 'tenant-id',
+    username: 'john.doe',
+    mustChangePassword: false,
+    roles: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
   it('should send POST request with credentials on login and return response', async () => {
     const credentials: IAuthCredentialsModel = {
       username: 'john.doe',
       password: 'securePassword123',
     };
 
-    const mockResponse: IAuthResponseModel = {
+    const mockResponse: AuthResponseDto = {
       message: 'Login successful',
       mustChangePassword: true,
+      data: { user: mockUser },
     };
 
     const loginPromise = adapter.login(credentials);
@@ -50,13 +64,14 @@ describe('AuthApiAdapter', () => {
     req.flush(mockResponse);
 
     const result = await loginPromise;
-    expect(result).toEqual(mockResponse);
+    expect(result).toEqual({ user: mockUser, mustChangePassword: true });
   });
 
   it('should send POST request to refresh token endpoint', async () => {
-    const mockResponse: IAuthResponseModel = {
+    const mockResponse: AuthResponseDto = {
       message: 'Session refreshed successfully',
-      mustChangePassword: true
+      mustChangePassword: true,
+      data: { user: mockUser },
     };
 
     const refreshPromise = adapter.refresh();
@@ -68,14 +83,11 @@ describe('AuthApiAdapter', () => {
     req.flush(mockResponse);
 
     const result = await refreshPromise;
-    expect(result).toEqual(mockResponse);
+    expect(result).toEqual({ user: mockUser, mustChangePassword: true });
   });
 
   it('should send POST request to logout endpoint', async () => {
-    const mockResponse: IAuthResponseModel = {
-      message: 'Logout successful',
-      mustChangePassword: true
-    };
+    const mockResponse = { message: 'Logout successful' };
 
     const logoutPromise = adapter.logout();
 
@@ -85,7 +97,6 @@ describe('AuthApiAdapter', () => {
 
     req.flush(mockResponse);
 
-    const result = await logoutPromise;
-    expect(result).toEqual(mockResponse);
+    await expect(logoutPromise).resolves.toBeUndefined();
   });
 });

@@ -13,8 +13,8 @@ import { firstValueFrom } from 'rxjs';
 import { describe, beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { authInterceptor } from '../auth.interceptor';
 import { AUTH_API_PORT, AUTH_STORE_PORT } from '../../tokens/auth.token';
-import { IAuthApiPort } from '../../../domain/ports/apis/auth-api.port';
-import { IAuthStorePort } from '../../../domain/ports/stores/auth-store.port';
+import { IAuthApiPort } from '../../../application/ports/apis/auth-api.port';
+import { IAuthStorePort } from '../../../application/ports/stores/auth-store.port';
 
 describe('authInterceptor', () => {
   let httpClient: HttpClient;
@@ -32,11 +32,11 @@ describe('authInterceptor', () => {
     authStoreMock = {
       isAuthenticated: vi.fn(),
       mustChangePassword: vi.fn(),
-      currentUsername: vi.fn(),
+      currentUserEntity: vi.fn().mockReturnValue(null),
       isLoading: vi.fn(),
       error: vi.fn(),
       login: vi.fn(),
-      checkSession: vi.fn(),
+      restoreAuthenticationSession: vi.fn(),
       logout: vi.fn(),
     };
 
@@ -68,8 +68,16 @@ describe('authInterceptor', () => {
 
   it('deve tentar renovar a sessão ao receber erro 401 e re-executar a requisição original', async () => {
     vi.mocked(authApiMock.refresh).mockResolvedValue({
-      message: 'Session refreshed',
       mustChangePassword: false,
+      user: {
+        id: 'user-id',
+        tenantId: 'tenant-id',
+        username: 'john',
+        mustChangePassword: false,
+        roles: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     });
 
     let responseData: unknown;

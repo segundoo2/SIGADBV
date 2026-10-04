@@ -4,7 +4,7 @@ import { signal } from '@angular/core';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { NotFoundRedirect } from '../not-found-redirect';
 import { AUTH_STORE_PORT } from '../../../core/infra/tokens/auth.token';
-import { IAuthStorePort } from '../../../core/domain/ports/stores/auth-store.port';
+import { IAuthStorePort } from '../../../core/application/ports/stores/auth-store.port';
 
 describe('NotFoundRedirect', () => {
   let authStoreMock: IAuthStorePort;
@@ -19,8 +19,8 @@ describe('NotFoundRedirect', () => {
       isLoading: signal(false),
       error: signal(null),
       mustChangePassword: signal(state.mustChangePassword),
-      currentUsername: signal(''),
-      checkSession: vi.fn().mockResolvedValue(undefined),
+      currentUserEntity: () => null,
+      restoreAuthenticationSession: vi.fn().mockResolvedValue(undefined),
       login: vi.fn(),
       logout: vi.fn(),
     };
