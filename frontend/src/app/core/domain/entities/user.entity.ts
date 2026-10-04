@@ -4,7 +4,6 @@ export interface UserEntity {
   readonly id: string;
   readonly tenantId: string;
   readonly username: string;
-  readonly password: string;
   readonly mustChangePassword: boolean;
   readonly roles: RoleEntity[];
   readonly createdAt: Date;

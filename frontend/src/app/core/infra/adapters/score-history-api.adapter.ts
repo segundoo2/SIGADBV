@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { IScoreHistoryApiPort } from '../../domain/ports/apis/score-history-api.port';
 import { URL } from '../tokens/url.token';
@@ -29,11 +29,17 @@ export class ScoreHistoryApiAdapter implements IScoreHistoryApiPort {
 
   async getHistoryByUnitId(
     unitId: string,
+    limit?: number,
   ): Promise<IResponseModel<IScoreHistoryEntity[]>> {
+    let params = new HttpParams();
+    if (limit !== undefined) {
+      params = params.set('limit', limit.toString());
+    }
+
     return await firstValueFrom(
       this.http.get<IResponseModel<IScoreHistoryEntity[]>>(
         `${this.baseUrl}/${unitId}`,
-        { withCredentials: true },
+        { withCredentials: true, params },
       ),
     );
   }

@@ -12,11 +12,10 @@ import { URL } from '../tokens/url.token';
 export class UsersApiAdapter implements IUsersApiPort {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${URL}/users`;
-  private readonly temporarytenantId = '00000000-0000-0000-0000-000000000000';
 
   async findOneByUsername(
     username: string,
-    tenantId: string = this.temporarytenantId,
+    tenantId: string = '0000-0000-0000-0000-000000000000',
   ): Promise<IResponseModel<Omit<UserEntity, 'password'>>> {
     const params = new HttpParams().set('tenantId', tenantId);
 

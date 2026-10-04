@@ -71,8 +71,8 @@ export interface SelectOption {
         </span>
       </div>
 
-      <section class="min-h-4.5 sm:min-h-5 mt-1 ml-1">
-        @if (showError && errorMessage) {
+      @if (showError && errorMessage) {
+        <p class="mt-1 ml-1">
           <span
             [attr.data-testid]="errorTestId || null"
             id="error-message"
@@ -80,8 +80,8 @@ export interface SelectOption {
           >
             {{ errorMessage }}
           </span>
-        }
-      </section>
+        </p>
+      }
     </div>
   `,
 })

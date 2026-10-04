@@ -8,7 +8,7 @@ import { Component, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 import { Title } from '@angular/platform-browser';
-import { InputFormComponent } from '../../shared/inputs/input-form/input-form';
+import { InputFormComponent } from '../../shared/inputs/input-form';
 import { ErrorMessageComponent } from '../../shared/error-message/error-message.component';
 import { ButtonComponent } from '../../shared/buttons/button.component';
 

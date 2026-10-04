@@ -29,7 +29,6 @@ import { LoginDto } from './dtos/login.dto';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtRefreshGuard } from '../../common/guards/jwt-refresh.guard';
-import { ITokens } from './interfaces/token.interface';
 import { ILoginResponse } from './interfaces/login-response.interface';
 import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 
@@ -114,7 +113,7 @@ export class AuthController implements IAuthController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Tokens renovados com sucesso.',
+    description: 'Tokens e dados do usuário renovados com sucesso.',
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -124,7 +123,7 @@ export class AuthController implements IAuthController {
     @CurrentUser() userPayload: IJwtPayloadWithExpiry,
     @Headers('x-device-id') deviceId: string | undefined,
     @Headers('user-agent') userAgent: string | undefined,
-  ): Promise<ITokens> {
+  ): Promise<ILoginResponse> {
     const fingerprint = deviceId || userAgent || 'unknown';
 
     return await this.authService.refresh(userPayload, fingerprint);

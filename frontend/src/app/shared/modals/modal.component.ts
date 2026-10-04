@@ -10,19 +10,16 @@ export type ModalSize = 'sm' | 'md' | 'lg' | 'xl';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (isOpen()) {
-      <!-- Backdrop com transição de opacidade -->
       <div 
         class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity duration-300"
         (click)="onBackdropClick($event)"
       >
-        <!-- Modal Box com transição de escala e fade -->
-        <div 
+        <article 
           [class]="modalContainerClass()"
           role="dialog"
           aria-modal="true"
         >
-          <!-- Header -->
-          <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800">
+          <header class="flex items-center justify-between px-6 py-4 border-b border-slate-800">
             <h3 class="text-lg font-semibold text-white tracking-wide">
               {{ title() }}
             </h3>
@@ -36,18 +33,16 @@ export type ModalSize = 'sm' | 'md' | 'lg' | 'xl';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-          </div>
+          </header>
 
-          <!-- Body -->
           <div class="p-6 overflow-y-auto text-slate-300 text-sm space-y-4">
             <ng-content />
           </div>
 
-          <!-- Footer (Opcional projetado) -->
-          <div class="px-6 py-3 border-t border-slate-800 bg-slate-900/50 flex justify-end gap-3">
+          <footer class="px-6 py-3 border-t border-slate-800 bg-slate-900/50 flex justify-end gap-3">
             <ng-content select="[modal-footer]" />
-          </div>
-        </div>
+          </footer>
+        </article>
       </div>
     }
   `

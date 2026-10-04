@@ -37,6 +37,9 @@ import {
 } from './core/infra/tokens/units.token';
 import { UnitsApiAdapter } from './core/infra/adapters/units-api.adapter';
 import { apiErrorInterceptor } from './core/infra/interceptors/api-error.interceptor';
+import { USERS_API_PORT, USERS_STORE_PORT } from './core/infra/tokens/users.token';
+import { UsersStore } from './core/store/users.store';
+import { UsersApiAdapter } from './core/infra/adapters/users-api.adapter';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -54,6 +57,14 @@ export const appConfig: ApplicationConfig = {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
     }),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
     //infra
     {
       provide: TENANT_CONTEXT_PORT,
@@ -66,7 +77,7 @@ export const appConfig: ApplicationConfig = {
     { provide: UPDATE_PASSWORD_API_PORT, useClass: UpdatePasswordApiAdapter },
     { provide: SCORE_HISTORY_API_PORT, useClass: ScoreHistoryApiAdapter },
     { provide: UNITS_API_PORT, useClass: UnitsApiAdapter },
-
+    { provide: USERS_API_PORT, useClass: UsersApiAdapter },
     // store
     {
       provide: AUTH_STORE_PORT,
@@ -75,13 +86,6 @@ export const appConfig: ApplicationConfig = {
     { provide: UPDATE_PASSWORD_STORE_PORT, useClass: UpdatePasswordStore },
     { provide: SCORE_HISTORY_STORE_PORT, useClass: ScoreHistoryStore },
     { provide: UNITS_STORE_PORT, useClass: UnitsStore },
-    provideServiceWorker('ngsw-worker.js', {
-      enabled: !isDevMode(),
-      registrationStrategy: 'registerWhenStable:30000',
-    }),
-    provideServiceWorker('ngsw-worker.js', {
-      enabled: !isDevMode(),
-      registrationStrategy: 'registerWhenStable:30000',
-    }),
+    { provide: USERS_STORE_PORT, useClass: UsersStore },
   ],
 };

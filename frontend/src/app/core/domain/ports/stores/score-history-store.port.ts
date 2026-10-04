@@ -12,5 +12,5 @@ export interface IScoreHistoryStorePort {
     payload: IScoreHistoryPayload,
   ): Promise<IResponseModel<{ newScore: number }>>;
 
-  fetchHistory(unitId: string): Promise<IResponseModel<IScoreHistoryEntity[]>>;
+  fetchHistory(unitId: string, limit?: number): Promise<IResponseModel<IScoreHistoryEntity[]>>;
 }

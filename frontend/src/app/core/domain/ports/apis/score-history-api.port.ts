@@ -6,5 +6,6 @@ export interface IScoreHistoryApiPort {
   registerScore(unitId: string, payload: IScoreHistoryPayload): Promise<IResponseModel<{ newScore: number }>>;
   getHistoryByUnitId(
     unitId: string,
-  ): Promise<IResponseModel<IScoreHistoryEntity[] >>;
+    limit?: number,
+  ): Promise<IResponseModel<IScoreHistoryEntity[]>>;
 }
