@@ -16,8 +16,6 @@ import * as bcrypt from 'bcrypt';
 import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 import type { ICacheStorageService } from '../../common/redis/interface/cache-storage.interface';
 import { EAuthErrors } from '../../common/enum/auth/auth-errors.enum';
-import { IResponse } from '../../common/interfaces/response.interface';
-import { ITokens } from './interfaces/token.interface';
 import { ILoginResponse } from './interfaces/login-response.interface';
 
 type PermissionItem = EPermission | { slug: EPermission };
@@ -75,12 +73,16 @@ export class AuthService {
       }),
     ]);
 
+    const userResponse = { ...user };
+    delete userResponse.password;
+
     return {
       message: EAuthSuccess.LOGIN,
       mustChangePassword: user.mustChangePassword,
       data: {
         accessToken,
         refreshToken,
+        user: userResponse,
       },
     };
   }
@@ -88,7 +90,7 @@ export class AuthService {
   async refresh(
     payload: IJwtPayloadWithExpiry,
     newFingerprint: string,
-  ): Promise<IResponse<ITokens>> {
+  ): Promise<ILoginResponse> {
     const user = await this.authRepository.findUserByUsername(
       payload.username,
       payload.tenantId,
@@ -127,11 +129,16 @@ export class AuthService {
       }),
     ]);
 
+    const userResponse = { ...user };
+    delete userResponse.password;
+
     return {
       message: EAuthSuccess.REFRESH,
+      mustChangePassword: user.mustChangePassword,
       data: {
         accessToken,
         refreshToken,
+        user: userResponse,
       },
     };
   }
@@ -153,7 +160,6 @@ export class AuthService {
     };
   }
 
-  // implementar lógica de busca do tenantId no db futuramente
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async findTenantIdBySlug(_slug: string): Promise<string> {
     return Promise.resolve('00000000-0000-0000-0000-000000000000');

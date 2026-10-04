@@ -13,6 +13,7 @@ import { Component, input } from '@angular/core';
       [class.opacity-0]="!message()"
       [class.mb-6]="message()"
       [class.mb-0]="!message()"
+      role="alert"
     >
       <div
         data-testid="error-message"

@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
+import { signal } from '@angular/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
+import { USERS_STORE_PORT } from '../../core/infra/tokens/users.token';
 import { HeaderComponent } from './header';
 
 describe('HeaderComponent', () => {
@@ -9,15 +11,24 @@ describe('HeaderComponent', () => {
   let fixture: ComponentFixture<HeaderComponent>;
   let router: Router;
   let authStore: { logout: ReturnType<typeof vi.fn> };
+  let mockUsersStore: { userCurrentEntity: ReturnType<typeof signal> };
 
   beforeEach(async () => {
     authStore = { logout: vi.fn().mockResolvedValue(undefined) };
+    mockUsersStore = {
+      userCurrentEntity: signal({
+        id: '1',
+        username: 'edilson.segundo',
+        roles: [{ id: 'role-1', name: 'Administrador' }],
+      }),
+    };
 
     await TestBed.configureTestingModule({
       imports: [HeaderComponent],
       providers: [
         provideRouter([]),
         { provide: AUTH_STORE_PORT, useValue: authStore },
+        { provide: USERS_STORE_PORT, useValue: mockUsersStore },
       ],
     }).compileComponents();
 
@@ -46,7 +57,7 @@ describe('HeaderComponent', () => {
     ]);
   });
 
-  it('should open and close the profile menu', () => {
+  it('should open and close the profile menu and display username and role', () => {
     const profileButton: HTMLButtonElement =
       fixture.nativeElement.querySelector(
         'button[aria-label="Perfil do usuário"]',
@@ -56,7 +67,10 @@ describe('HeaderComponent', () => {
     fixture.detectChanges();
 
     expect(component.isProfileMenuOpen()).toBe(true);
-    expect(fixture.nativeElement.textContent).toContain('Sair');
+    const textContent = fixture.nativeElement.textContent;
+    expect(textContent).toContain('edilson.segundo');
+    expect(textContent).toContain('Administrador');
+    expect(textContent).toContain('Sair');
 
     profileButton.click();
     fixture.detectChanges();

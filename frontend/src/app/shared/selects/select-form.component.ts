@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef, signal } from '@angular/core';
+import { Component, Input, forwardRef, signal, computed } from '@angular/core';
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
@@ -30,7 +30,7 @@ export interface SelectOption {
           [disabled]="disabled()"
           (blur)="onTouched()"
           (change)="onChangeInternal($event)"
-          class="w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-white text-sm sm:text-base focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed appearance-none cursor-pointer"
+          [class]="selectClasses()"
         >
           <option
             value=""
@@ -71,8 +71,8 @@ export interface SelectOption {
         </span>
       </div>
 
-      <section class="min-h-4.5 sm:min-h-5 mt-1 ml-1">
-        @if (showError && errorMessage) {
+      @if (showError && errorMessage) {
+        <p class="mt-1 ml-1">
           <span
             [attr.data-testid]="errorTestId || null"
             id="error-message"
@@ -80,8 +80,8 @@ export interface SelectOption {
           >
             {{ errorMessage }}
           </span>
-        }
-      </section>
+        </p>
+      }
     </div>
   `,
 })
@@ -92,9 +92,19 @@ export class SelectFormComponent implements ControlValueAccessor {
   @Input() errorTestId?: string;
   @Input() showError: boolean = false;
   @Input() errorMessage?: string;
+  @Input() size: 'normal' | 'sm' = 'normal';
 
   value = signal<string | number>('');
   disabled = signal<boolean>(false);
+
+  private readonly baseClasses = 'w-full bg-slate-950/60 border border-slate-800 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed appearance-none cursor-pointer';
+
+  readonly selectClasses = computed(() => {
+    if (this.size === 'sm') {
+      return `${this.baseClasses} px-3 py-2 rounded-lg text-xs`;
+    }
+    return `${this.baseClasses} px-4 py-3 rounded-xl text-sm sm:text-base`;
+  });
 
   private onChange: (value: string | number) => void = () => {};
   public onTouched: () => void = () => {};

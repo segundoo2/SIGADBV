@@ -1,7 +1,6 @@
 import { IJwtPayloadWithExpiry } from './jwt-payload.interface';
 import { EAuthSuccess } from '../../../common/enum/auth/auth-success.enum';
 import { LoginDto } from '../dtos/login.dto';
-import { ITokens } from './token.interface';
 import { ILoginResponse } from './login-response.interface';
 
 export interface IAuthService {
@@ -13,7 +12,7 @@ export interface IAuthService {
   refresh(
     payload: IJwtPayloadWithExpiry,
     fingerprint: string,
-  ): Promise<ITokens>;
+  ): Promise<ILoginResponse>;
 
   logout(payload: IJwtPayloadWithExpiry): Promise<{ message: EAuthSuccess }>;
 }
