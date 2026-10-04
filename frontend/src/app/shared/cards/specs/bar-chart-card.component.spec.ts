@@ -47,4 +47,32 @@ describe('BarChartCardComponent', () => {
     // O item com maior valor deve vir primeiro devido à ordenação decrescente
     expect(component.sortedItems()[0].label).toBe('Unidade Beta');
   });
+
+  it('should exclude units with zero or negative scores from the chart', () => {
+    component.title = 'Ranking';
+    component.items = [
+      { id: '1', label: 'Unidade positiva', value: 10 },
+      { id: '2', label: 'Unidade zerada', value: 0 },
+      { id: '3', label: 'Unidade negativa', value: -5 },
+    ];
+
+    expect(component.sortedItems().map((item) => item.label)).toEqual([
+      'Unidade positiva',
+    ]);
+    expect(component.hasData()).toBe(true);
+  });
+
+  it('should show the empty message when all scores are zero or negative', () => {
+    component.title = 'Ranking';
+    component.items = [
+      { id: '1', label: 'Unidade zerada', value: 0 },
+      { id: '2', label: 'Unidade negativa', value: -5 },
+    ];
+    fixture.detectChanges();
+
+    expect(component.hasData()).toBe(false);
+    expect(fixture.nativeElement.textContent).toContain(
+      'Não há dados suficientes para exibir o gráfico',
+    );
+  });
 });

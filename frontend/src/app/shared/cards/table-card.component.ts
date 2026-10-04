@@ -9,7 +9,7 @@ import { SelectFormComponent, SelectOption } from '../../shared/selects/select-f
   imports: [CommonModule, ReactiveFormsModule, SelectFormComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <article class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-sm space-y-4">
+    <article class="h-full flex flex-col bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-sm space-y-4">
       <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h2 class="text-lg font-semibold text-white m-0">
           {{ title }}
@@ -28,8 +28,8 @@ import { SelectFormComponent, SelectOption } from '../../shared/selects/select-f
         }
       </header>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+      <div class="flex-1 overflow-x-auto flex flex-col">
+        <table class="w-full text-left border-collapse flex-1 flex flex-col">
           <thead>
             <tr class="border-b border-slate-800 text-xs font-semibold text-slate-400 uppercase tracking-wider">
               @for (header of headers; track header) {
@@ -37,7 +37,7 @@ import { SelectFormComponent, SelectOption } from '../../shared/selects/select-f
               }
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-800/60 text-sm">
+          <tbody class="divide-y divide-slate-800/60 text-sm flex-1 flex flex-col">
             <ng-content></ng-content>
           </tbody>
         </table>
