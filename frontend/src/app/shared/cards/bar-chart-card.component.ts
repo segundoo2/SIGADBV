@@ -1,4 +1,10 @@
-import { Component, ChangeDetectionStrategy, Input, computed, signal } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  Input,
+  computed,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseChartDirective } from 'ng2-charts';
 import {
@@ -14,7 +20,14 @@ import {
   Legend,
 } from 'chart.js';
 
-Chart.register(BarElement, CategoryScale, LinearScale, BarController, Tooltip, Legend);
+Chart.register(
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  BarController,
+  Tooltip,
+  Legend,
+);
 
 export interface ChartItem {
   readonly id: string;
@@ -28,7 +41,9 @@ export interface ChartItem {
   imports: [CommonModule, BaseChartDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <article class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-sm flex flex-col justify-between h-full">
+    <article
+      class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-sm flex flex-col justify-between h-full"
+    >
       <header>
         <h2 class="text-lg font-semibold text-white mb-4">{{ title }}</h2>
       </header>
@@ -44,7 +59,9 @@ export interface ChartItem {
           </canvas>
         </div>
       } @else {
-        <p class="flex-1 flex items-center justify-center min-h-120 text-slate-500 text-sm m-0">
+        <p
+          class="flex-1 flex items-center justify-center min-h-120 text-slate-500 text-sm m-0"
+        >
           {{ emptyMessage }}
         </p>
       }
@@ -56,20 +73,21 @@ export class BarChartCardComponent {
   @Input({ required: true }) set items(value: readonly ChartItem[]) {
     this.itemsSignal.set(value);
   }
-  @Input() emptyMessage: string = 'Não há dados suficientes para exibir o gráfico';
+  @Input() emptyMessage: string =
+    'Não há dados suficientes para exibir o gráfico';
 
   private readonly itemsSignal = signal<readonly ChartItem[]>([]);
 
   readonly sortedItems = computed(() => {
     const list = [...this.itemsSignal()];
     return list
-      .filter((item) => item.value >= 0)
+      .filter((item) => item.value > 0)
       .sort((a, b) => b.value - a.value);
   });
 
   readonly hasData = computed(() => {
     const list = this.itemsSignal();
-    return list.length > 0 && list.some((item) => item.value >= 0);
+    return list.length > 0 && list.some((item) => item.value > 0);
   });
 
   readonly barChartType: ChartType = 'bar';
