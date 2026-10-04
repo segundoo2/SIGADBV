@@ -1,61 +1,79 @@
-<header class="flex items-center justify-between px-6 py-4 bg-slate-900 border-b border-slate-800 shadow-xl text-white relative z-50">
+<header
+  class="flex items-center justify-between px-6 py-4 bg-slate-900 border-b border-slate-800 shadow-xl text-white relative z-50"
+>
   <!-- Logo -->
-  <div class="flex items-center gap-3 cursor-pointer" routerLink="/overview" (click)="closeMenus()">
-    <img src="/D3.png" alt="Emblema D3 do clube de desbravadores" class="w-8 h-8 object-contain" />
+  <a
+    class="flex items-center gap-3 cursor-pointer"
+    routerLink="/overview"
+    (click)="closeMenus()"
+  >
+    <img
+      src="/D3.png"
+      alt="Emblema D3 do clube de desbravadores"
+      class="w-8 h-8 object-contain"
+    />
     <span class="font-bold tracking-wider text-lg">SIGADBV</span>
-  </div>
+  </a>
 
   <!-- Desktop Navigation Links with Dropdowns -->
-  <nav class="hidden md:flex items-center gap-3 bg-slate-800/80 px-4 py-2 rounded-full border border-slate-700/60 relative">
+  <nav
+    class="hidden md:flex items-center gap-3 bg-slate-800/80 px-4 py-2 rounded-full border border-slate-700/60 relative"
+  >
     @for (item of navItems; track trackByLabel($index, item)) {
-      <div class="relative">
-        @if (item.submenu) {
-          <!-- Botão com Submenu -->
-          <button
-            type="button"
-            (click)="toggleDropdown(item.label, $event)"
-            class="flex items-center gap-1.5 text-slate-300 hover:text-white px-4 py-1.5 rounded-full transition-colors text-sm focus:outline-none"
-            [class.bg-slate-700]="activeDropdown() === item.label"
-            [class.text-white]="activeDropdown() === item.label"
-          >
-            {{ item.label }}
-            <svg
-              class="w-3.5 h-3.5 transition-transform"
-              [class.rotate-180]="activeDropdown() === item.label"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
+    <div class="relative">
+      @if (item.submenu) {
+      <!-- Botão com Submenu -->
+      <button
+        type="button"
+        (click)="toggleDropdown(item.label, $event)"
+        class="flex items-center gap-1.5 text-slate-300 hover:text-white px-4 py-1.5 rounded-full transition-colors text-sm focus:outline-none"
+        [class.bg-slate-700]="activeDropdown() === item.label"
+        [class.text-white]="activeDropdown() === item.label"
+      >
+        {{ item.label }}
+        <svg
+          class="w-3.5 h-3.5 transition-transform"
+          [class.rotate-180]="activeDropdown() === item.label"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </button>
 
-          @if (activeDropdown() === item.label) {
-            <div class="absolute left-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl py-2 z-50">
-              @for (sub of item.submenu; track trackBySubRoute($index, sub)) {
-                <a
-                  [routerLink]="sub.route"
-                  routerLinkActive="bg-slate-700 text-white font-medium"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
-                  (click)="closeMenus()"
-                >
-                  {{ sub.label }}
-                </a>
-              }
-            </div>
-          }
-        } @else {
-          <a
-            [routerLink]="item.route"
-            routerLinkActive="bg-slate-700 text-white font-semibold shadow-inner"
-            [routerLinkActiveOptions]="{ exact: true }"
-            class="text-slate-300 hover:text-white px-4 py-1.5 rounded-full transition-colors text-sm block"
-          >
-            {{ item.label }}
-          </a>
+      @if (activeDropdown() === item.label) {
+      <div
+        class="absolute left-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl py-2 z-50"
+      >
+        @for (sub of item.submenu; track trackBySubRoute($index, sub)) {
+        <a
+          [routerLink]="sub.route"
+          routerLinkActive="bg-slate-700 text-white font-medium"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+          (click)="closeMenus()"
+        >
+          {{ sub.label }}
+        </a>
         }
       </div>
+      } } @else {
+      <a
+        [routerLink]="item.route"
+        routerLinkActive="bg-slate-700 text-white font-semibold shadow-inner"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="text-slate-300 hover:text-white px-4 py-1.5 rounded-full transition-colors text-sm block"
+      >
+        {{ item.label }}
+      </a>
+      }
+    </div>
     }
   </nav>
 
@@ -68,40 +86,80 @@
         [class.border-slate-500]="isProfileMenuOpen()"
         aria-label="Perfil do usuário"
       >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+          />
         </svg>
       </button>
 
       @if (isProfileMenuOpen()) {
-        <div class="absolute right-0 mt-2 w-56 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl py-1 z-50">
-          <!-- Informações do Usuário (Ícone à esquerda, textos à direita) -->
-          <div class="px-4 py-3 border-b border-slate-700/60 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-slate-300 shrink-0">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-            <div class="overflow-hidden">
-              <p class="text-sm font-semibold text-white truncate">{{ currentUsername() }}</p>
-              @if (currentUserRole()) {
-                <p class="text-xs text-slate-400 truncate mt-0.5">{{ currentUserRole() }}</p>
-              }
-            </div>
-          </div>
-
-          <!-- Botão de Sair -->
-          <button
-            type="button"
-            (click)="logout()"
-            class="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 transition-colors flex items-center gap-2"
+      <div
+        class="absolute right-0 mt-2 w-56 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl py-1 z-50"
+      >
+        <!-- Informações do Usuário (Ícone à esquerda, textos à direita) -->
+        <div
+          class="px-4 py-3 border-b border-slate-700/60 flex items-center gap-3"
+        >
+          <div
+            class="w-8 h-8 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-slate-300 shrink-0"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
             </svg>
-            Sair
-          </button>
+          </div>
+          <div class="overflow-hidden">
+            <p class="text-sm font-semibold text-white truncate">
+              {{ currentUserEntity()?.username ?? 'Usuário' }}
+            </p>
+            @if (currentUserRole()) {
+            <p class="text-xs text-slate-400 truncate mt-0.5">
+              {{ currentUserRole() }}
+            </p>
+            }
+          </div>
         </div>
+
+        <!-- Botão de Sair -->
+        <button
+          type="button"
+          (click)="logout()"
+          class="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 transition-colors flex items-center gap-2"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            />
+          </svg>
+          Sair
+        </button>
+      </div>
       }
     </div>
 
@@ -112,11 +170,26 @@
       class="md:hidden w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white focus:outline-none"
       aria-label="Abrir menu de navegação"
     >
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
         @if (!isMobileMenuOpen()) {
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16"
+        />
         } @else {
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"
+        />
         }
       </svg>
     </button>
@@ -125,36 +198,42 @@
 
 <!-- Mobile -->
 @if (isMobileMenuOpen()) {
-  <div class="md:hidden bg-slate-900 border-b border-slate-800 px-6 py-4 space-y-3 relative z-40 shadow-2xl">
-    @for (item of navItems; track trackByLabel($index, item)) {
-      <div>
-        @if (item.submenu) {
-          <div class="font-medium text-slate-400 py-2 text-sm tracking-wide uppercase">{{ item.label }}</div>
-          <div class="pl-4 space-y-2 border-l border-slate-800 my-1">
-            @for (sub of item.submenu; track trackBySubRoute($index, sub)) {
-              <a
-                [routerLink]="sub.route"
-                routerLinkActive="bg-slate-800 text-white font-medium"
-                [routerLinkActiveOptions]="{ exact: true }"
-                class="block px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
-                (click)="closeMenus()"
-              >
-                {{ sub.label }}
-              </a>
-            }
-          </div>
-        } @else {
-          <a
-            [routerLink]="item.route"
-            routerLinkActive="bg-slate-800 text-white font-semibold"
-            [routerLinkActiveOptions]="{ exact: true }"
-            class="block px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-base"
-            (click)="closeMenus()"
-          >
-            {{ item.label }}
-          </a>
-        }
-      </div>
+<div
+  class="md:hidden bg-slate-900 border-b border-slate-800 px-6 py-4 space-y-3 relative z-40 shadow-2xl"
+>
+  @for (item of navItems; track trackByLabel($index, item)) {
+  <div>
+    @if (item.submenu) {
+    <div
+      class="font-medium text-slate-400 py-2 text-sm tracking-wide uppercase"
+    >
+      {{ item.label }}
+    </div>
+    <div class="pl-4 space-y-2 border-l border-slate-800 my-1">
+      @for (sub of item.submenu; track trackBySubRoute($index, sub)) {
+      <a
+        [routerLink]="sub.route"
+        routerLinkActive="bg-slate-800 text-white font-medium"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="block px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+        (click)="closeMenus()"
+      >
+        {{ sub.label }}
+      </a>
+      }
+    </div>
+    } @else {
+    <a
+      [routerLink]="item.route"
+      routerLinkActive="bg-slate-800 text-white font-semibold"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="block px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-base"
+      (click)="closeMenus()"
+    >
+      {{ item.label }}
+    </a>
     }
   </div>
+  }
+</div>
 }

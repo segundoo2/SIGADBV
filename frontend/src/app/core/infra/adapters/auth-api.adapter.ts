@@ -1,35 +1,52 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { IAuthResponseModel } from '../../domain/models/auth-response.model';
-import { IAuthCredentialsModel } from '../../domain/models/auth-credentials.model';
+import { IAuthCredentialsModel } from '../../application/models/auth-credentials.model';
+import { IAuthSession } from '../../application/models/auth-session.model';
+import { IAuthApiPort } from '../../application/ports/apis/auth-api.port';
 import { URL } from '../tokens/url.token';
-import { IAuthApiPort } from '../../domain/ports/apis/auth-api.port';
+import { AuthResponseDto } from './dtos/auth-response.dto';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AuthApiAdapter implements IAuthApiPort {
+export class AuthenticationApiAdapter implements IAuthApiPort {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${URL}/auth`;
 
-  async login(credentials: IAuthCredentialsModel): Promise<IAuthResponseModel> {
+  async login(credentials: IAuthCredentialsModel): Promise<IAuthSession> {
     try {
-      return await firstValueFrom(
-        this.http.post<IAuthResponseModel>(this.baseUrl, credentials, {
+      const response = await firstValueFrom(
+        this.http.post<AuthResponseDto>(this.baseUrl, credentials, {
           withCredentials: true,
         }),
       );
+      return this.toAuthSession(response);
     } catch (err: unknown) {
       throw this.normalizeError(err);
     }
   }
 
-  async refresh(): Promise<IAuthResponseModel> {
+  async refresh(): Promise<IAuthSession> {
     try {
-      return await firstValueFrom(
-        this.http.post<IAuthResponseModel>(
+      const response = await firstValueFrom(
+        this.http.post<AuthResponseDto>(
           `${this.baseUrl}/refresh`,
+          {},
+          { withCredentials: true },
+        ),
+      );
+      return this.toAuthSession(response);
+    } catch (err: unknown) {
+      throw this.normalizeError(err);
+    }
+  }
+
+  async logout(): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.http.post<{ message: string }>(
+          `${this.baseUrl}/logout`,
           {},
           { withCredentials: true },
         ),
@@ -39,14 +56,11 @@ export class AuthApiAdapter implements IAuthApiPort {
     }
   }
 
-  async logout(): Promise<Omit<IAuthResponseModel, 'mustChangePassword'>> {
-    try {
-      return await firstValueFrom(
-        this.http.post<IAuthResponseModel>(`${this.baseUrl}/logout`, {}, {withCredentials: true}),
-      );
-    } catch (err: unknown) {
-      throw this.normalizeError(err);
-    }
+  private toAuthSession(response: AuthResponseDto): IAuthSession {
+    return {
+      user: response.data.user,
+      mustChangePassword: response.mustChangePassword,
+    };
   }
 
   private normalizeError(err: unknown): Error {

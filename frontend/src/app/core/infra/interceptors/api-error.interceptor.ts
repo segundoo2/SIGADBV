@@ -1,6 +1,6 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { catchError, throwError } from 'rxjs';
-import { EErrorsGlobal } from '../../domain/enums/errors-global.enum';
+import { EErrorsGlobal } from '../../application/enums/errors-global.enum';
 
 export class ApiError extends Error {
   constructor(

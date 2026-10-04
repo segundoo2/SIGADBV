@@ -6,12 +6,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SCORE_HISTORY_STORE_PORT } from '../../core/infra/tokens/score-history.token';
 import { UNITS_STORE_PORT } from '../../core/infra/tokens/units.token'; // Ajuste o caminho do token conforme seu projeto
 import { ButtonComponent } from '../buttons/button.component';
@@ -144,35 +139,39 @@ export class UnitScoreManagerComponent implements OnInit {
 
   readonly unitOptions = signal<SelectOption[]>([]);
 
-  readonly scoreForm: FormGroup = this.formBuilder.group({
-    unitId: ['', [Validators.required]],
-    score: [0, [Validators.required, Validators.pattern(/^-?\d+$/)]],
-    description: ['', [Validators.required, Validators.maxLength(255)]],
+  readonly scoreForm = this.formBuilder.nonNullable.group({
+    unitId: ['', [Validators.required.bind(Validators)]],
+    score: [
+      0,
+      [Validators.required.bind(Validators), Validators.pattern(/^-?\d+$/)],
+    ],
+    description: [
+      '',
+      [Validators.required.bind(Validators), Validators.maxLength(255)],
+    ],
   });
 
-  async ngOnInit(): Promise<void> {
-    await this.loadUnits();
+  ngOnInit(): void {
+    void this.loadUnits();
   }
 
   private async loadUnits(): Promise<void> {
     try {
-      const response = await this.unitsStore.getAllUnits();
-      if (response && response.data) {
-        const options: SelectOption[] = response.data.map((unit) => ({
-          id: unit.id,
-          name: unit.name,
-        }));
-        this.unitOptions.set(options);
-      }
+      const units = await this.unitsStore.fetchAllUnits();
+      const options: SelectOption[] = units.map((unit) => ({
+        id: unit.id,
+        name: unit.name,
+      }));
+      this.unitOptions.set(options);
     } catch {
       // Erro capturado e gerido pela unitsStore
     }
   }
 
-  async openScoreModal(): Promise<void> {
+  openScoreModal(): void {
     this.scoreForm.reset({ unitId: '', score: 0, description: '' });
     this.isScoreModalOpen.set(true);
-    await this.loadUnits();
+    void this.loadUnits();
   }
 
   closeScoreModal(): void {
@@ -185,18 +184,16 @@ export class UnitScoreManagerComponent implements OnInit {
       return;
     }
 
-    const { unitId, score, description } = this.scoreForm.value;
+    const { unitId, score, description } = this.scoreForm.getRawValue();
 
     try {
-      const response = await this.scoreStore.registerScore(unitId, {
+      await this.scoreStore.registerUnitScore(unitId, {
         score: Number(score),
         description,
       });
 
-      if (response) {
-        await this.loadUnits();
-        this.isScoreModalOpen.set(false);
-      }
+      await this.loadUnits();
+      this.isScoreModalOpen.set(false);
     } catch {
       // Tratado pelo store
     }

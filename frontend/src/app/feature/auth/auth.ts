@@ -22,18 +22,18 @@ import { ButtonComponent } from '../../shared/buttons/button.component';
   selector: 'app-auth',
   templateUrl: './auth.html',
 })
-export class Auth {
+export class LoginPage {
   private readonly authStore = inject(AUTH_STORE_PORT);
   private readonly titleService = inject(Title);
   private readonly router = inject(Router);
 
   private readonly _loginForm = new FormGroup({
     username: new FormControl('', [
-      Validators.required,
+      Validators.required.bind(Validators),
       Validators.minLength(3),
     ]),
     password: new FormControl('', [
-      Validators.required,
+      Validators.required.bind(Validators),
       Validators.minLength(8),
     ]),
   });
@@ -50,9 +50,9 @@ export class Auth {
     effect(() => {
       if (this.authStore.isAuthenticated()) {
         if (this.authStore.mustChangePassword()) {
-          this.router.navigate(['/auth/update-password']);
+          void this.router.navigate(['/auth/update-password']);
         } else {
-          this.router.navigate(['/overview']);
+          void this.router.navigate(['/overview']);
         }
       }
     });
@@ -80,6 +80,6 @@ export class Auth {
     }
 
     const { username, password } = this._loginForm.value;
-    this.authStore.login({ username: username!, password: password! });
+    void this.authStore.login({ username: username!, password: password! });
   }
 }

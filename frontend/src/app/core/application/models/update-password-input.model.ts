@@ -1,4 +1,4 @@
-export interface IUpdatePasswordDto {
+export interface IUpdatePasswordInput {
   username: string;
   password: string;
   mustChangePassword: boolean;
