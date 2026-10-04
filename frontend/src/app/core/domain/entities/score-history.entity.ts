@@ -1,5 +1,4 @@
-import { IUnitEntity } from "./unit.entity";
-
+import { IUnitEntity } from './unit.entity';
 
 export interface IScoreHistoryEntity {
   readonly id: string;

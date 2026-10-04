@@ -44,8 +44,8 @@ describe('HeaderComponent', () => {
 
   it('should render the current navigation links and routes', () => {
     const links = Array.from(
-      fixture.nativeElement.querySelectorAll('nav a'),
-    ) as HTMLAnchorElement[];
+      (fixture.nativeElement as HTMLElement).querySelectorAll('nav a'),
+    );
 
     expect(links.map((link) => link.textContent?.trim())).toEqual([
       'Visão Geral',
@@ -58,16 +58,15 @@ describe('HeaderComponent', () => {
   });
 
   it('should open and close the profile menu and display username and role', () => {
-    const profileButton: HTMLButtonElement =
-      fixture.nativeElement.querySelector(
-        'button[aria-label="Perfil do usuário"]',
-      );
+    const profileButton: HTMLButtonElement = (
+      fixture.nativeElement as HTMLElement
+    ).querySelector('button[aria-label="Perfil do usuário"]');
 
     profileButton.click();
     fixture.detectChanges();
 
     expect(component.isProfileMenuOpen()).toBe(true);
-    const textContent = fixture.nativeElement.textContent;
+    const textContent = (fixture.nativeElement as HTMLElement).textContent;
     expect(textContent).toContain('edilson.segundo');
     expect(textContent).toContain('Administrador');
     expect(textContent).toContain('Sair');
@@ -94,8 +93,12 @@ describe('HeaderComponent', () => {
     fixture.detectChanges();
 
     expect(component.isMobileMenuOpen()).toBe(true);
-    expect(fixture.nativeElement.textContent).toContain('Visão Geral');
-    expect(fixture.nativeElement.textContent).toContain('Unidades');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Visão Geral',
+    );
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Unidades',
+    );
 
     component.toggleMobileMenu();
     fixture.detectChanges();
@@ -161,17 +164,16 @@ describe('HeaderComponent', () => {
   it('should invoke logout when the Sair button is clicked', async () => {
     vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
-    const profileButton: HTMLButtonElement =
-      fixture.nativeElement.querySelector(
-        'button[aria-label="Perfil do usuário"]',
-      );
+    const profileButton: HTMLButtonElement = (
+      fixture.nativeElement as HTMLElement
+    ).querySelector('button[aria-label="Perfil do usuário"]');
 
     profileButton.click();
     fixture.detectChanges();
 
-    const buttons = fixture.nativeElement.querySelectorAll(
+    const buttons = (fixture.nativeElement as HTMLElement).querySelectorAll(
       'button',
-    ) as NodeListOf<HTMLButtonElement>;
+    );
 
     const logoutButton = Array.from(buttons).find((button) =>
       button.textContent?.includes('Sair'),

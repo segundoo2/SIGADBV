@@ -9,8 +9,8 @@ import { inject } from '@angular/core';
 import { Observable, throwError, from, BehaviorSubject } from 'rxjs';
 import { catchError, switchMap, filter, take } from 'rxjs/operators';
 import { AUTH_API_PORT, AUTH_STORE_PORT } from '../tokens/auth.token';
-import { IAuthApiPort } from '../../domain/ports/apis/auth-api.port';
-import { IAuthStorePort } from '../../domain/ports/stores/auth-store.port';
+import { IAuthApiPort } from '../../application/ports/apis/auth-api.port';
+import { IAuthStorePort } from '../../application/ports/stores/auth-store.port';
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<boolean | null>(null);
@@ -61,7 +61,7 @@ function handle401Error(
           (refreshError.status === 401 || refreshError.status === 403);
 
         if (isUnauthorizedRefresh) {
-          authStore.logout();
+          void authStore.logout();
         }
 
         return throwError(() => refreshError);

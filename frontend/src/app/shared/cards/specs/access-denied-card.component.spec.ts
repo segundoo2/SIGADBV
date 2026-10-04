@@ -26,9 +26,7 @@ describe('AccessDeniedCard', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AccessDeniedCard],
-      providers: [
-        { provide: USERS_STORE_PORT, useValue: mockUsersStore },
-      ],
+      providers: [{ provide: USERS_STORE_PORT, useValue: mockUsersStore }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AccessDeniedCard);
@@ -43,7 +41,7 @@ describe('AccessDeniedCard', () => {
     component.requiredPermission = null;
     fixture.detectChanges();
 
-    const element: HTMLElement = fixture.nativeElement;
+    const element: HTMLElement = fixture.nativeElement as HTMLElement;
     // Como está vazio o ng-content no teste básico, validamos que o aviso de negação não aparece
     expect(element.textContent).not.toContain('Você não possui permissão');
   });
@@ -52,7 +50,7 @@ describe('AccessDeniedCard', () => {
     component.requiredPermission = EPermission.SCORE_HISTORY_READ;
     fixture.detectChanges();
 
-    const element: HTMLElement = fixture.nativeElement;
+    const element: HTMLElement = fixture.nativeElement as HTMLElement;
     expect(element.textContent).not.toContain('Você não possui permissão');
   });
 
@@ -61,7 +59,7 @@ describe('AccessDeniedCard', () => {
     component.message = 'Acesso personalizado negado.';
     fixture.detectChanges(); // Executa a detecção com a nova mensagem configurada
 
-    const element: HTMLElement = fixture.nativeElement;
+    const element: HTMLElement = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('Acesso personalizado negado.');
   });
 });

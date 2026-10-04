@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { IUnitEntity } from '../../core/domain/entities/unit.entity';
 import { EUnitGender } from '../../core/domain/enums/unit-gender.enum';
 import { UNITS_STORE_PORT } from '../../core/infra/tokens/units.token';
-import { Units } from './units';
+import { UnitsPage } from './units';
 
 @Component({
   standalone: true,
@@ -29,31 +29,29 @@ class ErrorMessageStubComponent {
   @Input() message: string | null = null;
 }
 
-describe('Units', () => {
-  let fixture: ComponentFixture<Units>;
-  let component: Units;
+describe('UnitsPage', () => {
+  let fixture: ComponentFixture<UnitsPage>;
+  let component: UnitsPage;
   let unitsStoreMock: {
     unitsList: ReturnType<typeof signal<IUnitEntity[]>>;
-    successMessage: ReturnType<typeof signal<string>>;
     isLoading: ReturnType<typeof signal<boolean>>;
     error: ReturnType<typeof signal<string | null>>;
-    getAllUnits: ReturnType<typeof vi.fn>;
+    fetchAllUnits: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
     unitsStoreMock = {
       unitsList: signal<IUnitEntity[]>([]),
-      successMessage: signal(''),
       isLoading: signal(false),
       error: signal<string | null>(null),
-      getAllUnits: vi.fn().mockResolvedValue({ message: 'Loaded', data: [] }),
+      fetchAllUnits: vi.fn().mockResolvedValue([]),
     };
 
     await TestBed.configureTestingModule({
-      imports: [Units],
+      imports: [UnitsPage],
       providers: [{ provide: UNITS_STORE_PORT, useValue: unitsStoreMock }],
     })
-      .overrideComponent(Units, {
+      .overrideComponent(UnitsPage, {
         set: {
           imports: [
             HeaderStubComponent,
@@ -64,7 +62,7 @@ describe('Units', () => {
       })
       .compileComponents();
 
-    fixture = TestBed.createComponent(Units);
+    fixture = TestBed.createComponent(UnitsPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
     await fixture.whenStable();
@@ -72,15 +70,19 @@ describe('Units', () => {
 
   it('should create the page and load units on initialization', () => {
     expect(component).toBeTruthy();
-    expect(unitsStoreMock.getAllUnits).toHaveBeenCalledOnce();
+    expect(unitsStoreMock.fetchAllUnits).toHaveBeenCalledOnce();
   });
 
   it('should render the header and score manager', () => {
     expect(
-      fixture.nativeElement.querySelector('[data-testid="header-stub"]'),
+      (fixture.nativeElement as HTMLElement).querySelector(
+        '[data-testid="header-stub"]',
+      ),
     ).toBeTruthy();
     expect(
-      fixture.nativeElement.querySelector('[data-testid="score-manager-stub"]'),
+      (fixture.nativeElement as HTMLElement).querySelector(
+        '[data-testid="score-manager-stub"]',
+      ),
     ).toBeTruthy();
   });
 
@@ -101,7 +103,7 @@ describe('Units', () => {
     fixture.detectChanges();
 
     const renderedGenders = Array.from(
-      fixture.nativeElement.querySelectorAll('.rounded-full'),
+      (fixture.nativeElement as HTMLElement).querySelectorAll('.rounded-full'),
       (element: HTMLElement) => element.textContent.trim(),
     );
 
@@ -113,15 +115,18 @@ describe('Units', () => {
   });
 
   it('should keep the page usable when loading units fails', async () => {
-    unitsStoreMock.getAllUnits.mockRejectedValueOnce(
+    unitsStoreMock.fetchAllUnits.mockRejectedValueOnce(
       new Error('Failed to load units'),
     );
 
-    await expect(component.ngOnInit()).resolves.toBeUndefined();
-
-    expect(unitsStoreMock.getAllUnits).toHaveBeenCalledTimes(2);
+    component.ngOnInit();
+    await vi.waitFor(() =>
+      expect(unitsStoreMock.fetchAllUnits).toHaveBeenCalledTimes(2),
+    );
     expect(
-      fixture.nativeElement.querySelector('[data-testid="header-stub"]'),
+      (fixture.nativeElement as HTMLElement).querySelector(
+        '[data-testid="header-stub"]',
+      ),
     ).toBeTruthy();
   });
 });

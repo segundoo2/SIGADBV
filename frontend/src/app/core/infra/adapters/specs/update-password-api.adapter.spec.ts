@@ -6,10 +6,10 @@ import {
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import { UpdatePasswordApiAdapter } from '../update-password-api.adapter';
-import { IUpdatePasswordDto } from '../../../domain/models/update-password-dto.model';
-import { IResponseModel } from '../../../domain/models/response.model';
+import { IUpdatePasswordInput } from '../../../application/models/update-password-input.model';
 import { URL } from '../../tokens/url.token';
 import { apiErrorInterceptor } from '../../interceptors/api-error.interceptor';
+import { ApiResponseDto } from '../dtos/api-response.dto';
 
 describe('UpdatePasswordApiAdapter', () => {
   let adapter: UpdatePasswordApiAdapter;
@@ -34,13 +34,13 @@ describe('UpdatePasswordApiAdapter', () => {
   });
 
   it('should send PATCH request with update password DTO and return response on success', async () => {
-    const payload: IUpdatePasswordDto = {
+    const payload: IUpdatePasswordInput = {
       username: 'john.doe',
       password: 'newSecurePassword123',
       mustChangePassword: false,
     };
 
-    const mockResponse: IResponseModel<null> = {
+    const mockResponse: ApiResponseDto<null> = {
       message: 'Password updated successfully',
       data: null,
     };
@@ -53,12 +53,11 @@ describe('UpdatePasswordApiAdapter', () => {
 
     req.flush(mockResponse);
 
-    const result = await updatePromise;
-    expect(result).toEqual(mockResponse);
+    await expect(updatePromise).resolves.toBeUndefined();
   });
 
   it('should normalize NestJS errors when the update request fails', async () => {
-    const payload: IUpdatePasswordDto = {
+    const payload: IUpdatePasswordInput = {
       username: 'john.doe',
       password: 'newSecurePassword123',
       mustChangePassword: false,

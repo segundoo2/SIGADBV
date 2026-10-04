@@ -97,7 +97,8 @@ export class SelectFormComponent implements ControlValueAccessor {
   value = signal<string | number>('');
   disabled = signal<boolean>(false);
 
-  private readonly baseClasses = 'w-full bg-slate-950/60 border border-slate-800 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed appearance-none cursor-pointer';
+  private readonly baseClasses =
+    'w-full bg-slate-950/60 border border-slate-800 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed appearance-none cursor-pointer';
 
   readonly selectClasses = computed(() => {
     if (this.size === 'sm') {

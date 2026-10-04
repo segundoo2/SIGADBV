@@ -24,7 +24,7 @@ describe('CardComponent', () => {
     component.value = 10;
     fixture.detectChanges();
 
-    const element: HTMLElement = fixture.nativeElement;
+    const element: HTMLElement = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('Unidades Cadastradas');
     expect(element.textContent).toContain('10');
   });
@@ -34,7 +34,7 @@ describe('CardComponent', () => {
     component.value = 'Ativo';
     fixture.detectChanges();
 
-    const element: HTMLElement = fixture.nativeElement;
+    const element: HTMLElement = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('Status');
     expect(element.textContent).toContain('Ativo');
   });

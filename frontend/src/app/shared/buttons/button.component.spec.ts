@@ -21,7 +21,7 @@ describe('ButtonComponent', () => {
 
   it('should show loading spinner and custom loading text when isLoading is true', () => {
     const fixture = TestBed.createComponent(ButtonComponent);
-    
+
     fixture.componentRef.setInput('isLoading', true);
     fixture.componentRef.setInput('loadingText', 'Salvando...');
     fixture.detectChanges();
@@ -36,7 +36,7 @@ describe('ButtonComponent', () => {
 
   it('should be disabled when disabled input is true', () => {
     const fixture = TestBed.createComponent(ButtonComponent);
-    
+
     fixture.componentRef.setInput('disabled', true);
     fixture.detectChanges();
 
@@ -49,9 +49,9 @@ describe('ButtonComponent', () => {
   it('should emit onClick event when clicked', () => {
     const fixture = TestBed.createComponent(ButtonComponent);
     const component = fixture.componentInstance;
-    
+
     const clickSpy = vi.fn();
-    component.onClick.subscribe(clickSpy);
+    component.clickRequested.subscribe(clickSpy);
 
     fixture.detectChanges();
 

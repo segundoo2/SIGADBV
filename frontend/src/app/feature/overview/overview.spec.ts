@@ -6,35 +6,40 @@ import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 import { USERS_STORE_PORT } from '../../core/infra/tokens/users.token';
 import { UNITS_STORE_PORT } from '../../core/infra/tokens/units.token';
 import { SCORE_HISTORY_STORE_PORT } from '../../core/infra/tokens/score-history.token';
-import { Overview } from './overview';
+import { OverviewPage } from './overview';
 import { EPermission } from '../../core/domain/enums/permissions.enum';
+import { UserEntity } from '../../core/domain/entities/user.entity';
+import { IScoreHistoryEntity } from '../../core/domain/entities/score-history.entity';
 
-describe('Overview', () => {
-  let component: Overview;
-  let fixture: ComponentFixture<Overview>;
+describe('OverviewPage', () => {
+  let component: OverviewPage;
+  let fixture: ComponentFixture<OverviewPage>;
+
+  const mockUser: UserEntity = {
+    id: 'da90c852-83de-448b-b794-cefc52925760',
+    tenantId: '00000000-0000-0000-0000-000000000000',
+    username: 'edilson.segundo',
+    mustChangePassword: false,
+    roles: [
+      {
+        id: 'role-admin',
+        tenantId: '00000000-0000-0000-0000-000000000000',
+        name: 'Super Usuário',
+        permissions: [EPermission.SCORE_HISTORY_READ],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
 
   const mockUsersStore = {
-    userCurrentEntity: signal<any>({
-      id: 'da90c852-83de-448b-b794-cefc52925760',
-      tenantId: '00000000-0000-0000-0000-000000000000',
-      username: 'edilson.segundo',
-      mustChangePassword: false,
-      roles: [
-        {
-          id: 'role-admin',
-          name: 'Super Usuário',
-          permissions: [EPermission.SCORE_HISTORY_READ],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }),
+    userCurrentEntity: signal<UserEntity | null>(mockUser),
     isLoading: signal(false),
     error: signal(null),
     findByUsername: vi.fn(),
-    clearSelectedUser: vi.fn(),
+    clearCurrentUser: vi.fn(),
   };
 
   const mockUnitsStore = {
@@ -42,30 +47,35 @@ describe('Overview', () => {
       { id: '1', name: 'Unidade Alpha', score: 1500 },
       { id: '2', name: 'Unidade Beta', score: -200 },
     ]),
-    getAllUnits: vi.fn().mockResolvedValue(undefined),
+    fetchAllUnits: vi.fn().mockResolvedValue([]),
   };
 
   const mockScoreHistoryStore = {
-    fetchHistory: vi.fn().mockImplementation(async (unitId: string) => {
+    fetchUnitScoreHistory: vi.fn().mockImplementation((unitId: string) => {
       if (unitId === 'error-unit') {
-        throw new Error('Falha ao buscar histórico');
+        return Promise.reject(new Error('Falha ao buscar histórico'));
       }
-      return {
-        data: [
-          {
-            id: 'hist-1',
-            score: 500,
-            description: 'Pontuação positiva',
-            createdAt: new Date('2026-10-01T10:00:00Z'),
-          },
-          {
-            id: 'hist-2',
-            score: -100,
-            description: 'Penalização aplicada',
-            createdAt: new Date('2026-10-02T10:00:00Z'),
-          },
-        ],
-      };
+      const history: IScoreHistoryEntity[] = [
+        {
+          id: 'hist-1',
+          tenantId: 'tenant-1',
+          unitId,
+          score: 500,
+          description: 'Pontuação positiva',
+          createdAt: new Date('2026-10-01T10:00:00Z'),
+          updatedAt: new Date('2026-10-01T10:00:00Z'),
+        },
+        {
+          id: 'hist-2',
+          tenantId: 'tenant-1',
+          unitId,
+          score: -100,
+          description: 'Penalização aplicada',
+          createdAt: new Date('2026-10-02T10:00:00Z'),
+          updatedAt: new Date('2026-10-02T10:00:00Z'),
+        },
+      ];
+      return Promise.resolve(history);
     }),
   };
 
@@ -79,7 +89,7 @@ describe('Overview', () => {
     vi.clearAllMocks();
 
     await TestBed.configureTestingModule({
-      imports: [Overview],
+      imports: [OverviewPage],
       providers: [
         provideRouter([]),
         { provide: AUTH_STORE_PORT, useValue: mockAuthStore },
@@ -89,7 +99,7 @@ describe('Overview', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Overview);
+    fixture = TestBed.createComponent(OverviewPage);
     component = fixture.componentInstance;
   });
 
@@ -104,7 +114,7 @@ describe('Overview', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const element: HTMLElement = fixture.nativeElement;
+    const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('Bem-vindo, edilson.segundo!');
     expect(element.textContent).toContain('Ranking de Unidade');
     expect(element.textContent).toContain('Histórico de Pontuações recentes');
@@ -112,10 +122,11 @@ describe('Overview', () => {
 
   it('should render access denied message when user lacks permission', async () => {
     mockUsersStore.userCurrentEntity.set({
-      ...mockUsersStore.userCurrentEntity(),
+      ...mockUser,
       roles: [
         {
           id: 'role-guest',
+          tenantId: '00000000-0000-0000-0000-000000000000',
           name: 'Convidado',
           permissions: [],
           createdAt: new Date(),
@@ -127,35 +138,23 @@ describe('Overview', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const element: HTMLElement = fixture.nativeElement;
-    expect(element.textContent).toContain('Você não possui permissão para visualizar o histórico detalhado');
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.textContent).toContain(
+      'Acesso restrito: você não possui permissão para visualizar o histórico de pontuações recentes e o gráfico de pontuação geral.',
+    );
   });
 
- it('should load and sort history records correctly when a unit is selected', async () => {
+  it('should load and sort history records correctly when a unit is selected', async () => {
     // Garante que o usuário possui a permissão necessária para este teste
     mockUsersStore.userCurrentEntity.set({
-      id: 'da90c852-83de-448b-b794-cefc52925760',
-      tenantId: '00000000-0000-0000-0000-000000000000',
-      username: 'edilson.segundo',
-      mustChangePassword: false,
-      roles: [
-        {
-          id: 'role-admin',
-          name: 'Super Usuário',
-          permissions: [EPermission.SCORE_HISTORY_READ],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ],
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      ...mockUser,
     });
 
     fixture.detectChanges();
     await fixture.whenStable();
 
     component.unitControl.setValue('1', { emitEvent: true });
-    
+
     await vi.waitFor(() => {
       expect(component.historyRows().length).toBe(2);
     });
@@ -163,14 +162,15 @@ describe('Overview', () => {
     fixture.detectChanges();
 
     expect(component.historyRows().length).toBe(2);
-    expect(fixture.nativeElement.textContent).toContain('Pontuação positiva');
-    expect(fixture.nativeElement.textContent).toContain('Penalização aplicada');
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.textContent).toContain('Pontuação positiva');
+    expect(element.textContent).toContain('Penalização aplicada');
   });
 
   it('should clear history rows when unitControl is reset/empty', async () => {
     component.unitControl.setValue('1');
     await fixture.whenStable();
-    
+
     expect(component.historyRows().length).toBeGreaterThan(0);
 
     component.unitControl.setValue('');
@@ -179,7 +179,7 @@ describe('Overview', () => {
     expect(component.historyRows().length).toBe(0);
   });
 
-  it('should handle fetchHistory errors gracefully and clear history', async () => {
+  it('should handle history fetch errors and clear history', async () => {
     component.unitControl.setValue('error-unit');
     await fixture.whenStable();
 
@@ -196,9 +196,13 @@ describe('Overview', () => {
   });
 
   it('should handle units fetch error gracefully during ngOnInit', async () => {
-    mockUnitsStore.getAllUnits.mockRejectedValueOnce(new Error('Erro de conexão'));
-    
-    await component.ngOnInit();
-    expect(mockUnitsStore.getAllUnits).toHaveBeenCalled();
+    mockUnitsStore.fetchAllUnits.mockRejectedValueOnce(
+      new Error('Erro de conexão'),
+    );
+
+    fixture.detectChanges();
+    await vi.waitFor(() => {
+      expect(mockUnitsStore.fetchAllUnits).toHaveBeenCalled();
+    });
   });
 });

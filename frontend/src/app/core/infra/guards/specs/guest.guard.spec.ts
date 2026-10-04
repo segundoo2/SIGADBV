@@ -3,7 +3,7 @@ import { Router, UrlTree } from '@angular/router';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { guestGuard } from '../guest.guard';
 import { AUTH_STORE_PORT } from '../../tokens/auth.token';
-import { IAuthStorePort } from '../../../domain/ports/stores/auth-store.port';
+import { IAuthStorePort } from '../../../application/ports/stores/auth-store.port';
 
 describe('guestGuard', () => {
   let authStoreMock: IAuthStorePort;
@@ -13,11 +13,11 @@ describe('guestGuard', () => {
     authStoreMock = {
       isAuthenticated: vi.fn(),
       mustChangePassword: vi.fn(),
-      currentUsername: vi.fn(),
+      currentUserEntity: vi.fn().mockReturnValue(null),
       isLoading: vi.fn(),
       error: vi.fn(),
       login: vi.fn(),
-      checkSession: vi.fn().mockResolvedValue(undefined),
+      restoreAuthenticationSession: vi.fn().mockResolvedValue(undefined),
       logout: vi.fn(),
     };
 
@@ -42,7 +42,7 @@ describe('guestGuard', () => {
       guestGuard({} as never, {} as never),
     );
 
-    expect(authStoreMock.checkSession).not.toHaveBeenCalled();
+    expect(authStoreMock.restoreAuthenticationSession).not.toHaveBeenCalled();
     expect(result).toBe(true);
     expect(routerMock.createUrlTree).not.toHaveBeenCalled();
   });
@@ -55,7 +55,7 @@ describe('guestGuard', () => {
       guestGuard({} as never, {} as never),
     );
 
-    expect(authStoreMock.checkSession).not.toHaveBeenCalled();
+    expect(authStoreMock.restoreAuthenticationSession).not.toHaveBeenCalled();
     expect(routerMock.createUrlTree).toHaveBeenCalledWith(['/overview']);
     expect(result).toEqual(['/overview']);
   });
@@ -68,7 +68,7 @@ describe('guestGuard', () => {
       guestGuard({} as never, {} as never),
     );
 
-    expect(authStoreMock.checkSession).not.toHaveBeenCalled();
+    expect(authStoreMock.restoreAuthenticationSession).not.toHaveBeenCalled();
     expect(routerMock.createUrlTree).toHaveBeenCalledWith([
       '/auth/update-password',
     ]);

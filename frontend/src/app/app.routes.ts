@@ -6,26 +6,26 @@ export const routes: Routes = [
   {
     path: 'auth',
     canActivate: [guestGuard],
-    loadComponent: () => import('./feature/auth/auth').then((m) => m.Auth),
+    loadComponent: () => import('./feature/auth/auth').then((m) => m.LoginPage),
   },
   {
     path: 'auth/update-password',
     loadComponent: () =>
       import('./feature/update-password/update-password').then(
-        (m) => m.UpdatePassword,
+        (m) => m.PasswordUpdatePage,
       ),
     canActivate: [authGuard],
   },
   {
     path: 'overview',
     loadComponent: () =>
-      import('./feature/overview/overview').then((m) => m.Overview),
+      import('./feature/overview/overview').then((m) => m.OverviewPage),
     canActivate: [authGuard],
   },
   {
     path: 'units',
     loadComponent: () =>
-      import('./feature/units/units').then((m) => m.Units),
+      import('./feature/units/units').then((m) => m.UnitsPage),
     canActivate: [authGuard],
   },
   {

@@ -8,8 +8,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { UsersApiAdapter } from '../users-api.adapter';
 import { apiErrorInterceptor } from '../../interceptors/api-error.interceptor';
 import { UserEntity } from '../../../domain/entities/user.entity';
-import { IResponseModel } from '../../../domain/models/response.model';
 import { URL } from '../../tokens/url.token';
+import { ApiResponseDto } from '../dtos/api-response.dto';
 
 describe('UsersApiAdapter', () => {
   let adapter: UsersApiAdapter;
@@ -39,7 +39,7 @@ describe('UsersApiAdapter', () => {
     const username = 'edilson.segundo';
     const tenantId = '00000000-0000-0000-0000-000000000000';
 
-    const user: Omit<UserEntity, 'password'> = {
+    const user: UserEntity = {
       id: 'da90c852-83de-448b-b794-cefc52925760',
       tenantId,
       username,
@@ -49,15 +49,17 @@ describe('UsersApiAdapter', () => {
       updatedAt: new Date('2026-09-02T10:00:00.000Z'),
     };
 
-    const response: IResponseModel<Omit<UserEntity, 'password'>> = {
+    const response: ApiResponseDto<UserEntity> = {
       message: 'User found',
       data: user,
     };
 
-    const promise = adapter.findOneByUsername(username, tenantId);
-    
+    const promise = adapter.getUserByUsername(username, tenantId);
+
     const request = httpMock.expectOne(
-      (req) => req.url === `${baseUrl}/${username}` && req.params.get('tenantId') === tenantId
+      (req) =>
+        req.url === `${baseUrl}/${username}` &&
+        req.params.get('tenantId') === tenantId,
     );
 
     expect(request.request.method).toBe('GET');
@@ -65,16 +67,18 @@ describe('UsersApiAdapter', () => {
 
     request.flush(response);
 
-    await expect(promise).resolves.toEqual(response);
+    await expect(promise).resolves.toEqual(user);
   });
 
   it('should normalize NestJS errors when finding user by username fails', async () => {
     const username = 'nao.existe';
     const tenantId = '00000000-0000-0000-0000-000000000000';
 
-    const promise = adapter.findOneByUsername(username, tenantId);
+    const promise = adapter.getUserByUsername(username, tenantId);
     const request = httpMock.expectOne(
-      (req) => req.url === `${baseUrl}/${username}` && req.params.get('tenantId') === tenantId
+      (req) =>
+        req.url === `${baseUrl}/${username}` &&
+        req.params.get('tenantId') === tenantId,
     );
 
     request.flush(
