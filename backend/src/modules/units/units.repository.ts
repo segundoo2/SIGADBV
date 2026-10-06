@@ -57,7 +57,13 @@ export class UnitsRepository implements IUnitsRepository {
 
   async findAllUnits(tenantId: string): Promise<UnitEntity[] | []> {
     try {
-      return await this.repository.find({ where: { tenantId } });
+      const units = await this.repository.find({
+        where: { tenantId },
+      });
+
+      return units.sort((a, b) =>
+        a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' }),
+      );
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
     }

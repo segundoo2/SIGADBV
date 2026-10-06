@@ -1,15 +1,26 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Auth } from './auth';
+import { LoginPage } from './auth';
 import { signal, WritableSignal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { Router } from '@angular/router';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
-import { IAuthStorePort } from '../../core/domain/ports/stores/auth-store.port';
+import { IAuthStorePort } from '../../core/application/ports/stores/auth-store.port';
 
-describe('Auth', () => {
-  let component: Auth;
-  let fixture: ComponentFixture<Auth>;
+function getRequiredElement<T extends Element>(
+  root: ParentNode,
+  selector: string,
+): T {
+  const element = root.querySelector<T>(selector);
+  if (!element) {
+    throw new Error(`Expected an element matching "${selector}"`);
+  }
+  return element;
+}
+
+describe('LoginPage', () => {
+  let component: LoginPage;
+  let fixture: ComponentFixture<LoginPage>;
   let authStoreMock: IAuthStorePort;
   let router: Router;
 
@@ -19,21 +30,21 @@ describe('Auth', () => {
       isLoading: signal(false),
       error: signal(null),
       mustChangePassword: signal(false),
-      currentUsername: signal(''),
-      checkSession: vi.fn().mockResolvedValue(undefined),
+      currentUserEntity: () => null,
+      restoreAuthenticationSession: vi.fn().mockResolvedValue(undefined),
       login: vi.fn(),
       logout: vi.fn(),
     };
 
     await TestBed.configureTestingModule({
-      imports: [Auth],
+      imports: [LoginPage],
       providers: [
         provideRouter([]),
         { provide: AUTH_STORE_PORT, useValue: authStoreMock },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(Auth);
+    fixture = TestBed.createComponent(LoginPage);
     component = fixture.componentInstance;
     router = TestBed.inject(Router);
     vi.spyOn(router, 'navigate').mockResolvedValue(true);
@@ -45,37 +56,40 @@ describe('Auth', () => {
   });
 
   it('should render the Desbravadores logo image with correct attributes', () => {
-    const compiled = fixture.nativeElement;
-    const logoImg = compiled.querySelector('img[alt="Logo Desbravadores"]');
-
-    expect(logoImg).toBeTruthy();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const logoImg = getRequiredElement<HTMLImageElement>(
+      compiled,
+      'img[alt="Logo Desbravadores"]',
+    );
     expect(logoImg.getAttribute('src')).toBe('/D3.png');
   });
 
   it('should render the system title SIGADBV', () => {
-    const compiled = fixture.nativeElement;
-    const title = compiled.querySelector('h1');
-
-    expect(title).toBeTruthy();
-    expect(title.textContent?.trim()).toBe('SIGADBV');
+    const compiled = fixture.nativeElement as HTMLElement;
+    const title = getRequiredElement<HTMLHeadingElement>(compiled, 'h1');
+    expect(title.textContent.trim()).toBe('SIGADBV');
   });
 
   it('should render the username input with the correct data-testid', () => {
-    const compiled = fixture.nativeElement;
-    const usernameInput = compiled.querySelector('[data-testid="username-input"]');
+    const compiled = fixture.nativeElement as HTMLElement;
+    const usernameInput = compiled.querySelector(
+      '[data-testid="username-input"]',
+    );
 
     expect(usernameInput).toBeTruthy();
   });
 
   it('should render the password input with the correct data-testid', () => {
-    const compiled = fixture.nativeElement;
-    const passwordInput = compiled.querySelector('[data-testid="password-input"]');
+    const compiled = fixture.nativeElement as HTMLElement;
+    const passwordInput = compiled.querySelector(
+      '[data-testid="password-input"]',
+    );
 
     expect(passwordInput).toBeTruthy();
   });
 
   it('should render the submit button with the correct data-testid', () => {
-    const compiled = fixture.nativeElement;
+    const compiled = fixture.nativeElement as HTMLElement;
     const submitButton = compiled.querySelector('[data-testid="submit-btn"]');
 
     expect(submitButton).toBeTruthy();
@@ -95,8 +109,11 @@ describe('Auth', () => {
   it('should call the auth store login method with form values on submit', () => {
     component.loginForm.setValue(loginData);
 
-    const compiled = fixture.nativeElement;
-    const form = compiled.querySelector('[data-testid="form-auth"]');
+    const compiled = fixture.nativeElement as HTMLElement;
+    const form = getRequiredElement<HTMLFormElement>(
+      compiled,
+      '[data-testid="form-auth"]',
+    );
     form.dispatchEvent(new Event('submit'));
     fixture.detectChanges();
 
@@ -108,8 +125,11 @@ describe('Auth', () => {
     fixture.detectChanges();
 
     expect(component.loginForm.disabled).toBeTruthy();
-    const compiled = fixture.nativeElement;
-    const submitButton = compiled.querySelector('[data-testid="submit-btn"]');
+    const compiled = fixture.nativeElement as HTMLElement;
+    const submitButton = getRequiredElement<HTMLButtonElement>(
+      compiled,
+      '[data-testid="submit-btn"]',
+    );
     expect(submitButton.disabled).toBeTruthy();
   });
 
@@ -131,8 +151,11 @@ describe('Auth', () => {
       password: '',
     });
 
-    const compiled = fixture.nativeElement;
-    const form = compiled.querySelector('[data-testid="form-auth"]');
+    const compiled = fixture.nativeElement as HTMLElement;
+    const form = getRequiredElement<HTMLFormElement>(
+      compiled,
+      '[data-testid="form-auth"]',
+    );
     form.dispatchEvent(new Event('submit'));
     fixture.detectChanges();
 
@@ -140,13 +163,17 @@ describe('Auth', () => {
   });
 
   it('should render the error message when store has an error', () => {
-    (authStoreMock.error as WritableSignal<string | null>).set('Ops! Credenciais inválidas');
+    (authStoreMock.error as WritableSignal<string | null>).set(
+      'Ops! Credenciais inválidas',
+    );
     fixture.detectChanges();
 
-    const compiled = fixture.nativeElement;
-    const errorMessage = compiled.querySelector('[data-testid="error-message"]');
+    const compiled = fixture.nativeElement as HTMLElement;
+    const errorMessage = getRequiredElement<HTMLElement>(
+      compiled,
+      '[data-testid="error-message"]',
+    );
 
-    expect(errorMessage).toBeTruthy();
     expect(errorMessage.textContent).toContain('Ops! Credenciais inválidas');
   });
 

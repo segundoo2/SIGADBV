@@ -1,16 +1,15 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { IScoreHistoryStorePort } from '../domain/ports/stores/score-history-store.port';
+import { IScoreHistoryStorePort } from '../application/ports/stores/score-history-store.port';
 import { IScoreHistoryEntity } from '../domain/entities/score-history.entity';
-import { IResponseModel } from '../domain/models/response.model';
 import { SCORE_HISTORY_API_PORT } from '../infra/tokens/score-history.token';
-import { IScoreHistoryPayload } from '../domain/models/score-history-payload.model';
-import { getApiErrorMessage } from '../infra/interceptors/api-error-message.helper';
+import { IScoreHistoryPayload } from '../application/models/score-history-payload.model';
+import { getErrorMessage } from '../application/errors/get-error-message';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ScoreHistoryStore implements IScoreHistoryStorePort {
-  private readonly scorePort = inject(SCORE_HISTORY_API_PORT);
+export class UnitScoreHistoryStore implements IScoreHistoryStorePort {
+  private readonly scoreHistoryApi = inject(SCORE_HISTORY_API_PORT);
 
   private readonly _isLoading = signal<boolean>(false);
   private readonly _error = signal<string | null>(null);
@@ -18,33 +17,38 @@ export class ScoreHistoryStore implements IScoreHistoryStorePort {
   readonly isLoading = this._isLoading.asReadonly();
   readonly error = this._error.asReadonly();
 
-  async registerScore(
+  async registerUnitScore(
     unitId: string,
     payload: IScoreHistoryPayload,
-  ): Promise<IResponseModel<{ newScore: number }>> {
+  ): Promise<void> {
     this._isLoading.set(true);
     this._error.set(null);
 
     try {
-      return await this.scorePort.registerScore(unitId, payload);
+      await this.scoreHistoryApi.registerUnitScore(unitId, payload);
     } catch (err: unknown) {
-      this._error.set(getApiErrorMessage(err));
+      this._error.set(getErrorMessage(err));
       throw err;
     } finally {
       this._isLoading.set(false);
     }
   }
 
-  async fetchHistory(
+  async fetchUnitScoreHistory(
     unitId: string,
-  ): Promise<IResponseModel<IScoreHistoryEntity[]>> {
+    limit?: number,
+  ): Promise<IScoreHistoryEntity[]> {
     this._isLoading.set(true);
     this._error.set(null);
 
     try {
-      return await this.scorePort.getHistoryByUnitId(unitId);
+      if (limit === undefined) {
+        return await this.scoreHistoryApi.fetchUnitScoreHistory(unitId);
+      }
+
+      return await this.scoreHistoryApi.fetchUnitScoreHistory(unitId, limit);
     } catch (err: unknown) {
-      this._error.set(getApiErrorMessage(err));
+      this._error.set(getErrorMessage(err));
       throw err;
     } finally {
       this._isLoading.set(false);

@@ -1,7 +1,6 @@
 import { InjectionToken } from '@angular/core';
-import { IUnitsApiPort } from '../../domain/ports/apis/units-api.port';
-import { IUnitsStorePort } from '../../domain/ports/stores/units-store.port';
-
+import { IUnitsApiPort } from '../../application/ports/apis/units-api.port';
+import { IUnitsStorePort } from '../../application/ports/stores/units-store.port';
 
 export const UNITS_API_PORT = new InjectionToken<IUnitsApiPort>(
   'UNITS_API_PORT',

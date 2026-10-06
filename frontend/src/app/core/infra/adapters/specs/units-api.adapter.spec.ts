@@ -7,14 +7,15 @@ import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { EUnitGender } from '../../../domain/enums/unit-gender.enum';
 import { IUnitEntity } from '../../../domain/entities/unit.entity';
-import { IResponseModel } from '../../../domain/models/response.model';
 import { apiErrorInterceptor } from '../../interceptors/api-error.interceptor';
+import { URL } from '../../tokens/url.token';
 import { UnitsApiAdapter } from '../units-api.adapter';
+import { ApiResponseDto } from '../dtos/api-response.dto';
 
 describe('UnitsApiAdapter', () => {
   let adapter: UnitsApiAdapter;
   let httpMock: HttpTestingController;
-  const baseUrl = 'http://localhost:3000/units';
+  const baseUrl = `${URL}/units`;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -42,12 +43,12 @@ describe('UnitsApiAdapter', () => {
       createdAt: new Date('2026-09-01T10:00:00.000Z'),
       updatedAt: new Date('2026-09-02T10:00:00.000Z'),
     };
-    const response: IResponseModel<IUnitEntity[]> = {
+    const response: ApiResponseDto<IUnitEntity[]> = {
       message: 'Units loaded',
       data: [unit],
     };
 
-    const promise = adapter.getAllUnits();
+    const promise = adapter.fetchAllUnits();
     const request = httpMock.expectOne(baseUrl);
 
     expect(request.request.method).toBe('GET');
@@ -55,11 +56,11 @@ describe('UnitsApiAdapter', () => {
 
     request.flush(response);
 
-    await expect(promise).resolves.toEqual(response);
+    await expect(promise).resolves.toEqual(response.data);
   });
 
   it('should normalize NestJS errors when fetching units fails', async () => {
-    const promise = adapter.getAllUnits();
+    const promise = adapter.fetchAllUnits();
     const request = httpMock.expectOne(baseUrl);
 
     request.flush(

@@ -6,6 +6,8 @@ import { HeaderComponent } from '../../shared/headers/header';
 import { ErrorMessageComponent } from '../../shared/error-message/error-message.component';
 import { UnitScoreManagerComponent } from '../../shared/sections/unit-score-manager.component';
 import { Title } from '@angular/platform-browser';
+import { AccessDeniedCard } from '../../shared/cards/access-denied-card.component';
+import { EPermission } from '../../core/domain/enums/permissions.enum'; // 1. Importar o enum de permissões
 
 @Component({
   standalone: true,
@@ -14,27 +16,32 @@ import { Title } from '@angular/platform-browser';
     HeaderComponent,
     ErrorMessageComponent,
     UnitScoreManagerComponent,
+    AccessDeniedCard,
   ],
   selector: 'app-units',
   templateUrl: './units.html',
 })
-export class Units implements OnInit {
+export class UnitsPage implements OnInit {
   private readonly titleService = inject(Title);
   protected readonly unitsStore = inject(UNITS_STORE_PORT);
+
+  // 2. Expor o enum para o template HTML conseguir utilizá-lo
+  protected readonly EPermission = EPermission;
+
   protected readonly genderLabels: Record<EUnitGender, string> = {
     [EUnitGender.MALE]: 'Desbravadores',
     [EUnitGender.FEMALE]: 'Desbravadoras',
     [EUnitGender.MIXED]: 'Mista',
   };
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     this.titleService.setTitle('SIGADBV - Unidades');
-    await this.loadUnits();
+    void this.loadUnits();
   }
 
   private async loadUnits(): Promise<void> {
     try {
-      await this.unitsStore.getAllUnits();
+      await this.unitsStore.fetchAllUnits();
     } catch {
       // O erro é tratado e armazenado na store
     }

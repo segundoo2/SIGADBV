@@ -1,85 +1,62 @@
 <app-header />
-<div class="p-6 max-w-7xl mx-auto space-y-6">
-  <div
-    class="flex justify-between items-center bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm"
+
+<main class="p-6 max-w-7xl mx-auto">
+  <header
+    class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6"
   >
     <div>
-      <h1 class="text-2xl font-bold text-white">Visão Geral do Sistema</h1>
+      <h1 class="text-2xl font-bold text-white">
+        Bem-vindo, {{ currentUserEntity()?.username ?? '' }}!
+      </h1>
       <p class="text-sm text-slate-400">
-        Acompanhe o desempenho das unidades de desbravadores e visualize o
-        histórico de pontuação.
-      </p>
-      <p class="text-sm text-yellow-400">
-        Atenção: os dados apresentados são fictícios e servem apenas para fins de demonstração.
-      </p>
-      <p class="text-sm text-yellow-400">
-        Esta não é a versão final! A página ainda será refinada e aprimorada com mais funcionalidades e melhorias de usabilidade.
+        Visualize o ranking de unidades e o histórico de pontuações recentes
       </p>
     </div>
-  </div>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div
-      class="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col items-center justify-center"
-    >
-      <h2 class="text-xl font-semibold text-white mb-4">Pontuação Total</h2>
-      <p class="text-3xl font-bold text-indigo-500">{{ totalScore }}</p>
-    </div>
-    <div
-      class="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col items-center justify-center"
-    >
-      <h2 class="text-xl font-semibold text-white mb-4">Unidades Ativas</h2>
-      <p class="text-3xl font-bold text-indigo-500">{{ activeUnits }}</p>
-    </div>
-  </div>
-  <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm">
-    <h2 class="text-xl font-semibold text-white mb-4">
-      Histórico de Pontuação
-    </h2>
-    <div class="overflow-x-auto">
-      <table class="min-w-full bg-slate-800 text-white rounded-lg">
-        <thead>
-          <tr>
-            <th
-              class="px-6 py-3 text-left text-sm font-medium text-gray-300 uppercase tracking-wider"
-            >
-              Unidade
-            </th>
-            <th
-              class="px-6 py-3 text-left text-sm font-medium text-gray-300 uppercase tracking-wider"
-            >
-              Pontuação
-            </th>
-            <th
-              class="px-6 py-3 text-left text-sm font-medium text-gray-300 uppercase tracking-wider"
-            >
-              Data
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (record of scoreHistory; track trackById($index, record)) {
-          <tr>
-            <td
-              class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-300"
-            >
-              {{ record.unitName }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-              {{ record.score }}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-              {{ record.createdAt | date: 'dd/MM/yyyy' }}
-            </td>
-          </tr>
-          } @if (scoreHistory.length === 0) {
-          <tr>
-            <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-400">
-              Nenhum registro de pontuação encontrado.
-            </td>
-          </tr>
+
+    <app-card label="Unidades Cadastradas" [value]="totalUnitsCount()" />
+  </header>
+
+  <app-access-denied-card
+    [requiredPermission]="EPermission.SCORE_HISTORY_READ"
+    message="Acesso restrito: você não possui permissão para visualizar o histórico de pontuações recentes e o gráfico de pontuação geral."
+  >
+    <section class="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+      <app-bar-chart-card
+        class="h-full flex flex-col"
+        title="Ranking de Unidade"
+        [items]="chartItems()"
+        emptyMessage="Não há dados suficientes para exibir o gráfico do ranking"
+      />
+
+      <app-table-card
+        class="h-full flex flex-col"
+        title="Histórico de Pontuações recentes"
+        [headers]="['Pontos', 'Motivo']"
+        [selectOptions]="unitOptions()"
+        [selectControl]="unitControl"
+        selectId="unit-history-select"
+      >
+        @for (row of historyRows(); track trackById($index, row)) {
+        <tr class="hover:bg-slate-800/30 transition-colors">
+          @if (row.score > 0) {
+          <td class="py-3 px-4 text-emerald-400 font-semibold">
+            {{ '+' + row.score }}
+          </td>
+          } @else {
+          <td class="py-3 px-4 text-red-400 font-semibold">{{ row.score }}</td>
           }
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
+          <td class="py-3 px-4 text-slate-300 text-justify">
+            {{ row.description }}
+          </td>
+        </tr>
+        } @empty {
+        <tr>
+          <td colspan="2" class="py-6 text-center text-slate-500 text-sm">
+            Selecione uma unidade para visualizar o histórico recente.
+          </td>
+        </tr>
+        }
+      </app-table-card>
+    </section>
+  </app-access-denied-card>
+</main>

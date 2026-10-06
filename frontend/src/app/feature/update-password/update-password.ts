@@ -9,14 +9,16 @@ import {
 import { Component, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
-import { InputFormComponent } from '../../shared/inputs/input-form/input-form';
+import { InputFormComponent } from '../../shared/inputs/input-form';
 import { ErrorMessageComponent } from '../../shared/error-message/error-message.component';
 import { ButtonComponent } from '../../shared/buttons/button.component';
 import { UPDATE_PASSWORD_STORE_PORT } from '../../core/infra/tokens/update-password.token';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 
 // Validador customizado para comparar os campos de senha
-function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
+function passwordMatchValidator(
+  control: AbstractControl,
+): ValidationErrors | null {
   const password = control.get('password');
   const confirmPassword = control.get('confirmPassword');
 
@@ -36,7 +38,7 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
   selector: 'app-update-password',
   templateUrl: './update-password.html',
 })
-export class UpdatePassword {
+export class PasswordUpdatePage {
   private readonly updatePasswordStore = inject(UPDATE_PASSWORD_STORE_PORT);
   private readonly authStore = inject(AUTH_STORE_PORT);
   private readonly titleService = inject(Title);
@@ -45,12 +47,14 @@ export class UpdatePassword {
   private readonly _updatePasswordForm = new FormGroup(
     {
       password: new FormControl('', [
-        Validators.required,
+        Validators.required.bind(Validators),
         Validators.minLength(8),
       ]),
-      confirmPassword: new FormControl('', [Validators.required]),
+      confirmPassword: new FormControl('', [
+        Validators.required.bind(Validators),
+      ]),
     },
-    { validators: passwordMatchValidator }
+    { validators: passwordMatchValidator },
   );
 
   constructor() {
@@ -64,7 +68,7 @@ export class UpdatePassword {
 
     effect(() => {
       if (this.updatePasswordStore.successMessage()) {
-        this.router.navigate(['/overview']);
+        void this.router.navigate(['/overview']);
       }
     });
   }
@@ -91,10 +95,13 @@ export class UpdatePassword {
     }
 
     const { password } = this._updatePasswordForm.value;
-    const currentUsername = this.authStore.currentUsername();
+    const currentUser = this.authStore.currentUserEntity();
+    if (!currentUser) {
+      return;
+    }
 
-    this.updatePasswordStore.updatePassword({
-      username: currentUsername,
+    void this.updatePasswordStore.updatePassword({
+      username: currentUser.username,
       password: password!,
       mustChangePassword: false,
     });

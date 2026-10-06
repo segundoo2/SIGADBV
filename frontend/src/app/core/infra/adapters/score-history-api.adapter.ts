@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { IScoreHistoryApiPort } from '../../domain/ports/apis/score-history-api.port';
+import { IScoreHistoryApiPort } from '../../application/ports/apis/score-history-api.port';
 import { URL } from '../tokens/url.token';
-import { IResponseModel } from '../../domain/models/response.model';
 import { IScoreHistoryEntity } from '../../domain/entities/score-history.entity';
-import { IScoreHistoryPayload } from '../../domain/models/score-history-payload.model';
+import { IScoreHistoryPayload } from '../../application/models/score-history-payload.model';
+import { ApiResponseDto } from './dtos/api-response.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -14,12 +14,12 @@ export class ScoreHistoryApiAdapter implements IScoreHistoryApiPort {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${URL}/score-history`;
 
-  async registerScore(
+  async registerUnitScore(
     unitId: string,
     payload: IScoreHistoryPayload,
-  ): Promise<IResponseModel<{ newScore: number }>> {
-    return await firstValueFrom(
-      this.http.post<IResponseModel<{ newScore: number }>>(
+  ): Promise<void> {
+    await firstValueFrom(
+      this.http.post<ApiResponseDto<{ newScore: number }>>(
         `${this.baseUrl}/${unitId}`,
         payload,
         { withCredentials: true },
@@ -27,14 +27,21 @@ export class ScoreHistoryApiAdapter implements IScoreHistoryApiPort {
     );
   }
 
-  async getHistoryByUnitId(
+  async fetchUnitScoreHistory(
     unitId: string,
-  ): Promise<IResponseModel<IScoreHistoryEntity[]>> {
-    return await firstValueFrom(
-      this.http.get<IResponseModel<IScoreHistoryEntity[]>>(
+    limit?: number,
+  ): Promise<IScoreHistoryEntity[]> {
+    let params = new HttpParams();
+    if (limit !== undefined) {
+      params = params.set('limit', limit.toString());
+    }
+
+    const response = await firstValueFrom(
+      this.http.get<ApiResponseDto<IScoreHistoryEntity[]>>(
         `${this.baseUrl}/${unitId}`,
-        { withCredentials: true },
+        { withCredentials: true, params },
       ),
     );
+    return response.data;
   }
 }

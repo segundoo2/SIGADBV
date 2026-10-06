@@ -5,8 +5,8 @@ import {
   Param,
   Body,
   Get,
-  Patch,
   Query,
+  Patch,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -124,6 +124,12 @@ export class ScoreHistoryController implements IScoreHistoryController {
     required: false,
     example: 10,
   })
+  @ApiQuery({
+    name: 'limit',
+    description: 'Limite de registros a serem retornados',
+    required: false,
+    example: 10,
+  })
   @ApiResponse({
     status: 200,
     description: 'Histórico de pontuação encontrado com sucesso.',
@@ -132,7 +138,8 @@ export class ScoreHistoryController implements IScoreHistoryController {
   async findHistoryByUnitId(
     @Query('unitId') unitId: string,
     @TenantId() tenantId: string,
+    @Query('limit') limit?: number,
   ): Promise<IResponse<ScoreHistoryEntity[]>> {
-    return await this.service.findHistoryByUnitId(unitId, tenantId);
+    return await this.service.findHistoryByUnitId(unitId, tenantId, limit);
   }
 }

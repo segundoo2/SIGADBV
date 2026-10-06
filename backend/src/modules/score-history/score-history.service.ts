@@ -83,10 +83,12 @@ export class ScoreHistoryService implements IScoreHistoryService {
   async findHistoryByUnitId(
     unitId: string,
     tenantId: string,
+    limit?: number,
   ): Promise<IResponse<ScoreHistoryEntity[]>> {
     const scoreHistory = await this.repository.findHistoryByUnitId(
       unitId,
       tenantId,
+      limit,
     );
 
     if (!scoreHistory) {

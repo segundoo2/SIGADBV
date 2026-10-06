@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
+import { signal } from '@angular/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
+import { USERS_STORE_PORT } from '../../core/infra/tokens/users.token';
 import { HeaderComponent } from './header';
 
 describe('HeaderComponent', () => {
@@ -9,15 +11,24 @@ describe('HeaderComponent', () => {
   let fixture: ComponentFixture<HeaderComponent>;
   let router: Router;
   let authStore: { logout: ReturnType<typeof vi.fn> };
+  let mockUsersStore: { userCurrentEntity: ReturnType<typeof signal> };
 
   beforeEach(async () => {
     authStore = { logout: vi.fn().mockResolvedValue(undefined) };
+    mockUsersStore = {
+      userCurrentEntity: signal({
+        id: '1',
+        username: 'edilson.segundo',
+        roles: [{ id: 'role-1', name: 'Administrador' }],
+      }),
+    };
 
     await TestBed.configureTestingModule({
       imports: [HeaderComponent],
       providers: [
         provideRouter([]),
         { provide: AUTH_STORE_PORT, useValue: authStore },
+        { provide: USERS_STORE_PORT, useValue: mockUsersStore },
       ],
     }).compileComponents();
 
@@ -33,8 +44,8 @@ describe('HeaderComponent', () => {
 
   it('should render the current navigation links and routes', () => {
     const links = Array.from(
-      fixture.nativeElement.querySelectorAll('nav a'),
-    ) as HTMLAnchorElement[];
+      (fixture.nativeElement as HTMLElement).querySelectorAll('nav a'),
+    );
 
     expect(links.map((link) => link.textContent?.trim())).toEqual([
       'Visão Geral',
@@ -46,17 +57,19 @@ describe('HeaderComponent', () => {
     ]);
   });
 
-  it('should open and close the profile menu', () => {
-    const profileButton: HTMLButtonElement =
-      fixture.nativeElement.querySelector(
-        'button[aria-label="Perfil do usuário"]',
-      );
+  it('should open and close the profile menu and display username and role', () => {
+    const profileButton: HTMLButtonElement = (
+      fixture.nativeElement as HTMLElement
+    ).querySelector('button[aria-label="Perfil do usuário"]');
 
     profileButton.click();
     fixture.detectChanges();
 
     expect(component.isProfileMenuOpen()).toBe(true);
-    expect(fixture.nativeElement.textContent).toContain('Sair');
+    const textContent = (fixture.nativeElement as HTMLElement).textContent;
+    expect(textContent).toContain('edilson.segundo');
+    expect(textContent).toContain('Administrador');
+    expect(textContent).toContain('Sair');
 
     profileButton.click();
     fixture.detectChanges();
@@ -80,8 +93,12 @@ describe('HeaderComponent', () => {
     fixture.detectChanges();
 
     expect(component.isMobileMenuOpen()).toBe(true);
-    expect(fixture.nativeElement.textContent).toContain('Visão Geral');
-    expect(fixture.nativeElement.textContent).toContain('Unidades');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Visão Geral',
+    );
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Unidades',
+    );
 
     component.toggleMobileMenu();
     fixture.detectChanges();
@@ -147,17 +164,16 @@ describe('HeaderComponent', () => {
   it('should invoke logout when the Sair button is clicked', async () => {
     vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
-    const profileButton: HTMLButtonElement =
-      fixture.nativeElement.querySelector(
-        'button[aria-label="Perfil do usuário"]',
-      );
+    const profileButton: HTMLButtonElement = (
+      fixture.nativeElement as HTMLElement
+    ).querySelector('button[aria-label="Perfil do usuário"]');
 
     profileButton.click();
     fixture.detectChanges();
 
-    const buttons = fixture.nativeElement.querySelectorAll(
+    const buttons = (fixture.nativeElement as HTMLElement).querySelectorAll(
       'button',
-    ) as NodeListOf<HTMLButtonElement>;
+    );
 
     const logoutButton = Array.from(buttons).find((button) =>
       button.textContent?.includes('Sair'),

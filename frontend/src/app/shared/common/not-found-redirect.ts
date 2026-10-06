@@ -13,12 +13,12 @@ export class NotFoundRedirect {
   constructor() {
     if (this.authStore.isAuthenticated()) {
       if (this.authStore.mustChangePassword()) {
-        this.router.navigate(['/auth/update-password']);
+        void this.router.navigate(['/auth/update-password']);
       } else {
-        this.router.navigate(['/overview']);
+        void this.router.navigate(['/overview']);
       }
     } else {
-      this.router.navigate(['/auth']);
+      void this.router.navigate(['/auth']);
     }
   }
 }

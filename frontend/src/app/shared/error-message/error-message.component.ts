@@ -13,12 +13,18 @@ import { Component, input } from '@angular/core';
       [class.opacity-0]="!message()"
       [class.mb-6]="message()"
       [class.mb-0]="!message()"
+      role="alert"
     >
       <div
         data-testid="error-message"
         class="p-3 sm:p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs sm:text-sm font-medium flex items-center gap-3"
       >
-        <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg
+          class="w-5 h-5 shrink-0"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
           <path
             stroke-linecap="round"
             stroke-linejoin="round"

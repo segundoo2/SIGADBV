@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
-import { IScoreHistoryApiPort } from '../../domain/ports/apis/score-history-api.port';
-import { IScoreHistoryStorePort } from '../../domain/ports/stores/score-history-store.port';
+import { IScoreHistoryApiPort } from '../../application/ports/apis/score-history-api.port';
+import { IScoreHistoryStorePort } from '../../application/ports/stores/score-history-store.port';
 
 export const SCORE_HISTORY_STORE_PORT =
   new InjectionToken<IScoreHistoryStorePort>('SCORE_HISTORY_STORE_PORT');

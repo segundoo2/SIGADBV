@@ -22,5 +22,6 @@ export interface IScoreHistoryRepository {
   findHistoryByUnitId(
     unitId: string,
     tenantId: string,
+    limit?: number,
   ): Promise<ScoreHistoryEntity[]>;
 }

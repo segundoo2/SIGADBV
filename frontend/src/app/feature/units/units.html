@@ -2,59 +2,66 @@
 <app-unit-score-manager />
 
 <main class="p-6 max-w-7xl mx-auto space-y-6">
-  <div class="flex justify-between items-center">
-    <div>
-      <h1 class="text-2xl font-bold text-white">Unidades Cadastradas</h1>
-      <p class="text-sm text-slate-400">
-        Visão geral de todas as unidades e suas pontuações.
-      </p>
-    </div>
-  </div>
-
-  <app-error-message [message]="unitsStore.error()" />
-
-  @if (unitsStore.isLoading()) {
-  <div class="text-center py-12 text-slate-400">A carregar unidades...</div>
-  } @else {
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    @for (unit of unitsStore.unitsList(); track unit.id) {
-    <div
-      class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-4"
-    >
-      <div class="space-y-3">
-        <div class="flex justify-between items-start">
-          <h2 class="text-lg font-semibold text-white">{{ unit.name }}</h2>
-          <span
-            class="px-2.5 py-1 bg-slate-800 text-slate-300 text-xs rounded-full font-medium"
-          >
-            {{ genderLabels[unit.gender] }}
-          </span>
-        </div>
-
-        <div class="text-sm text-slate-400">
-          <p>
-            Membros Máximos:
-            <span class="text-white font-medium">{{ unit.maxMembers }}</span>
-          </p>
-        </div>
+  <app-access-denied-card
+    [requiredPermission]="EPermission.SCORE_HISTORY_READ"
+    message="Acesso restrito: você não possui permissão para visualizar a listagem de unidades e o histórico detalhado de pontuações."
+  >
+    <header class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-white">Unidades Cadastradas</h1>
+        <p class="text-sm text-slate-400">
+          Lista de unidades cadastradas e suas pontuações.
+        </p>
       </div>
+    </header>
 
-      <div
-        class="pt-4 border-t border-slate-800 flex items-center justify-between"
+    <app-error-message [message]="unitsStore.error()" />
+
+    @if (unitsStore.isLoading()) {
+    <div class="text-center py-12 text-slate-400" role="status">
+      A carregar unidades...
+    </div>
+    } @else {
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (unit of unitsStore.unitsList(); track unit.id) {
+      <article
+        class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-4"
       >
-        <div>
-          <span class="text-xs text-slate-400 block">Pontuação Geral</span>
-          <span class="text-xl font-bold text-indigo-400"
-            >{{ unit.score }}</span
-          >
+        <div class="space-y-3">
+          <header class="flex justify-between items-start">
+            <h2 class="text-lg font-semibold text-white">{{ unit.name }}</h2>
+            <span
+              class="px-2.5 py-1 bg-slate-800 text-slate-300 text-xs rounded-full font-medium"
+            >
+              {{ genderLabels[unit.gender] }}
+            </span>
+          </header>
+
+          <div class="text-sm text-slate-400">
+            <p>
+              Membros Máximos:
+              <span class="text-white font-medium">{{ unit.maxMembers }}</span>
+            </p>
+          </div>
         </div>
-      </div>
-    </div>
-    } @empty {
-    <div class="col-span-full text-center py-12 text-slate-500">
-      Nenhuma unidade encontrada.
-    </div>
+
+        <footer
+          class="pt-4 border-t border-slate-800 flex items-center justify-between"
+        >
+          <div>
+            <span class="text-xs text-slate-400 block">Pontuação Geral</span>
+            <span class="text-xl font-bold text-indigo-400"
+              >{{ unit.score }}</span
+            >
+          </div>
+        </footer>
+      </article>
+      } @empty {
+      <p class="col-span-full text-center py-12 text-slate-500">
+        Nenhuma unidade encontrada.
+      </p>
+      }
+    </section>
     }
-  </div>
-  }
+  </app-access-denied-card>
 </main>

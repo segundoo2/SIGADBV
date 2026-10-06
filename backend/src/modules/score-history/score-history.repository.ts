@@ -71,11 +71,13 @@ export class ScoreHistoryRepository implements IScoreHistoryRepository {
   async findHistoryByUnitId(
     unitId: string,
     tenantId: string,
+    limit?: number,
   ): Promise<ScoreHistoryEntity[]> {
     try {
       return await this.repository.find({
         where: { unitId, tenantId },
         order: { createdAt: 'DESC' },
+        take: limit ? Number(limit) : undefined,
       });
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);

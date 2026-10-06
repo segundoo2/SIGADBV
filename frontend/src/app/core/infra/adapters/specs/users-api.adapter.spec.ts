@@ -1,0 +1,99 @@
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import {
+  HttpTestingController,
+  provideHttpClientTesting,
+} from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { UsersApiAdapter } from '../users-api.adapter';
+import { apiErrorInterceptor } from '../../interceptors/api-error.interceptor';
+import { UserEntity } from '../../../domain/entities/user.entity';
+import { URL } from '../../tokens/url.token';
+import { ApiResponseDto } from '../dtos/api-response.dto';
+
+describe('UsersApiAdapter', () => {
+  let adapter: UsersApiAdapter;
+  let httpMock: HttpTestingController;
+  const baseUrl = `${URL}/users`;
+
+  beforeEach(() => {
+    TestBed.resetTestingModule();
+
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(withInterceptors([apiErrorInterceptor])),
+        provideHttpClientTesting(),
+        UsersApiAdapter,
+      ],
+    });
+
+    adapter = TestBed.inject(UsersApiAdapter);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('should fetch and return a user by username and tenantId', async () => {
+    const username = 'edilson.segundo';
+    const tenantId = '00000000-0000-0000-0000-000000000000';
+
+    const user: UserEntity = {
+      id: 'da90c852-83de-448b-b794-cefc52925760',
+      tenantId,
+      username,
+      mustChangePassword: false,
+      roles: [],
+      createdAt: new Date('2026-09-01T10:00:00.000Z'),
+      updatedAt: new Date('2026-09-02T10:00:00.000Z'),
+    };
+
+    const response: ApiResponseDto<UserEntity> = {
+      message: 'User found',
+      data: user,
+    };
+
+    const promise = adapter.getUserByUsername(username, tenantId);
+
+    const request = httpMock.expectOne(
+      (req) =>
+        req.url === `${baseUrl}/${username}` &&
+        req.params.get('tenantId') === tenantId,
+    );
+
+    expect(request.request.method).toBe('GET');
+    expect(request.request.withCredentials).toBe(true);
+
+    request.flush(response);
+
+    await expect(promise).resolves.toEqual(user);
+  });
+
+  it('should normalize NestJS errors when finding user by username fails', async () => {
+    const username = 'nao.existe';
+    const tenantId = '00000000-0000-0000-0000-000000000000';
+
+    const promise = adapter.getUserByUsername(username, tenantId);
+    const request = httpMock.expectOne(
+      (req) =>
+        req.url === `${baseUrl}/${username}` &&
+        req.params.get('tenantId') === tenantId,
+    );
+
+    request.flush(
+      {
+        statusCode: 404,
+        message: 'User not found',
+        error: 'Not Found',
+      },
+      { status: 404, statusText: 'Not Found' },
+    );
+
+    await expect(promise).rejects.toMatchObject({
+      name: 'ApiError',
+      message: 'User not found',
+      status: 404,
+    });
+  });
+});

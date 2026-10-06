@@ -1,13 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
-import { UpdatePasswordStore } from '../update-password.store';
+import { PasswordUpdateStore } from '../update-password.store';
 import { UPDATE_PASSWORD_API_PORT } from '../../infra/tokens/update-password.token';
-import { IUpdatePasswordDto } from '../../domain/models/update-password-dto.model';
-import { IResponseModel } from '../../domain/models/response.model';
+import { IUpdatePasswordInput } from '../../application/models/update-password-input.model';
 import { ApiError } from '../../infra/interceptors/api-error.interceptor';
 
-describe('UpdatePasswordStore', () => {
-  let store: UpdatePasswordStore;
+describe('PasswordUpdateStore', () => {
+  let store: PasswordUpdateStore;
   let apiMock: { updatePassword: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
@@ -17,12 +16,12 @@ describe('UpdatePasswordStore', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        UpdatePasswordStore,
+        PasswordUpdateStore,
         { provide: UPDATE_PASSWORD_API_PORT, useValue: apiMock },
       ],
     });
 
-    store = TestBed.inject(UpdatePasswordStore);
+    store = TestBed.inject(PasswordUpdateStore);
   });
 
   it('should initialize with default states', () => {
@@ -32,35 +31,29 @@ describe('UpdatePasswordStore', () => {
   });
 
   it('should successfully update password and update state', async () => {
-    const payload: IUpdatePasswordDto = {
+    const payload: IUpdatePasswordInput = {
       username: 'john.doe',
       password: 'newPassword123',
       mustChangePassword: false,
     };
 
-    const mockResponse: IResponseModel<null> = {
-      message: 'Password updated successfully',
-      data: null,
-    };
-
-    apiMock.updatePassword.mockResolvedValueOnce(mockResponse);
+    apiMock.updatePassword.mockResolvedValueOnce(undefined);
 
     const promise = store.updatePassword(payload);
 
     // Verifica se o loading foi ativado durante a requisição
     expect(store.isLoading()).toBe(true);
 
-    const result = await promise;
+    await promise;
 
-    expect(result).toEqual(mockResponse);
     expect(store.isLoading()).toBe(false);
     expect(store.error()).toBeNull();
-    expect(store.successMessage()).toBe('Password updated successfully');
+    expect(store.successMessage()).toBe('Senha atualizada com sucesso.');
     expect(apiMock.updatePassword).toHaveBeenCalledWith(payload);
   });
 
   it('should handle error state when update fails', async () => {
-    const payload: IUpdatePasswordDto = {
+    const payload: IUpdatePasswordInput = {
       username: 'john.doe',
       password: 'newPassword123',
       mustChangePassword: false,
@@ -73,9 +66,8 @@ describe('UpdatePasswordStore', () => {
 
     expect(store.isLoading()).toBe(true);
 
-    const result = await promise;
+    await promise;
 
-    expect(result.message).toBe('Invalid password format');
     expect(store.isLoading()).toBe(false);
     expect(store.error()).toBe('Invalid password format');
   });

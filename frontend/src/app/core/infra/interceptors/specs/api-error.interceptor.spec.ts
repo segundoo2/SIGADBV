@@ -10,7 +10,7 @@ import {
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { EErrorsGlobal } from '../../../domain/enums/errors-global.enum';
+import { EErrorsGlobal } from '../../../application/enums/errors-global.enum';
 import { apiErrorInterceptor, ApiError } from '../api-error.interceptor';
 
 describe('apiErrorInterceptor', () => {

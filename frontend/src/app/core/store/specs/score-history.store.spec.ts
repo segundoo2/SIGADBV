@@ -1,34 +1,32 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ScoreHistoryStore } from '../score-history.store';
+import { UnitScoreHistoryStore } from '../score-history.store';
 import { SCORE_HISTORY_API_PORT } from '../../infra/tokens/score-history.token';
-import { IScoreHistoryApiPort } from '../../domain/ports/apis/score-history-api.port';
-import { IScoreHistoryPayload } from '../../domain/models/score-history-payload.model';
+import { IScoreHistoryPayload } from '../../application/models/score-history-payload.model';
 import { IScoreHistoryEntity } from '../../domain/entities/score-history.entity';
-import { IResponseModel } from '../../domain/models/response.model';
 import { ApiError } from '../../infra/interceptors/api-error.interceptor';
 
-describe('ScoreHistoryStore', () => {
-  let store: ScoreHistoryStore;
+describe('UnitScoreHistoryStore', () => {
+  let store: UnitScoreHistoryStore;
   let apiPortMock: {
-    registerScore: ReturnType<typeof vi.fn>;
-    getHistoryByUnitId: ReturnType<typeof vi.fn>;
+    registerUnitScore: ReturnType<typeof vi.fn>;
+    fetchUnitScoreHistory: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
     apiPortMock = {
-      registerScore: vi.fn(),
-      getHistoryByUnitId: vi.fn(),
+      registerUnitScore: vi.fn(),
+      fetchUnitScoreHistory: vi.fn(),
     };
 
     TestBed.configureTestingModule({
       providers: [
-        ScoreHistoryStore,
+        UnitScoreHistoryStore,
         { provide: SCORE_HISTORY_API_PORT, useValue: apiPortMock },
       ],
     });
 
-    store = TestBed.inject(ScoreHistoryStore);
+    store = TestBed.inject(UnitScoreHistoryStore);
   });
 
   it('should be created', () => {
@@ -37,7 +35,7 @@ describe('ScoreHistoryStore', () => {
     expect(store.error()).toBeNull();
   });
 
-  describe('registerScore', () => {
+  describe('registerUnitScore', () => {
     const unitId = '123e4567-e89b-12d3-a456-426614174000';
     const payload: IScoreHistoryPayload = {
       score: 30,
@@ -45,32 +43,29 @@ describe('ScoreHistoryStore', () => {
     };
 
     it('should successfully register score, manage loading state, and return response', async () => {
-      const mockResponse: IResponseModel<{ newScore: number }> = {
-        message: 'Success',
-        data: { newScore: 130 },
-      };
+      apiPortMock.registerUnitScore.mockResolvedValueOnce(undefined);
 
-      apiPortMock.registerScore.mockResolvedValueOnce(mockResponse);
+      const promise = store.registerUnitScore(unitId, payload);
 
-      const promise = store.registerScore(unitId, payload);
-
-      // Verifica se o loading foi ativado e o erro limpo imediatamente
       expect(store.isLoading()).toBe(true);
       expect(store.error()).toBeNull();
 
       const result = await promise;
 
-      expect(result).toEqual(mockResponse);
-      expect(apiPortMock.registerScore).toHaveBeenCalledWith(unitId, payload);
+      expect(result).toBeUndefined();
+      expect(apiPortMock.registerUnitScore).toHaveBeenCalledWith(
+        unitId,
+        payload,
+      );
       expect(store.isLoading()).toBe(false);
       expect(store.error()).toBeNull();
     });
 
     it('should handle error, set error signal, stop loading, and rethrow error when registration fails', async () => {
       const mockError = new ApiError('Unit score limit exceeded', 400);
-      apiPortMock.registerScore.mockRejectedValueOnce(mockError);
+      apiPortMock.registerUnitScore.mockRejectedValueOnce(mockError);
 
-      await expect(store.registerScore(unitId, payload)).rejects.toThrow(
+      await expect(store.registerUnitScore(unitId, payload)).rejects.toThrow(
         mockError,
       );
 
@@ -79,45 +74,49 @@ describe('ScoreHistoryStore', () => {
     });
   });
 
-  describe('fetchHistory', () => {
+  describe('fetchUnitScoreHistory', () => {
     const unitId = '123e4567-e89b-12d3-a456-426614174000';
+    const history: IScoreHistoryEntity[] = [];
 
-    it('should successfully fetch history, manage loading state, and return response', async () => {
-      const mockResponse: IResponseModel<IScoreHistoryEntity[]> = {
-        message: 'Success',
-        data: [
-          {
-            id: 'hist-1',
-            tenantId: 'tenant-1',
-            unitId,
-            score: 20,
-            description: 'Teste',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-        ],
-      };
+    it('should successfully fetch history with limit, manage loading state, and return response', async () => {
+      apiPortMock.fetchUnitScoreHistory.mockResolvedValueOnce(history);
 
-      apiPortMock.getHistoryByUnitId.mockResolvedValueOnce(mockResponse);
+      const promise = store.fetchUnitScoreHistory(unitId, 10);
 
-      const promise = store.fetchHistory(unitId);
+      expect(store.isLoading()).toBe(true);
+      const result = await promise;
+
+      expect(result).toEqual(history);
+      expect(apiPortMock.fetchUnitScoreHistory).toHaveBeenCalledWith(
+        unitId,
+        10,
+      );
+      expect(store.isLoading()).toBe(false);
+    });
+
+    it('should successfully fetch history without limit, manage loading state, and return response', async () => {
+      apiPortMock.fetchUnitScoreHistory.mockResolvedValueOnce(history);
+
+      const promise = store.fetchUnitScoreHistory(unitId);
 
       expect(store.isLoading()).toBe(true);
       expect(store.error()).toBeNull();
 
       const result = await promise;
 
-      expect(result).toEqual(mockResponse);
-      expect(apiPortMock.getHistoryByUnitId).toHaveBeenCalledWith(unitId);
+      expect(result).toEqual(history);
+      expect(apiPortMock.fetchUnitScoreHistory).toHaveBeenCalledWith(unitId);
       expect(store.isLoading()).toBe(false);
       expect(store.error()).toBeNull();
     });
 
     it('should handle error, set error signal, stop loading, and rethrow error when fetch fails', async () => {
       const mockError = new ApiError('Unit not found', 404);
-      apiPortMock.getHistoryByUnitId.mockRejectedValueOnce(mockError);
+      apiPortMock.fetchUnitScoreHistory.mockRejectedValueOnce(mockError);
 
-      await expect(store.fetchHistory(unitId)).rejects.toThrow(mockError);
+      await expect(store.fetchUnitScoreHistory(unitId)).rejects.toThrow(
+        mockError,
+      );
 
       expect(store.isLoading()).toBe(false);
       expect(store.error()).toBe('Unit not found');
