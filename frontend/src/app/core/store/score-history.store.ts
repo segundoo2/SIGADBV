@@ -54,4 +54,32 @@ export class UnitScoreHistoryStore implements IScoreHistoryStorePort {
       this._isLoading.set(false);
     }
   }
+
+  async fetchPendingScoreHistories(): Promise<IScoreHistoryEntity[]> {
+    this._isLoading.set(true);
+    this._error.set(null);
+
+    try {
+      return await this.scoreHistoryApi.fetchPendingScoreHistories();
+    } catch (err: unknown) {
+      this._error.set(getErrorMessage(err));
+      throw err;
+    } finally {
+      this._isLoading.set(false);
+    }
+  }
+
+  async approveScore(scoreHistoryId: string): Promise<void> {
+    this._isLoading.set(true);
+    this._error.set(null);
+
+    try {
+      await this.scoreHistoryApi.approveScore(scoreHistoryId);
+    } catch (err: unknown) {
+      this._error.set(getErrorMessage(err));
+      throw err;
+    } finally {
+      this._isLoading.set(false);
+    }
+  }
 }

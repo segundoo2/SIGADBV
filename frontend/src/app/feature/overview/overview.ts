@@ -8,14 +8,12 @@ import {
   ChangeDetectorRef,
   effect,
 } from '@angular/core';
-import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { HeaderComponent } from '../../shared/headers/header';
 import { Title } from '@angular/platform-browser';
 import { USERS_STORE_PORT } from '../../core/infra/tokens/users.token';
 import { UNITS_STORE_PORT } from '../../core/infra/tokens/units.token';
 import { SCORE_HISTORY_STORE_PORT } from '../../core/infra/tokens/score-history.token';
 import { EPermission } from '../../core/domain/enums/permissions.enum';
-import { SelectOption } from '../../shared/selects/select-form.component';
 import { CardComponent } from '../../shared/cards/card.component';
 import {
   BarChartCardComponent,
@@ -24,8 +22,9 @@ import {
 import { TableCardComponent } from '../../shared/cards/table-card.component';
 import { AccessDeniedCard } from '../../shared/cards/access-denied-card.component';
 
-interface ScoreHistoryRow {
+interface PendingScoreRow {
   readonly id: string;
+  readonly unitName: string;
   readonly score: number;
   readonly description: string;
   readonly createdAt: Date;
@@ -35,7 +34,6 @@ interface ScoreHistoryRow {
   selector: 'app-overview',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
     HeaderComponent,
     CardComponent,
     BarChartCardComponent,
@@ -54,13 +52,6 @@ export class OverviewPage implements OnInit {
 
   readonly currentUserEntity = this.usersStore.userCurrentEntity;
 
-  readonly unitOptions = computed<SelectOption[]>(() =>
-    this.unitsStore.unitsList().map((unit) => ({
-      id: unit.id,
-      name: unit.name,
-    })),
-  );
-
   readonly chartItems = computed<ChartItem[]>(() =>
     this.unitsStore.unitsList().map((unit) => ({
       id: unit.id,
@@ -69,8 +60,7 @@ export class OverviewPage implements OnInit {
     })),
   );
 
-  readonly unitControl = new FormControl<string>('', { nonNullable: true });
-  readonly historyRows = signal<ScoreHistoryRow[]>([]);
+  readonly pendingRows = signal<PendingScoreRow[]>([]);
   readonly totalUnitsCount = computed(() => this.unitsStore.unitsList().length);
 
   constructor() {
@@ -79,45 +69,46 @@ export class OverviewPage implements OnInit {
       this.unitsStore.unitsList();
       this.cdr.markForCheck();
     });
-
-    this.unitControl.valueChanges.subscribe((unitId) => {
-      if (unitId) {
-        void this.loadHistory(unitId);
-      } else {
-        this.historyRows.set([]);
-      }
-    });
   }
 
   readonly EPermission = EPermission;
 
-  private async loadHistory(unitId: string): Promise<void> {
+  private async loadPendingHistories(): Promise<void> {
     try {
-      const historyItems = await this.scoreHistoryStore.fetchUnitScoreHistory(
-        unitId,
-        10,
-      );
+      const historyItems = await this.scoreHistoryStore.fetchPendingScoreHistories();
 
       const sortedItems = [...historyItems].sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
 
-      const mappedRows: ScoreHistoryRow[] = sortedItems.map((item) => ({
+      const mappedRows: PendingScoreRow[] = sortedItems.map((item) => ({
         id: item.id,
+        unitName: item.unit?.name ?? 'Unidade desconhecida',
         score: item.score,
         description: item.description,
         createdAt: new Date(item.createdAt),
       }));
-      this.historyRows.set(mappedRows);
+
+      this.pendingRows.set(mappedRows);
     } catch {
-      this.historyRows.set([]);
+      this.pendingRows.set([]);
+    }
+  }
+
+  async approve(scoreHistoryId: string): Promise<void> {
+    try {
+      await this.scoreHistoryStore.approveScore(scoreHistoryId);
+      await Promise.all([this.loadPendingHistories(), this.unitsStore.fetchAllUnits()]);
+    } catch {
+      // O erro é tratado na store
     }
   }
 
   ngOnInit(): void {
     this.titleService.setTitle('SIGADBV - Visão Geral');
     void this.loadUnits();
+    void this.loadPendingHistories();
   }
 
   private async loadUnits(): Promise<void> {
@@ -128,7 +119,7 @@ export class OverviewPage implements OnInit {
     }
   }
 
-  trackById(_index: number, record: ScoreHistoryRow): string {
+  trackById(_index: number, record: PendingScoreRow): string {
     return record.id;
   }
 }

@@ -9,7 +9,7 @@
         Bem-vindo, {{ currentUserEntity()?.username ?? '' }}!
       </h1>
       <p class="text-sm text-slate-400">
-        Visualize o ranking de unidades e o histórico de pontuações recentes
+        Visualize o ranking de unidades e aprove as pontuações pendentes
       </p>
     </div>
 
@@ -18,7 +18,7 @@
 
   <app-access-denied-card
     [requiredPermission]="EPermission.SCORE_HISTORY_READ"
-    message="Acesso restrito: você não possui permissão para visualizar o histórico de pontuações recentes e o gráfico de pontuação geral."
+    message="Acesso restrito: você não possui permissão para visualizar o histórico de pontuações pendentes e o gráfico de pontuação geral."
   >
     <section class="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
       <app-bar-chart-card
@@ -30,14 +30,14 @@
 
       <app-table-card
         class="h-full flex flex-col"
-        title="Histórico de Pontuações recentes"
-        [headers]="['Pontos', 'Motivo']"
-        [selectOptions]="unitOptions()"
-        [selectControl]="unitControl"
-        selectId="unit-history-select"
+        title="Pontuações Pendentes de Aprovação"
+        [headers]="['Unidade', 'Pontos', 'Motivo', 'Ações']"
       >
-        @for (row of historyRows(); track trackById($index, row)) {
+        @for (row of pendingRows(); track trackById($index, row)) {
         <tr class="hover:bg-slate-800/30 transition-colors">
+          <td class="py-3 px-4 text-slate-200 font-medium">
+            {{ row.unitName }}
+          </td>
           @if (row.score > 0) {
           <td class="py-3 px-4 text-emerald-400 font-semibold">
             {{ '+' + row.score }}
@@ -48,11 +48,19 @@
           <td class="py-3 px-4 text-slate-300 text-justify">
             {{ row.description }}
           </td>
+          <td class="py-3 px-4 text-right">
+            <button
+              (click)="approve(row.id)"
+              class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded transition-colors shadow"
+            >
+              Aprovar
+            </button>
+          </td>
         </tr>
         } @empty {
         <tr>
-          <td colspan="2" class="py-6 text-center text-slate-500 text-sm">
-            Selecione uma unidade para visualizar o histórico recente.
+          <td colspan="4" class="py-6 text-center text-slate-500 text-sm">
+            Não há pontuações pendentes de aprovação no momento.
           </td>
         </tr>
         }
