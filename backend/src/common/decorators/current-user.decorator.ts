@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { IJwtPayloadWithExpiry } from '../../modules/auth/interfaces/jwt-payload.interface';
 import { RequestWithCookies } from '../strategies/interfaces/req-with-cookies.interface';
+import { EErrorsGlobal } from '../enum/global/errors-global.enum';
 
 function isJwtPayload(user: unknown): user is IJwtPayloadWithExpiry {
   return (
@@ -22,9 +23,7 @@ export const CurrentUser = createParamDecorator(
     const user = request.user;
 
     if (!isJwtPayload(user)) {
-      throw new UnauthorizedException(
-        'Payload de usuário inválido ou não encontrado na requisição.',
-      );
+      throw new UnauthorizedException(EErrorsGlobal.INVALID_USER_JWT);
     }
 
     return user;

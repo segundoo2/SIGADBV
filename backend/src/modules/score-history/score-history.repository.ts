@@ -5,6 +5,7 @@ import { IScoreHistoryRepository } from './interfaces/score-history.repository.i
 import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 import { ScoreHistoryDto } from './dtos/score-history.dto';
 import { ScoreHistoryEntity } from './entity/score-history.entity';
+import { IJwtPayloadWithExpiry } from '../auth/interfaces/jwt-payload.interface';
 
 @Injectable()
 export class ScoreHistoryRepository implements IScoreHistoryRepository {
@@ -14,11 +15,54 @@ export class ScoreHistoryRepository implements IScoreHistoryRepository {
   ) {}
 
   async adjustUnitScore(
-    dto: ScoreHistoryDto & { unitId: string; tenantId: string },
+    dto: ScoreHistoryDto & {
+      unitId: string;
+      currentUser: string;
+      tenantId: string;
+    },
   ): Promise<void> {
     try {
-      const entity = this.repository.create(dto);
+      const entity = this.repository.create({
+        ...dto,
+        createdById: dto.currentUser,
+        isApproved: false,
+      });
       await this.repository.save(entity);
+    } catch {
+      throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
+    }
+  }
+
+  async findAllHistoryScorePending(
+    tenantId: string,
+  ): Promise<ScoreHistoryEntity[]> {
+    try {
+      return await this.repository.find({
+        where: { tenantId, isApproved: false },
+        relations: {
+          createdBy: true,
+          unit: true,
+        },
+        order: { createdAt: 'ASC' },
+      });
+    } catch {
+      throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
+    }
+  }
+
+  async approveScore(
+    scoreHistoryId: string,
+    tenantId: string,
+    currentUser: IJwtPayloadWithExpiry,
+  ): Promise<void> {
+    try {
+      await this.repository.update(
+        { id: scoreHistoryId, tenantId },
+        {
+          isApproved: true,
+          approvedById: currentUser.sub,
+        },
+      );
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
     }

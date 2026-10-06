@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { UnitEntity } from '../../units/entities/unit.entity';
+import { User } from '../../users/entities/user.entity'; // Importa a tua entidade User
 
 @Entity('score_history')
 export class ScoreHistoryEntity {
@@ -48,6 +49,29 @@ export class ScoreHistoryEntity {
   @ManyToOne(() => UnitEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'unit_id' })
   unit!: UnitEntity;
+
+  // --- NOVO: Rastreio de quem criou o registo ---
+  @Column({ type: 'uuid', name: 'created_by_id', nullable: false })
+  @Index()
+  createdById!: string;
+
+  @ManyToOne(() => User, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'created_by_id' })
+  createdBy!: User;
+
+  // --- NOVO: Controlo de aprovação ---
+  @Column({ type: 'boolean', name: 'is_approved', default: false })
+  isApproved!: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Identificador do utilizador que aprovou a pontuação',
+  })
+  @Column({ type: 'uuid', name: 'approved_by_id', nullable: true })
+  approvedById!: string | null;
+
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'approved_by_id' })
+  approvedBy!: User | null;
 
   @ApiProperty({
     description:
