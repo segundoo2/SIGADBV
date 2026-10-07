@@ -24,7 +24,7 @@ export interface IUnitsService {
     id: string,
     tenantId: string,
     scoreDelta: number,
-  ): Promise<IResponse<{ newScore: number }>>;
+  ): Promise<IResponse<null>>;
 
   deleteUnit(id: string, tenantId: string): Promise<IResponse<null>>;
 }
