@@ -73,8 +73,8 @@ export class AuthService {
       }),
     ]);
 
-    const userResponse = { ...user };
-    delete userResponse.password;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userResponse } = { ...user };
 
     return {
       message: EAuthSuccess.LOGIN,

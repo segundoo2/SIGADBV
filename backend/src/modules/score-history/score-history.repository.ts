@@ -5,16 +5,25 @@ import { IScoreHistoryRepository } from './interfaces/score-history.repository.i
 import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 import { ScoreHistoryDto } from './dtos/score-history.dto';
 import { ScoreHistoryEntity } from './entity/score-history.entity';
+import { UnitEntity } from '../units/entities/unit.entity';
+import { EScoreHistoryStatus } from '../../common/enum/score-story/score-history-status.enum';
 
 @Injectable()
 export class ScoreHistoryRepository implements IScoreHistoryRepository {
   constructor(
     @InjectRepository(ScoreHistoryEntity)
     private readonly repository: Repository<ScoreHistoryEntity>,
+    @InjectRepository(UnitEntity)
+    private readonly unitRepository: Repository<UnitEntity>,
   ) {}
 
-  async adjustUnitScore(
-    dto: ScoreHistoryDto & { unitId: string; tenantId: string },
+  async requestAdjustUnitScore(
+    dto: ScoreHistoryDto & {
+      unitId: string;
+      tenantId: string;
+      requestedById: string;
+      status: EScoreHistoryStatus;
+    },
   ): Promise<void> {
     try {
       const entity = this.repository.create(dto);
@@ -34,7 +43,79 @@ export class ScoreHistoryRepository implements IScoreHistoryRepository {
         where: { unitId, tenantId },
         order: { createdAt: 'DESC' },
         take: limit ? Number(limit) : undefined,
+        relations: { requestedBy: true, approvedBy: true, rejectedBy: true },
       });
+    } catch {
+      throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
+    }
+  }
+
+  async findAllUnitsNameAndId(
+    tenantId: string,
+  ): Promise<Pick<UnitEntity, 'id' | 'name'>[]> {
+    try {
+      return await this.unitRepository.find({
+        where: { tenantId },
+        select: { id: true, name: true },
+      });
+    } catch {
+      throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
+    }
+  }
+
+  async retrivePendingUnitsScore(
+    unitId: string,
+    tenantId: string,
+  ): Promise<ScoreHistoryEntity[]> {
+    try {
+      return await this.repository.find({
+        where: { unitId, tenantId, status: EScoreHistoryStatus.PENDING },
+        order: { createdAt: 'DESC' },
+        relations: { requestedBy: true },
+      });
+    } catch {
+      throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
+    }
+  }
+
+  async findOneScoreHistoryPending(
+    scoreHistoryId: string,
+    tenantId: string,
+  ): Promise<ScoreHistoryEntity | null> {
+    try {
+      return await this.repository.findOne({
+        where: { id: scoreHistoryId, tenantId },
+      });
+    } catch {
+      throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
+    }
+  }
+
+  async approveScoreHistory(
+    scoreHistoryId: string,
+    tenantId: string,
+    approvedById: string,
+  ): Promise<void> {
+    try {
+      await this.repository.update(
+        { id: scoreHistoryId, tenantId },
+        { status: EScoreHistoryStatus.APPROVED, approvedById },
+      );
+    } catch {
+      throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
+    }
+  }
+
+  async rejectScoreHistory(
+    scoreHistoryId: string,
+    tenantId: string,
+    rejectedById: string,
+  ): Promise<void> {
+    try {
+      await this.repository.update(
+        { id: scoreHistoryId, tenantId },
+        { status: EScoreHistoryStatus.REJECTED, rejectedById },
+      );
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
     }

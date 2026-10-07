@@ -150,16 +150,14 @@ describe('UnitsService', () => {
   });
 
   describe('adjustUnitScore', () => {
-    it(`should return new unit score when score is adujusted with success`, async () => {
+    it(`should return { message: ${EUnitSuccess.ADJUST_SCORE}, data: null } when score is adujusted with success`, async () => {
       const newScore = unit.score + unit.score;
       repositoryMock.findOneScoreById.mockResolvedValue(newScore);
       expect(
         await service.adjustUnitScore(unit.id, unit.tenantId, unit.score),
       ).toEqual({
         message: EUnitSuccess.ADJUST_SCORE,
-        data: {
-          newScore: newScore,
-        },
+        data: null,
       });
     });
 
