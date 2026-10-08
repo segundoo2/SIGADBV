@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { UserEntity } from '../../domain/entities/user.entity';
 import { IUsersApiPort } from '../../application/ports/apis/users-api.port';
 import { URL } from '../tokens/url.token';
-import { ApiResponseDto } from './dtos/api-response.dto';
+import { ApiResponseDto } from '../../application/models/api-response.model';
 
 @Injectable({
   providedIn: 'root',

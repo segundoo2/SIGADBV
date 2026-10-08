@@ -5,7 +5,7 @@ import { IAuthCredentialsModel } from '../../application/models/auth-credentials
 import { IAuthSession } from '../../application/models/auth-session.model';
 import { IAuthApiPort } from '../../application/ports/apis/auth-api.port';
 import { URL } from '../tokens/url.token';
-import { AuthResponseDto } from './dtos/auth-response.dto';
+import { AuthResponseDto } from '../../application/models/auth-response.model';
 
 @Injectable({
   providedIn: 'root',

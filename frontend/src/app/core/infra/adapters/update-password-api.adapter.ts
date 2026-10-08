@@ -4,7 +4,7 @@ import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { URL } from '../tokens/url.token';
 import { IUpdatePasswordApiPort } from '../../application/ports/apis/update-password-api.port';
-import { ApiResponseDto } from './dtos/api-response.dto';
+import { ApiResponseDto } from '../../application/models/api-response.model';
 
 @Injectable({
   providedIn: 'root',

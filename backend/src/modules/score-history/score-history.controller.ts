@@ -146,7 +146,7 @@ export class ScoreHistoryController implements IScoreHistoryController {
   async findAllUnitsNameAndId(
     @TenantId() tenantId: string,
   ): Promise<IResponse<Pick<UnitEntity, 'id' | 'name'>[]>> {
-    return this.service.findAllUnitsNameAndId(tenantId);
+    return await this.service.findAllUnitsNameAndId(tenantId);
   }
 
   @Get('pending/:unitId')

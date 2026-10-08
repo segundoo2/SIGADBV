@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { IUnitEntity } from '../../domain/entities/unit.entity';
 import { IUnitsApiPort } from '../../application/ports/apis/units-api.port';
-import { ApiResponseDto } from './dtos/api-response.dto';
+import { ApiResponseDto } from '../../application/models/api-response.model';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { URL } from '../tokens/url.token';
