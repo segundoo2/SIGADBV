@@ -65,6 +65,14 @@ describe('AuthRepository', () => {
       expect(result).toBe(mockUser);
       expect(ormRepositoryMock.findOne).toHaveBeenCalledWith({
         where: { username: userDto.username, tenantId: userDto.tenantId },
+        select: {
+          id: true,
+          tenantId: true,
+          username: true,
+          mustChangePassword: true,
+          password: true,
+          roles: true,
+        },
         relations: {
           roles: true,
         },

@@ -2,6 +2,7 @@ import {
   Controller,
   Inject,
   Post,
+  Patch,
   Param,
   Body,
   Get,
@@ -23,6 +24,9 @@ import { ScoreHistoryEntity } from './entity/score-history.entity';
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
 import { RequiresPermission } from '../../common/decorators/permission.decorator';
 import { EPermission } from '../../common/enum/role/permissions.enum';
+import { UnitEntity } from '../units/entities/unit.entity';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { IJwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
 @ApiTags('Score History - Ajuste de Pontuação')
 @Controller('score-history')
@@ -65,12 +69,18 @@ export class ScoreHistoryController implements IScoreHistoryController {
   })
   @ApiResponse({ status: 400, description: 'Dados inválidos fornecidos.' })
   @ApiResponse({ status: 404, description: 'Unidade não encontrada.' })
-  async adjustUnitScore(
+  async requestAdjustUnitScore(
     @Param('unitId') unitId: string,
+    @CurrentUser() user: IJwtPayload,
     @TenantId() tenantId: string,
     @Body() dto: ScoreHistoryDto,
-  ): Promise<IResponse<{ newScore: number }>> {
-    return await this.service.adjustUnitScore(unitId, tenantId, dto);
+  ): Promise<IResponse<null>> {
+    return await this.service.requestAdjustUnitScore(
+      unitId,
+      user.sub,
+      tenantId,
+      dto,
+    );
   }
 
   @Get(':unitId')
@@ -106,5 +116,97 @@ export class ScoreHistoryController implements IScoreHistoryController {
     @Query('limit') limit?: number,
   ): Promise<IResponse<ScoreHistoryEntity[]>> {
     return await this.service.findHistoryByUnitId(unitId, tenantId, limit);
+  }
+
+  @Get('units-options')
+  @RequiresPermission(EPermission.SCORE_HISTORY_ADJUST)
+  @ApiOperation({
+    summary: 'Listar ID e nome de todas as unidades para seleção',
+    description:
+      'Retorna uma lista simplificada contendo apenas o ID e o nome das unidades do tenant atual, utilizada para popular seletores (dropdowns) em contextos onde a permissão unit.read completa não está disponível.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de unidades obtida com sucesso.',
+    schema: {
+      example: {
+        success: true,
+        data: [
+          {
+            id: '123e4567-e89b-12d3-a456-426614174000',
+            name: 'Unidade Alpha',
+          },
+        ],
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Não autorizado.' })
+  @ApiResponse({ status: 403, description: 'Permissão insuficiente.' })
+  @ApiResponse({ status: 404, description: 'Nenhuma unidade encontrada.' })
+  async findAllUnitsNameAndId(
+    @TenantId() tenantId: string,
+  ): Promise<IResponse<Pick<UnitEntity, 'id' | 'name'>[]>> {
+    return this.service.findAllUnitsNameAndId(tenantId);
+  }
+
+  @Get('pending/:unitId')
+  @RequiresPermission(EPermission.SCORE_HISTORY_APPROVE)
+  @ApiOperation({
+    summary: 'Listar histórico de pontuações pendentes de uma unidade',
+    description:
+      'Retorna todos os pedidos de ajuste de pontuação pendentes para aprovação.',
+  })
+  @ApiParam({ name: 'unitId', description: 'Identificador único da unidade' })
+  async retrivePendingUnitsScore(
+    @Param('unitId') unitId: string,
+    @TenantId() tenantId: string,
+  ): Promise<IResponse<ScoreHistoryEntity[]>> {
+    return await this.service.retrivePendingUnitsScore(unitId, tenantId);
+  }
+
+  @Patch('approve/:id')
+  @RequiresPermission(EPermission.SCORE_HISTORY_APPROVE)
+  @ApiOperation({
+    summary: 'Aprovar um pedido de ajuste de pontuação',
+    description:
+      'Efetiva a pontuação na unidade correspondente e altera o status para aprovado.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Identificador único do histórico de pontuação',
+  })
+  async approveUnitScore(
+    @Param('id') scoreHistoryId: string,
+    @CurrentUser() user: IJwtPayload,
+    @TenantId() tenantId: string,
+  ): Promise<IResponse<null>> {
+    return await this.service.approveUnitScore(
+      scoreHistoryId,
+      user.sub,
+      tenantId,
+    );
+  }
+
+  @Patch('reject/:id')
+  @RequiresPermission(EPermission.SCORE_HISTORY_APPROVE)
+  @ApiOperation({
+    summary: 'Rejeitar um pedido de ajuste de pontuação',
+    description:
+      'Altera o status do histórico para rejeitado sem alterar a pontuação da unidade.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Identificador único do histórico de pontuação',
+  })
+  async rejectUnitScore(
+    @Param('id') scoreHistoryId: string,
+    @CurrentUser() user: IJwtPayload,
+    @TenantId() tenantId: string,
+  ): Promise<IResponse<null>> {
+    return await this.service.rejectUnitScore(
+      scoreHistoryId,
+      user.sub,
+      tenantId,
+    );
   }
 }

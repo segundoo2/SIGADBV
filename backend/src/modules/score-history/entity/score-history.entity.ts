@@ -10,6 +10,8 @@ import {
 } from 'typeorm';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { UnitEntity } from '../../units/entities/unit.entity';
+import { User } from '../../users/entities/user.entity';
+import { EScoreHistoryStatus } from '../../../common/enum/score-story/score-history-status.enum';
 
 @Entity('score_history')
 export class ScoreHistoryEntity {
@@ -65,6 +67,71 @@ export class ScoreHistoryEntity {
   })
   @Column({ type: 'varchar', length: 255, nullable: false })
   description!: string;
+
+  @ApiProperty({
+    description: 'Estado atual do histórico de pontuação',
+    enum: EScoreHistoryStatus,
+    example: EScoreHistoryStatus.PENDING,
+  })
+  @Column({
+    type: 'enum',
+    enum: EScoreHistoryStatus,
+    default: EScoreHistoryStatus.PENDING,
+    nullable: false,
+  })
+  status!: EScoreHistoryStatus;
+
+  @ApiProperty({
+    description: 'Identificador único do utilizador que solicitou a pontuação',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @Column({ type: 'uuid', name: 'requested_by_id', nullable: false })
+  @Index()
+  requestedById!: string;
+
+  @ApiPropertyOptional({
+    description: 'Utilizador que solicitou a pontuação',
+    type: () => User,
+  })
+  @ManyToOne(() => User, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'requested_by_id' })
+  requestedBy!: User;
+
+  @ApiPropertyOptional({
+    description: 'Identificador único do utilizador que aprovou a pontuação',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    nullable: true,
+  })
+  @Column({ type: 'uuid', name: 'approved_by_id', nullable: true })
+  @Index()
+  approvedById?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Utilizador que aprovou a pontuação',
+    type: () => User,
+    nullable: true,
+  })
+  @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'approved_by_id' })
+  approvedBy?: User | null;
+
+  @ApiPropertyOptional({
+    description: 'Identificador único do utilizador que rejeitou a pontuação',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    nullable: true,
+  })
+  @Column({ type: 'uuid', name: 'rejected_by_id', nullable: true })
+  @Index()
+  rejectedById?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Utilizador que rejeitou a pontuação',
+    type: () => User,
+    nullable: true,
+  })
+  @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'rejected_by_id' })
+  rejectedBy?: User | null;
 
   @ApiProperty({
     description: 'Data de criação do registo',
