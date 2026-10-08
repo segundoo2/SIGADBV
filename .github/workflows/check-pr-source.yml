@@ -1,0 +1,23 @@
+name: Check PR Source Branch
+
+on:
+  pull_request:
+    branches:
+      - main # 👈 Coloque aqui a branch que você quer proteger (ex: main ou production)
+
+jobs:
+  validate-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if source branch is dev
+        run: |
+          echo "Branch de origem: ${{ github.head_ref }}"
+          echo "Branch de destino: ${{ github.base_ref }}"
+          
+          if [ "${{ github.head_ref }}" != "dev" ]; then
+            echo "❌ Erro: Pull requests para esta branch só são aceitos a partir da branch 'dev'."
+            echo "Sua branch atual é '${{ github.head_ref }}'. Por favor, abra o PR usando a branch 'dev'."
+            exit 1
+          fi
+          
+          echo "✅ Branch de origem válida!"
