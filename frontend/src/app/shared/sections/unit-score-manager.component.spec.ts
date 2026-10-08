@@ -25,7 +25,7 @@ describe('UnitScoreManagerComponent', () => {
   const validFormValue = {
     unitId: '123e4567-e89b-12d3-a456-426614174000',
     score: '-15',
-    description: 'Correção de pontuação',
+    description: 'Solicitação de correção de pontuação',
   };
 
   beforeEach(async () => {
@@ -88,9 +88,9 @@ describe('UnitScoreManagerComponent', () => {
   });
 
   it('should open the modal when the open button is clicked', () => {
-    const openButton: HTMLButtonElement = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('header button');
+    const openButton = (fixture.nativeElement as HTMLElement).querySelector(
+      'header button',
+    ) as HTMLButtonElement;
 
     openButton.click();
     fixture.detectChanges();

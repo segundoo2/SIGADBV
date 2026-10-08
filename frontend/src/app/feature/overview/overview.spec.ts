@@ -1,6 +1,6 @@
+import { Component, Input, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { signal } from '@angular/core';
 import { vi } from 'vitest';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 import { USERS_STORE_PORT } from '../../core/infra/tokens/users.token';
@@ -9,7 +9,20 @@ import { SCORE_HISTORY_STORE_PORT } from '../../core/infra/tokens/score-history.
 import { OverviewPage } from './overview';
 import { EPermission } from '../../core/domain/enums/permissions.enum';
 import { UserEntity } from '../../core/domain/entities/user.entity';
-import { IScoreHistoryEntity } from '../../core/domain/entities/score-history.entity';
+import {
+  EScoreHistoryStatus,
+  IScoreHistoryEntity,
+} from '../../core/domain/entities/score-history.entity';
+
+@Component({
+  standalone: true,
+  selector: 'app-lucide-icon',
+  template: '<span></span>',
+})
+class LucideIconStubComponent {
+  @Input() name?: string;
+  @Input() img?: unknown;
+}
 
 describe('OverviewPage', () => {
   let component: OverviewPage;
@@ -62,6 +75,8 @@ describe('OverviewPage', () => {
           unitId,
           score: 500,
           description: 'Pontuação positiva',
+          status: EScoreHistoryStatus.PENDING,
+          requestedById: 'user-1',
           createdAt: new Date('2026-10-01T10:00:00Z'),
           updatedAt: new Date('2026-10-01T10:00:00Z'),
         },
@@ -71,12 +86,16 @@ describe('OverviewPage', () => {
           unitId,
           score: -100,
           description: 'Penalização aplicada',
+          status: EScoreHistoryStatus.PENDING,
+          requestedById: 'user-1',
           createdAt: new Date('2026-10-02T10:00:00Z'),
           updatedAt: new Date('2026-10-02T10:00:00Z'),
         },
       ];
       return Promise.resolve(history);
     }),
+    approveScore: vi.fn().mockResolvedValue(undefined),
+    rejectScore: vi.fn().mockResolvedValue(undefined),
   };
 
   const mockAuthStore = {
@@ -87,6 +106,7 @@ describe('OverviewPage', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    mockUsersStore.userCurrentEntity.set(mockUser);
 
     await TestBed.configureTestingModule({
       imports: [OverviewPage],
@@ -97,7 +117,13 @@ describe('OverviewPage', () => {
         { provide: UNITS_STORE_PORT, useValue: mockUnitsStore },
         { provide: SCORE_HISTORY_STORE_PORT, useValue: mockScoreHistoryStore },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(OverviewPage, {
+        set: {
+          imports: [LucideIconStubComponent],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(OverviewPage);
     component = fixture.componentInstance;
@@ -113,11 +139,14 @@ describe('OverviewPage', () => {
     component.unitControl.setValue('1');
     fixture.detectChanges();
     await fixture.whenStable();
+    fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('Bem-vindo, edilson.segundo!');
-    expect(element.textContent).toContain('Ranking de Unidade');
-    expect(element.textContent).toContain('Histórico de Pontuações recentes');
+    expect(element.textContent).toContain('Unidades Cadastradas');
+    expect(element.textContent).toContain(
+      'Selecione uma unidade para visualizar o histórico de pontuações pendentes.',
+    );
   });
 
   it('should render access denied message when user lacks permission', async () => {
@@ -140,12 +169,11 @@ describe('OverviewPage', () => {
 
     const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain(
-      'Acesso restrito: você não possui permissão para visualizar o histórico de pontuações recentes e o gráfico de pontuação geral.',
+      'Acesso restrito: você não possui permissão para visualizar o histórico de pontuações pendentes e o gráfico de pontuação geral.',
     );
   });
 
   it('should load and sort history records correctly when a unit is selected', async () => {
-    // Garante que o usuário possui a permissão necessária para este teste
     mockUsersStore.userCurrentEntity.set({
       ...mockUser,
     });
@@ -204,5 +232,21 @@ describe('OverviewPage', () => {
     await vi.waitFor(() => {
       expect(mockUnitsStore.fetchAllUnits).toHaveBeenCalled();
     });
+  });
+
+  it('should approve a score history record', async () => {
+    component.unitControl.setValue('1');
+    await fixture.whenStable();
+
+    await component.approveScore('hist-1');
+    expect(mockScoreHistoryStore.approveScore).toHaveBeenCalledWith('hist-1');
+  });
+
+  it('should reject a score history record', async () => {
+    component.unitControl.setValue('1');
+    await fixture.whenStable();
+
+    await component.rejectScore('hist-1');
+    expect(mockScoreHistoryStore.rejectScore).toHaveBeenCalledWith('hist-1');
   });
 });

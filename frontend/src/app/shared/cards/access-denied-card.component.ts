@@ -27,7 +27,7 @@ export class AccessDeniedCard {
   @Input() message: string =
     'Você não possui permissão para visualizar este conteúdo.';
 
-  protected hasPermission = (): boolean => {
+  protected hasPermission(): boolean {
     const perm = this.requiredPermission;
     if (!perm) return true;
 
@@ -35,5 +35,5 @@ export class AccessDeniedCard {
     if (!user || !user.roles) return false;
 
     return user.roles.some((role) => role.permissions.includes(perm));
-  };
+  }
 }

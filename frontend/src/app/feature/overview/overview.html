@@ -9,7 +9,7 @@
         Bem-vindo, {{ currentUserEntity()?.username ?? '' }}!
       </h1>
       <p class="text-sm text-slate-400">
-        Visualize o ranking de unidades e o histórico de pontuações recentes
+        Visualize o ranking de unidades e o histórico de pontuações pendentes
       </p>
     </div>
 
@@ -18,7 +18,7 @@
 
   <app-access-denied-card
     [requiredPermission]="EPermission.SCORE_HISTORY_READ"
-    message="Acesso restrito: você não possui permissão para visualizar o histórico de pontuações recentes e o gráfico de pontuação geral."
+    message="Acesso restrito: você não possui permissão para visualizar o histórico de pontuações pendentes e o gráfico de pontuação geral."
   >
     <section class="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
       <app-bar-chart-card
@@ -30,11 +30,8 @@
 
       <app-table-card
         class="h-full flex flex-col"
-        title="Histórico de Pontuações recentes"
-        [headers]="['Pontos', 'Motivo']"
-        [selectOptions]="unitOptions()"
-        [selectControl]="unitControl"
-        selectId="unit-history-select"
+        title="Histórico de Pontuações Pendentes"
+        [headers]="['Pontuação', 'Motivo', 'Instrutor', 'Ações']"
       >
         @for (row of historyRows(); track trackById($index, row)) {
         <tr class="hover:bg-slate-800/30 transition-colors">
@@ -48,11 +45,34 @@
           <td class="py-3 px-4 text-slate-300 text-justify">
             {{ row.description }}
           </td>
+          <td class="py-3 px-4 text-slate-300">
+            {{ row.instructor }}
+          </td>
+          <td class="py-3 px-4 flex items-center space-x-2">
+            <button
+              type="button"
+              (click)="approveScore(row.id)"
+              class="p-1.5 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/50 rounded-lg transition-colors cursor-pointer"
+              title="Aprovar pontuação"
+              data-testid="approve-score-btn"
+            >
+              <lucide-icon name="check" class="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              (click)="rejectScore(row.id)"
+              class="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-950/50 rounded-lg transition-colors cursor-pointer"
+              title="Reprovar pontuação"
+              data-testid="reject-score-btn"
+            >
+              <lucide-icon name="x" class="w-4 h-4" />
+            </button>
+          </td>
         </tr>
         } @empty {
-        <tr>
-          <td colspan="2" class="py-6 text-center text-slate-500 text-sm">
-            Selecione uma unidade para visualizar o histórico recente.
+        <tr class="flex justify-center">
+          <td colspan="4" class="py-6 text-center text-slate-500 text-sm">
+            Não há pontuações pendentes no momento.
           </td>
         </tr>
         }

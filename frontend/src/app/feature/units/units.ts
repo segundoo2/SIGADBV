@@ -7,7 +7,7 @@ import { ErrorMessageComponent } from '../../shared/error-message/error-message.
 import { UnitScoreManagerComponent } from '../../shared/sections/unit-score-manager.component';
 import { Title } from '@angular/platform-browser';
 import { AccessDeniedCard } from '../../shared/cards/access-denied-card.component';
-import { EPermission } from '../../core/domain/enums/permissions.enum'; // 1. Importar o enum de permissões
+import { EPermission } from '../../core/domain/enums/permissions.enum';
 
 @Component({
   standalone: true,
@@ -25,7 +25,6 @@ export class UnitsPage implements OnInit {
   private readonly titleService = inject(Title);
   protected readonly unitsStore = inject(UNITS_STORE_PORT);
 
-  // 2. Expor o enum para o template HTML conseguir utilizá-lo
   protected readonly EPermission = EPermission;
 
   protected readonly genderLabels: Record<EUnitGender, string> = {

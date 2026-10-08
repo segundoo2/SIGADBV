@@ -8,7 +8,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SCORE_HISTORY_STORE_PORT } from '../../core/infra/tokens/score-history.token';
-import { UNITS_STORE_PORT } from '../../core/infra/tokens/units.token'; // Ajuste o caminho do token conforme seu projeto
+import { UNITS_STORE_PORT } from '../../core/infra/tokens/units.token';
 import { ButtonComponent } from '../buttons/button.component';
 import { ErrorMessageComponent } from '../error-message/error-message.component';
 import { InputFormComponent } from '../inputs/input-form';
@@ -39,8 +39,8 @@ import {
         <div>
           <h1 class="text-2xl font-bold text-white">Pontuação de Unidades</h1>
           <p class="text-sm text-slate-400">
-            Mantenha o ranking das unidades atualizado adicionando ou retirando
-            pontos.
+            Mantenha o ranking das unidades atualizado solicitando novos ajustes
+            de pontos.
           </p>
         </div>
         <button
@@ -48,7 +48,7 @@ import {
           (click)="openScoreModal()"
           class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium transition-colors shadow-lg shadow-indigo-600/20 cursor-pointer"
         >
-          Pontuar Unidade
+          Solicitar Pontuação
         </button>
       </header>
 
@@ -119,10 +119,10 @@ import {
             <app-button
               type="submit"
               [isLoading]="scoreStore.isLoading()"
-              loadingText="Salvando ajuste..."
+              loadingText="Solicitando pontuação..."
               testId="submit-score-btn"
             >
-              Salvar Ajuste
+              Solicitar pontuação
             </app-button>
           </fieldset>
         </form>
@@ -142,7 +142,7 @@ export class UnitScoreManagerComponent implements OnInit {
   readonly scoreForm = this.formBuilder.nonNullable.group({
     unitId: ['', [Validators.required.bind(Validators)]],
     score: [
-      0,
+      0 as number | string,
       [Validators.required.bind(Validators), Validators.pattern(/^-?\d+$/)],
     ],
     description: [

@@ -103,8 +103,10 @@ describe('UnitsPage', () => {
     fixture.detectChanges();
 
     const renderedGenders = Array.from(
-      (fixture.nativeElement as HTMLElement).querySelectorAll('.rounded-full'),
-      (element: HTMLElement) => element.textContent.trim(),
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
+        '.rounded-full',
+      ),
+      (element) => element.textContent?.trim() ?? '',
     );
 
     expect(renderedGenders).toEqual([

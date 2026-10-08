@@ -43,7 +43,7 @@ import {
 
       <div class="flex-1 overflow-x-auto flex flex-col">
         <table class="w-full text-left border-collapse flex-1 flex flex-col">
-          <thead>
+          <thead class="flex justify-center">
             <tr
               class="border-b border-slate-800 text-xs font-semibold text-slate-400 uppercase tracking-wider"
             >
