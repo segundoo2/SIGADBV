@@ -209,29 +209,21 @@ describe('ScoreHistoryRepository', () => {
       ormMock.find.mockResolvedValue(expectedResult);
 
       await expect(
-        repository.retrivePendingUnitsScore(
-          mockScoreHistory.unitId,
-          mockScoreHistory.tenantId,
-        ),
+        repository.retrivePendingUnitsScore(mockScoreHistory.tenantId),
       ).resolves.toEqual(expectedResult);
 
       expect(ormMock.find).toHaveBeenCalledWith({
         where: {
-          unitId: mockScoreHistory.unitId,
           tenantId: mockScoreHistory.tenantId,
           status: EScoreHistoryStatus.PENDING,
         },
         order: { createdAt: 'DESC' },
-        relations: { requestedBy: true },
+        relations: { requestedBy: true, unit: true },
       });
     });
 
     shouldHandleDatabaseErrors(
-      () =>
-        repository.retrivePendingUnitsScore(
-          mockScoreHistory.unitId,
-          mockScoreHistory.tenantId,
-        ),
+      () => repository.retrivePendingUnitsScore(mockScoreHistory.tenantId),
       () => ormMock.find,
     );
   });

@@ -19,28 +19,25 @@ export interface IScoreHistoryRepository {
     limit?: number,
   ): Promise<ScoreHistoryEntity[]>;
 
-  findOneScoreHistoryPending(
-    scoreHistoryId: string,
-    tenantId: string,
-  ): Promise<ScoreHistoryEntity | null>;
-
   findAllUnitsNameAndId(
     tenantId: string,
   ): Promise<Pick<UnitEntity, 'id' | 'name'>[]>;
 
-  retrivePendingUnitsScore(
-    unitId: string,
+  retrivePendingUnitsScore(tenantId: string): Promise<ScoreHistoryEntity[]>;
+
+  findOneScoreHistoryPending(
+    id: string,
     tenantId: string,
-  ): Promise<ScoreHistoryEntity[]>;
+  ): Promise<ScoreHistoryEntity | null>;
 
   approveScoreHistory(
-    scoreHistoryId: string,
+    id: string,
     tenantId: string,
     approvedById: string,
   ): Promise<void>;
 
   rejectScoreHistory(
-    scoreHistoryId: string,
+    id: string,
     tenantId: string,
     rejectedById: string,
   ): Promise<void>;

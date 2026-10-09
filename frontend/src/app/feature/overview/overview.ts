@@ -71,7 +71,9 @@ export class OverviewPage implements OnInit {
 
   readonly unitControl = new FormControl<string>('', { nonNullable: true });
   readonly historyRows = signal<ScoreHistoryRow[]>([]);
-  readonly totalUnitsCount = computed(() => this.unitsStore.unitsList().length);
+  readonly totalUnitsCount = computed(
+    () => this.scoreHistoryStore.unitsOptions().length,
+  );
 
   constructor() {
     effect(() => {
@@ -121,6 +123,7 @@ export class OverviewPage implements OnInit {
   }
 
   private async loadUnits(): Promise<void> {
+    await this.scoreHistoryStore.fetchAllUnitsOptions();
     try {
       await this.unitsStore.fetchAllUnits();
     } catch {

@@ -22,18 +22,17 @@ export interface IScoreHistoryService {
   ): Promise<IResponse<Pick<UnitEntity, 'id' | 'name'>[]>>;
 
   retrivePendingUnitsScore(
-    unitId: string,
     tenantId: string,
   ): Promise<IResponse<ScoreHistoryEntity[]>>;
 
   approveUnitScore(
-    scoreHistoryId: string,
+    id: string,
     userId: string,
     tenantId: string,
   ): Promise<IResponse<null>>;
 
   rejectUnitScore(
-    scoreHistoryId: string,
+    id: string,
     userId: string,
     tenantId: string,
   ): Promise<IResponse<null>>;

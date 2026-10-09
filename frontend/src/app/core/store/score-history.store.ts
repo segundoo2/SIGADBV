@@ -4,6 +4,7 @@ import { IScoreHistoryEntity } from '../domain/entities/score-history.entity';
 import { SCORE_HISTORY_API_PORT } from '../infra/tokens/score-history.token';
 import { IScoreHistoryPayload } from '../application/models/score-history-payload.model';
 import { getErrorMessage } from '../application/errors/get-error-message';
+import { IUnitEntity } from '../domain/entities/unit.entity';
 
 @Injectable({
   providedIn: 'root',
@@ -13,9 +14,13 @@ export class UnitScoreHistoryStore implements IScoreHistoryStorePort {
 
   private readonly _isLoading = signal<boolean>(false);
   private readonly _error = signal<string | null>(null);
+  private readonly _unitsOptions = signal<Pick<IUnitEntity, 'id' | 'name'>[]>(
+    [],
+  );
 
   readonly isLoading = this._isLoading.asReadonly();
   readonly error = this._error.asReadonly();
+  readonly unitsOptions = this._unitsOptions.asReadonly();
 
   async registerUnitScore(
     unitId: string,
@@ -47,6 +52,20 @@ export class UnitScoreHistoryStore implements IScoreHistoryStorePort {
       }
 
       return await this.scoreHistoryApi.fetchUnitScoreHistory(unitId, limit);
+    } catch (err: unknown) {
+      this._error.set(getErrorMessage(err));
+      throw err;
+    } finally {
+      this._isLoading.set(false);
+    }
+  }
+
+  async fetchAllUnitsOptions(): Promise<void> {
+    this._isLoading.set(true);
+    this._error.set(null);
+
+    try {
+      this._unitsOptions.set(await this.scoreHistoryApi.fetchAllUnitsOptions());
     } catch (err: unknown) {
       this._error.set(getErrorMessage(err));
       throw err;

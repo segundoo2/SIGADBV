@@ -146,16 +146,10 @@ describe('ScoreHistoryController', () => {
       };
       service.retrivePendingUnitsScore.mockResolvedValue(response);
 
-      const result = await controller.retrivePendingUnitsScore(
-        mockScoreHistory.unitId,
-        tenantId,
-      );
+      const result = await controller.retrivePendingUnitsScore(tenantId);
 
       expect(result).toEqual(response);
-      expect(service.retrivePendingUnitsScore).toHaveBeenCalledWith(
-        mockScoreHistory.unitId,
-        tenantId,
-      );
+      expect(service.retrivePendingUnitsScore).toHaveBeenCalledWith(tenantId);
     });
   });
 

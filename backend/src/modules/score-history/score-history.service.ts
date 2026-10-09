@@ -1,8 +1,8 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { IScoreHistoryService } from './interfaces/score-history.service.interface';
 import { IScoreHistoryRepository } from './interfaces/score-history.repository.interface';
@@ -80,72 +80,66 @@ export class ScoreHistoryService implements IScoreHistoryService {
   }
 
   async retrivePendingUnitsScore(
-    unitId: string,
     tenantId: string,
   ): Promise<IResponse<ScoreHistoryEntity[]>> {
-    const scoresPeding = await this.repository.retrivePendingUnitsScore(
-      unitId,
-      tenantId,
-    );
+    const scores = await this.repository.retrivePendingUnitsScore(tenantId);
 
-    if (scoresPeding.length === 0) {
+    if (scores.length === 0) {
       throw new NotFoundException(EScoreHistoryErrors.NOT_FOUND);
     }
 
     return {
       message: EScoreHistorySuccess.RETRIVE_SCORE_HISTORYS,
-      data: scoresPeding,
+      data: scores,
     };
   }
 
   async approveUnitScore(
-    scoreHistoryId: string,
+    id: string,
     userId: string,
     tenantId: string,
   ): Promise<IResponse<null>> {
-    const scorePending = await this.repository.findOneScoreHistoryPending(
-      scoreHistoryId,
+    const scoreHistory = await this.repository.findOneScoreHistoryPending(
+      id,
       tenantId,
     );
 
-    if (scorePending === null) {
+    if (!scoreHistory) {
       throw new NotFoundException(EScoreHistoryErrors.NOT_FOUND);
     }
 
-    if (scorePending.status !== EScoreHistoryStatus.PENDING) {
+    if (scoreHistory.status !== EScoreHistoryStatus.PENDING) {
       throw new BadRequestException(EScoreHistoryErrors.SCORE_APPROVE);
     }
 
-    await this.repository.approveScoreHistory(scoreHistoryId, tenantId, userId);
+    await this.repository.approveScoreHistory(id, tenantId, userId);
 
-    const response = await this.unitsService.adjustUnitScore(
-      scorePending.unitId,
+    return await this.unitsService.adjustUnitScore(
+      scoreHistory.unitId,
       tenantId,
-      scorePending.score,
+      scoreHistory.score,
     );
-
-    return response;
   }
 
   async rejectUnitScore(
-    scoreHistoryId: string,
+    id: string,
     userId: string,
     tenantId: string,
   ): Promise<IResponse<null>> {
-    const scorePending = await this.repository.findOneScoreHistoryPending(
-      scoreHistoryId,
+    const scoreHistory = await this.repository.findOneScoreHistoryPending(
+      id,
       tenantId,
     );
 
-    if (scorePending === null) {
+    if (!scoreHistory) {
       throw new NotFoundException(EScoreHistoryErrors.NOT_FOUND);
     }
 
-    if (scorePending.status !== EScoreHistoryStatus.PENDING) {
+    if (scoreHistory.status !== EScoreHistoryStatus.PENDING) {
       throw new BadRequestException(EScoreHistoryErrors.SCORE_APPROVE);
     }
 
-    await this.repository.rejectScoreHistory(scoreHistoryId, tenantId, userId);
+    await this.repository.rejectScoreHistory(id, tenantId, userId);
 
     return {
       message: EScoreHistorySuccess.REQUEST_SCORE,

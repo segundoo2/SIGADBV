@@ -64,14 +64,16 @@ export class ScoreHistoryRepository implements IScoreHistoryRepository {
   }
 
   async retrivePendingUnitsScore(
-    unitId: string,
     tenantId: string,
   ): Promise<ScoreHistoryEntity[]> {
     try {
       return await this.repository.find({
-        where: { unitId, tenantId, status: EScoreHistoryStatus.PENDING },
+        where: {
+          tenantId,
+          status: EScoreHistoryStatus.PENDING,
+        },
         order: { createdAt: 'DESC' },
-        relations: { requestedBy: true },
+        relations: { requestedBy: true, unit: true },
       });
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
@@ -79,12 +81,12 @@ export class ScoreHistoryRepository implements IScoreHistoryRepository {
   }
 
   async findOneScoreHistoryPending(
-    scoreHistoryId: string,
+    id: string,
     tenantId: string,
   ): Promise<ScoreHistoryEntity | null> {
     try {
       return await this.repository.findOne({
-        where: { id: scoreHistoryId, tenantId },
+        where: { id, tenantId },
       });
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
@@ -92,13 +94,13 @@ export class ScoreHistoryRepository implements IScoreHistoryRepository {
   }
 
   async approveScoreHistory(
-    scoreHistoryId: string,
+    id: string,
     tenantId: string,
     approvedById: string,
   ): Promise<void> {
     try {
       await this.repository.update(
-        { id: scoreHistoryId, tenantId },
+        { id, tenantId },
         { status: EScoreHistoryStatus.APPROVED, approvedById },
       );
     } catch {
@@ -107,13 +109,13 @@ export class ScoreHistoryRepository implements IScoreHistoryRepository {
   }
 
   async rejectScoreHistory(
-    scoreHistoryId: string,
+    id: string,
     tenantId: string,
     rejectedById: string,
   ): Promise<void> {
     try {
       await this.repository.update(
-        { id: scoreHistoryId, tenantId },
+        { id, tenantId },
         { status: EScoreHistoryStatus.REJECTED, rejectedById },
       );
     } catch {
