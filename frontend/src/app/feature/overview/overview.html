@@ -9,7 +9,7 @@
         Bem-vindo, {{ currentUserEntity()?.username ?? '' }}!
       </h1>
       <p class="text-sm text-slate-400">
-        Visualize o ranking de unidades e o histórico de pontuações recentes
+        Visualize o ranking de unidades e modere as solicitações de pontuação pendentes
       </p>
     </div>
 
@@ -17,8 +17,8 @@
   </header>
 
   <app-access-denied-card
-    [requiredPermission]="EPermission.SCORE_HISTORY_READ"
-    message="Acesso restrito: você não possui permissão para visualizar o histórico de pontuações recentes e o gráfico de pontuação geral."
+    [requiredPermission]="EPermission.UNIT_READ"
+    message="Acesso restrito: você não possui permissão para visualizar o painel de pontuações pendentes e o gráfico de pontuação geral."
   >
     <section class="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
       <app-bar-chart-card
@@ -28,35 +28,67 @@
         emptyMessage="Não há dados suficientes para exibir o gráfico do ranking"
       />
 
-      <app-table-card
-        class="h-full flex flex-col"
-        title="Histórico de Pontuações recentes"
-        [headers]="['Pontos', 'Motivo']"
-        [selectOptions]="unitOptions()"
-        [selectControl]="unitControl"
-        selectId="unit-history-select"
-      >
-        @for (row of historyRows(); track trackById($index, row)) {
-        <tr class="hover:bg-slate-800/30 transition-colors">
-          @if (row.score > 0) {
-          <td class="py-3 px-4 text-emerald-400 font-semibold">
-            {{ '+' + row.score }}
-          </td>
-          } @else {
-          <td class="py-3 px-4 text-red-400 font-semibold">{{ row.score }}</td>
+      <article class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col h-full shadow-sm">
+        <header class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-semibold text-white">Pontuações Pendentes</h2>
+          <span class="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2.5 py-1 rounded-full font-medium">
+            {{ pendingItemsWithUnitName().length }} pendentes
+          </span>
+        </header>
+
+        <div class="flex-1 overflow-y-auto space-y-3 max-h-105 pr-1">
+          @for (item of pendingItemsWithUnitName(); track trackById($index, item)) {
+          <div class="bg-slate-800/40 border border-slate-800 rounded-lg p-4 flex flex-col gap-3 hover:border-slate-700 transition-colors">
+            <div class="flex justify-between items-start gap-2">
+              <div>
+                <span class="text-xs font-semibold text-indigo-400 uppercase tracking-wider block mb-0.5">
+                  {{ item.unitName }}
+                </span>
+                <p class="text-slate-200 text-sm font-medium">
+                  {{ item.description }}
+                </p>
+                <span class="text-xs text-slate-400 block mt-1">
+                  Solicitado por: <span class="text-slate-300 font-medium">{{ item.requestedByName }}</span>
+                </span>
+              </div>
+              @if (item.score > 0) {
+              <span class="text-emerald-400 font-bold text-base bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20">
+                +{{ item.score }}
+              </span>
+              } @else {
+              <span class="text-red-400 font-bold text-base bg-red-500/10 px-2.5 py-1 rounded border border-red-500/20">
+                {{ item.score }}
+              </span>
+              }
+            </div>
+
+            <div class="flex justify-between items-center pt-2 border-t border-slate-800 text-xs text-slate-400">
+              <span>{{ item.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  (click)="onReject(item.id)"
+                  class="px-3 py-1.5 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-medium transition-colors cursor-pointer"
+                >
+                  Rejeitar
+                </button>
+                <button
+                  type="button"
+                  (click)="onApprove(item.id)"
+                  class="px-3 py-1.5 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 font-medium transition-colors cursor-pointer"
+                >
+                  Aprovar
+                </button>
+              </div>
+            </div>
+          </div>
+          } @empty {
+          <div class="h-full flex items-center justify-center py-16 text-center text-slate-500 text-sm">
+            Nenhuma solicitação de pontuação pendente no momento.
+          </div>
           }
-          <td class="py-3 px-4 text-slate-300 text-justify">
-            {{ row.description }}
-          </td>
-        </tr>
-        } @empty {
-        <tr>
-          <td colspan="2" class="py-6 text-center text-slate-500 text-sm">
-            Selecione uma unidade para visualizar o histórico recente.
-          </td>
-        </tr>
-        }
-      </app-table-card>
+        </div>
+      </article>
     </section>
   </app-access-denied-card>
 </main>

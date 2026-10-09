@@ -1,10 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { IUnitEntity } from '../../domain/entities/unit.entity';
 import { IUnitsApiPort } from '../../application/ports/apis/units-api.port';
-import { ApiResponseDto } from './dtos/api-response.dto';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { URL } from '../tokens/url.token';
+import { IApiResponseModel } from '../../application/models/api-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class UnitsApiAdapter implements IUnitsApiPort {
@@ -13,7 +13,7 @@ export class UnitsApiAdapter implements IUnitsApiPort {
 
   async fetchAllUnits(): Promise<IUnitEntity[]> {
     const response = await firstValueFrom(
-      this.http.get<ApiResponseDto<IUnitEntity[]>>(this.baseUrl, {
+      this.http.get<IApiResponseModel<IUnitEntity[]>>(this.baseUrl, {
         withCredentials: true,
       }),
     );

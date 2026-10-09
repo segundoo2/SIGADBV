@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl } from '@angular/forms';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { TableCardComponent } from '../table-card.component';
+import { TableCardComponent } from './table-card.component';
 
 describe('TableCardComponent', () => {
   let component: TableCardComponent;
@@ -22,7 +22,7 @@ describe('TableCardComponent', () => {
     fixture.detectChanges();
 
     expect(component).toBeTruthy();
-    const element: HTMLElement = fixture.nativeElement as HTMLElement;
+    const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('Histórico');
     expect(element.textContent).toContain('Pontos');
     expect(element.textContent).toContain('Motivo');

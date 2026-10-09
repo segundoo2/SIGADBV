@@ -7,9 +7,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import { AuthenticationApiAdapter } from '../auth-api.adapter';
 import { IAuthCredentialsModel } from '../../../application/models/auth-credentials.model';
-import { AuthResponseDto } from '../dtos/auth-response.dto';
 import { UserEntity } from '../../../domain/entities/user.entity';
 import { URL } from '../../tokens/url.token';
+import { IAuthResponseModel } from '../../../application/models/auth-response.model';
 
 describe('AuthApiAdapter', () => {
   let adapter: AuthenticationApiAdapter;
@@ -49,7 +49,7 @@ describe('AuthApiAdapter', () => {
       password: 'securePassword123',
     };
 
-    const mockResponse: AuthResponseDto = {
+    const mockResponse: IAuthResponseModel = {
       message: 'Login successful',
       mustChangePassword: true,
       data: { user: mockUser },
@@ -68,7 +68,7 @@ describe('AuthApiAdapter', () => {
   });
 
   it('should send POST request to refresh token endpoint', async () => {
-    const mockResponse: AuthResponseDto = {
+    const mockResponse: IAuthResponseModel = {
       message: 'Session refreshed successfully',
       mustChangePassword: true,
       data: { user: mockUser },

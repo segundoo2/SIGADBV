@@ -1,4 +1,5 @@
 import { IScoreHistoryEntity } from '../../../domain/entities/score-history.entity';
+import { IUnitEntity } from '../../../domain/entities/unit.entity';
 import { IScoreHistoryPayload } from '../../models/score-history-payload.model';
 
 export interface IScoreHistoryApiPort {
@@ -10,4 +11,8 @@ export interface IScoreHistoryApiPort {
     unitId: string,
     limit?: number,
   ): Promise<IScoreHistoryEntity[]>;
+  fetchAllUnitsOptions(): Promise<Pick<IUnitEntity, 'id' | 'name'>[]>;
+  fetchPendingScoreHistories(): Promise<IScoreHistoryEntity[]>;
+  approveScoreHistory(id: string): Promise<void>;
+  rejectScoreHistory(id: string): Promise<void>;
 }

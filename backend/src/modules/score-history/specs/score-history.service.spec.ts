@@ -160,22 +160,22 @@ describe('ScoreHistoryService', () => {
     it('should return pending units score list when found', async () => {
       repository.retrivePendingUnitsScore.mockResolvedValue([mockScoreHistory]);
 
-      const result = await service.retrivePendingUnitsScore(
-        unit.unitId,
-        unit.tenantId,
-      );
+      const result = await service.retrivePendingUnitsScore(unit.tenantId);
 
       expect(result).toEqual({
         message: EScoreHistorySuccess.RETRIVE_SCORE_HISTORYS,
         data: [mockScoreHistory],
       });
+      expect(repository.retrivePendingUnitsScore).toHaveBeenCalledWith(
+        unit.tenantId,
+      );
     });
 
     it('should throw NotFoundException when no pending scores are found', async () => {
       repository.retrivePendingUnitsScore.mockResolvedValue([]);
 
       await expect(
-        service.retrivePendingUnitsScore(unit.unitId, unit.tenantId),
+        service.retrivePendingUnitsScore(unit.tenantId),
       ).rejects.toThrow(new NotFoundException(EScoreHistoryErrors.NOT_FOUND));
     });
   });

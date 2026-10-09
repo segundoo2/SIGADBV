@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { UserEntity } from '../../domain/entities/user.entity';
 import { IUsersApiPort } from '../../application/ports/apis/users-api.port';
 import { URL } from '../tokens/url.token';
-import { ApiResponseDto } from './dtos/api-response.dto';
+import { IApiResponseModel } from '../../application/models/api-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -20,10 +20,13 @@ export class UsersApiAdapter implements IUsersApiPort {
     const params = new HttpParams().set('tenantId', tenantId);
 
     const response = await firstValueFrom(
-      this.http.get<ApiResponseDto<UserEntity>>(`${this.baseUrl}/${username}`, {
-        params,
-        withCredentials: true,
-      }),
+      this.http.get<IApiResponseModel<UserEntity>>(
+        `${this.baseUrl}/${username}`,
+        {
+          params,
+          withCredentials: true,
+        },
+      ),
     );
     return response.data;
   }

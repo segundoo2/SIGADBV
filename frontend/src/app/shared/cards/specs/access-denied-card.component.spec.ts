@@ -4,23 +4,33 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { EPermission } from '../../../core/domain/enums/permissions.enum';
 import { USERS_STORE_PORT } from '../../../core/infra/tokens/users.token';
 import { AccessDeniedCard } from '../access-denied-card.component';
+import { UserEntity } from '../../../core/domain/entities/user.entity';
 
 describe('AccessDeniedCard', () => {
   let component: AccessDeniedCard;
   let fixture: ComponentFixture<AccessDeniedCard>;
 
+  const mockUser: UserEntity = {
+    id: '1',
+    tenantId: 'tenant-1',
+    username: 'edilson.segundo',
+    mustChangePassword: false,
+    roles: [
+      {
+        id: 'role-1',
+        tenantId: 'tenant-1',
+        name: 'Admin',
+        permissions: [EPermission.SCORE_HISTORY_READ],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
   const mockUsersStore = {
-    userCurrentEntity: signal<any>({
-      id: '1',
-      username: 'edilson.segundo',
-      roles: [
-        {
-          id: 'role-1',
-          name: 'Admin',
-          permissions: [EPermission.SCORE_HISTORY_READ],
-        },
-      ],
-    }),
+    userCurrentEntity: signal<UserEntity | null>(mockUser),
   };
 
   beforeEach(async () => {
@@ -41,8 +51,7 @@ describe('AccessDeniedCard', () => {
     component.requiredPermission = null;
     fixture.detectChanges();
 
-    const element: HTMLElement = fixture.nativeElement as HTMLElement;
-    // Como está vazio o ng-content no teste básico, validamos que o aviso de negação não aparece
+    const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).not.toContain('Você não possui permissão');
   });
 
@@ -50,16 +59,16 @@ describe('AccessDeniedCard', () => {
     component.requiredPermission = EPermission.SCORE_HISTORY_READ;
     fixture.detectChanges();
 
-    const element: HTMLElement = fixture.nativeElement as HTMLElement;
+    const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).not.toContain('Você não possui permissão');
   });
 
   it('should render access denied message when user lacks the required permission', () => {
     component.requiredPermission = EPermission.SCORE_HISTORY_ADJUST;
     component.message = 'Acesso personalizado negado.';
-    fixture.detectChanges(); // Executa a detecção com a nova mensagem configurada
+    fixture.detectChanges();
 
-    const element: HTMLElement = fixture.nativeElement as HTMLElement;
+    const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('Acesso personalizado negado.');
   });
 });

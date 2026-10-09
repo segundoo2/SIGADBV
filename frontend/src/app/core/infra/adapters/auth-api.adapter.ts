@@ -5,7 +5,7 @@ import { IAuthCredentialsModel } from '../../application/models/auth-credentials
 import { IAuthSession } from '../../application/models/auth-session.model';
 import { IAuthApiPort } from '../../application/ports/apis/auth-api.port';
 import { URL } from '../tokens/url.token';
-import { AuthResponseDto } from './dtos/auth-response.dto';
+import { IAuthResponseModel } from '../../application/models/auth-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +17,7 @@ export class AuthenticationApiAdapter implements IAuthApiPort {
   async login(credentials: IAuthCredentialsModel): Promise<IAuthSession> {
     try {
       const response = await firstValueFrom(
-        this.http.post<AuthResponseDto>(this.baseUrl, credentials, {
+        this.http.post<IAuthResponseModel>(this.baseUrl, credentials, {
           withCredentials: true,
         }),
       );
@@ -30,7 +30,7 @@ export class AuthenticationApiAdapter implements IAuthApiPort {
   async refresh(): Promise<IAuthSession> {
     try {
       const response = await firstValueFrom(
-        this.http.post<AuthResponseDto>(
+        this.http.post<IAuthResponseModel>(
           `${this.baseUrl}/refresh`,
           {},
           { withCredentials: true },
@@ -56,7 +56,7 @@ export class AuthenticationApiAdapter implements IAuthApiPort {
     }
   }
 
-  private toAuthSession(response: AuthResponseDto): IAuthSession {
+  private toAuthSession(response: IAuthResponseModel): IAuthSession {
     return {
       user: response.data.user,
       mustChangePassword: response.mustChangePassword,

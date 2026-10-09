@@ -5,7 +5,8 @@ import { IScoreHistoryApiPort } from '../../application/ports/apis/score-history
 import { URL } from '../tokens/url.token';
 import { IScoreHistoryEntity } from '../../domain/entities/score-history.entity';
 import { IScoreHistoryPayload } from '../../application/models/score-history-payload.model';
-import { ApiResponseDto } from './dtos/api-response.dto';
+import { IApiResponseModel } from '../../application/models/api-response.model';
+import { IUnitEntity } from '../../domain/entities/unit.entity';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +20,7 @@ export class ScoreHistoryApiAdapter implements IScoreHistoryApiPort {
     payload: IScoreHistoryPayload,
   ): Promise<void> {
     await firstValueFrom(
-      this.http.post<ApiResponseDto<{ newScore: number }>>(
+      this.http.post<IApiResponseModel<{ newScore: number }>>(
         `${this.baseUrl}/${unitId}`,
         payload,
         { withCredentials: true },
@@ -37,11 +38,51 @@ export class ScoreHistoryApiAdapter implements IScoreHistoryApiPort {
     }
 
     const response = await firstValueFrom(
-      this.http.get<ApiResponseDto<IScoreHistoryEntity[]>>(
+      this.http.get<IApiResponseModel<IScoreHistoryEntity[]>>(
         `${this.baseUrl}/${unitId}`,
         { withCredentials: true, params },
       ),
     );
     return response.data;
+  }
+
+  async fetchAllUnitsOptions(): Promise<Pick<IUnitEntity, 'id' | 'name'>[]> {
+    const response = await firstValueFrom(
+      this.http.get<IApiResponseModel<Pick<IUnitEntity, 'id' | 'name'>[]>>(
+        `${this.baseUrl}/units/units-options`,
+        { withCredentials: true },
+      ),
+    );
+    return response.data;
+  }
+
+  async fetchPendingScoreHistories(): Promise<IScoreHistoryEntity[]> {
+    const response = await firstValueFrom(
+      this.http.get<IApiResponseModel<IScoreHistoryEntity[]>>(
+        `${this.baseUrl}/pending`,
+        { withCredentials: true },
+      ),
+    );
+    return response.data;
+  }
+
+  async approveScoreHistory(id: string): Promise<void> {
+    await firstValueFrom(
+      this.http.post<IApiResponseModel<null>>(
+        `${this.baseUrl}/${id}/approve`,
+        {},
+        { withCredentials: true },
+      ),
+    );
+  }
+
+  async rejectScoreHistory(id: string): Promise<void> {
+    await firstValueFrom(
+      this.http.post<IApiResponseModel<null>>(
+        `${this.baseUrl}/${id}/reject`,
+        {},
+        { withCredentials: true },
+      ),
+    );
   }
 }

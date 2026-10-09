@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { USERS_STORE_PORT } from '../../core/infra/tokens/users.token';
 import { EPermission } from '../../core/domain/enums/permissions.enum';
@@ -27,13 +27,14 @@ export class AccessDeniedCard {
   @Input() message: string =
     'Você não possui permissão para visualizar este conteúdo.';
 
-  protected hasPermission = (): boolean => {
+  protected readonly hasPermission = computed(() => {
     const perm = this.requiredPermission;
     if (!perm) return true;
 
     const user = this.usersStore.userCurrentEntity();
+    // Se o utilizador não existir ou não tiver roles, nega o acesso imediatamente fazendo aparecer o card
     if (!user || !user.roles) return false;
 
     return user.roles.some((role) => role.permissions.includes(perm));
-  };
+  });
 }

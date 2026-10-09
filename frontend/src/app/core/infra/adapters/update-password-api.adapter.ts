@@ -4,7 +4,7 @@ import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { URL } from '../tokens/url.token';
 import { IUpdatePasswordApiPort } from '../../application/ports/apis/update-password-api.port';
-import { ApiResponseDto } from './dtos/api-response.dto';
+import { IApiResponseModel } from '../../application/models/api-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +15,7 @@ export class UpdatePasswordApiAdapter implements IUpdatePasswordApiPort {
 
   async updatePassword(input: IUpdatePasswordInput): Promise<void> {
     await firstValueFrom(
-      this.http.patch<ApiResponseDto<null>>(this.baseUrl, input, {
+      this.http.patch<IApiResponseModel<null>>(this.baseUrl, input, {
         withCredentials: true,
       }),
     );

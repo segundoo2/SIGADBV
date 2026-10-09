@@ -8,7 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { PERMISSION_KEY } from '../decorators/permission.decorator';
 import { EPermission } from '../enum/role/permissions.enum';
-import { User } from '../../modules/users/entities/user.entity';
+import { IJwtPayload } from '../../modules/auth/interfaces/jwt-payload.interface';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -26,19 +26,16 @@ export class PermissionGuard implements CanActivate {
 
     const request = context
       .switchToHttp()
-      .getRequest<Request & { user?: User }>();
+      .getRequest<Request & { user?: IJwtPayload }>();
     const user = request.user;
 
-    if (!user || !user.roles) {
+    if (!user || !user.permissions) {
       throw new ForbiddenException(
-        'Acesso negado: Usuário sem papéis atribuídos.',
+        'Acesso negado: Usuário sem permissões atribuídas.',
       );
     }
 
-    const userPermissions = new Set<string>(
-      user.roles.flatMap((role) => role.permissions || []),
-    );
-
+    const userPermissions = new Set<string>(user.permissions);
     const hasPermission = userPermissions.has(requiredPermission);
 
     if (!hasPermission) {

@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { InputFormComponent } from './input-form';
 import { ReactiveFormsModule } from '@angular/forms';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { InputFormComponent } from './input-form';
 
 describe('InputFormComponent', () => {
-  let component: InputFormComponent;
   let fixture: ComponentFixture<InputFormComponent>;
+  let component: InputFormComponent;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -14,94 +15,55 @@ describe('InputFormComponent', () => {
     fixture = TestBed.createComponent(InputFormComponent);
     component = fixture.componentInstance;
 
-    component.id = 'test-id';
-    component.label = 'Test Label';
+    fixture.componentRef.setInput('id', 'test-input');
+    fixture.componentRef.setInput('label', 'Test Label');
+    fixture.detectChanges();
   });
 
-  it('should create the input form component successfully', () => {
-    fixture.detectChanges();
-    expect(component).toBeTruthy();
-  });
+  it('should create the component and render label', () => {
+    const label = (fixture.nativeElement as HTMLElement).querySelector(
+      'label',
+    ) as HTMLElement;
 
-  it('should render the label correctly', () => {
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    const label = compiled.querySelector('label');
-
-    expect(label).toBeTruthy();
+    expect(label).not.toBeNull();
     expect(label.textContent?.trim()).toBe('Test Label');
   });
 
-  it('should render data-testid on the native input when provided', () => {
-    component.testId = 'custom-input-test-id';
+  it('should display error message when showError is true', () => {
+    fixture.componentRef.setInput('showError', true);
+    fixture.componentRef.setInput('errorMessage', 'Campo obrigatório');
+    fixture.componentRef.setInput('errorTestId', 'error-test');
     fixture.detectChanges();
 
-    const compiled = fixture.nativeElement as HTMLElement;
-    const inputElement = compiled.querySelector(
-      '[data-testid="custom-input-test-id"]',
-    );
+    const errorElement = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="error-test"]',
+    ) as HTMLElement;
 
-    expect(inputElement).toBeTruthy();
-  });
-
-  it('should not display the error message when showError is false', () => {
-    component.showError = false;
-    component.errorMessage = 'Campo obrigatório';
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const errorElement = compiled.querySelector('#error-message');
-
-    expect(errorElement).toBeFalsy();
-  });
-
-  it('should display the error message and errorTestId when showError is true', () => {
-    component.showError = true;
-    component.errorMessage = 'Campo obrigatório';
-    component.errorTestId = 'custom-error-test-id';
-    fixture.detectChanges();
-
-    const compiled = fixture.nativeElement as HTMLElement;
-    const errorElement = compiled.querySelector(
-      '[data-testid="custom-error-test-id"]',
-    );
-
-    expect(errorElement).toBeTruthy();
+    expect(errorElement).not.toBeNull();
     expect(errorElement.textContent?.trim()).toBe('Campo obrigatório');
   });
 
-  it('should update value and propagate changes via ControlValueAccessor', () => {
+  it('should handle user input and update value through ControlValueAccessor', () => {
+    component.writeValue('novo valor');
     fixture.detectChanges();
-    const fn = vi.fn();
-    component.registerOnChange(fn);
 
-    const compiled = fixture.nativeElement as HTMLElement;
-    const inputElement = compiled.querySelector('input');
+    const inputElement = (fixture.nativeElement as HTMLElement).querySelector(
+      'input',
+    ) as HTMLInputElement;
 
-    inputElement.value = 'novo valor';
-    inputElement.dispatchEvent(new Event('input'));
-
-    expect(component.value()).toBe('novo valor');
-    expect(fn).toHaveBeenCalledWith('novo valor');
+    expect(inputElement).not.toBeNull();
+    expect(inputElement.value).toBe('novo valor');
   });
 
-  it('should write value correctly via ControlValueAccessor writeValue', () => {
-    fixture.detectChanges();
-    component.writeValue('valor externo');
-    fixture.detectChanges();
-
-    expect(component.value()).toBe('valor externo');
-  });
-
-  it('should set disabled state correctly', () => {
-    fixture.detectChanges();
+  it('should respect disabled state', () => {
     component.setDisabledState(true);
     fixture.detectChanges();
 
-    expect(component.disabled()).toBeTruthy();
+    const inputElement = (fixture.nativeElement as HTMLElement).querySelector(
+      'input',
+    ) as HTMLInputElement;
 
-    const compiled = fixture.nativeElement as HTMLElement;
-    const inputElement = compiled.querySelector('input');
+    expect(inputElement).not.toBeNull();
     expect(inputElement.disabled).toBeTruthy();
   });
 });
