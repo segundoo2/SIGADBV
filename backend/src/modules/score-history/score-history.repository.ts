@@ -54,10 +54,18 @@ export class ScoreHistoryRepository implements IScoreHistoryRepository {
     tenantId: string,
   ): Promise<Pick<UnitEntity, 'id' | 'name'>[]> {
     try {
-      return await this.unitRepository.find({
+      const units = await this.unitRepository.find({
         where: { tenantId },
         select: { id: true, name: true },
+        order: { name: 'ASC' },
       });
+
+      return units.sort((a, b) =>
+        a.name.localeCompare(b.name, 'pt-BR', {
+          sensitivity: 'accent',
+          numeric: true,
+        }),
+      );
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
     }
@@ -74,6 +82,21 @@ export class ScoreHistoryRepository implements IScoreHistoryRepository {
         },
         order: { createdAt: 'DESC' },
         relations: { requestedBy: true, unit: true },
+        select: {
+          id: true,
+          tenantId: true,
+          unitId: true,
+          score: true,
+          description: true,
+          status: true,
+          requestedById: true,
+          createdAt: true,
+          updatedAt: true,
+          requestedBy: {
+            id: true,
+            username: true,
+          },
+        },
       });
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);

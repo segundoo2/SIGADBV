@@ -66,11 +66,12 @@ export class UnitScoreManagerComponent implements OnInit {
         }));
       this.unitOptions.set(options);
     } catch {
-      // Erro capturado e gerido pela unitsStore
+      // tratado pela unitsStore
     }
   }
 
   openScoreModal(): void {
+    this.scoreHistory.clearError();
     this.scoreForm.reset({ unitId: '', score: 0, description: '' });
     this.isScoreModalOpen.set(true);
   }

@@ -17,10 +17,12 @@ export class UnitScoreHistoryStore implements IScoreHistoryStorePort {
   private readonly _unitsOptions = signal<Pick<IUnitEntity, 'id' | 'name'>[]>(
     [],
   );
+  private readonly _pendingHistories = signal<IScoreHistoryEntity[]>([]);
 
   readonly isLoading = this._isLoading.asReadonly();
   readonly error = this._error.asReadonly();
   readonly unitsOptions = this._unitsOptions.asReadonly();
+  readonly pendingHistories = this._pendingHistories.asReadonly();
 
   async registerUnitScore(
     unitId: string,
@@ -72,5 +74,59 @@ export class UnitScoreHistoryStore implements IScoreHistoryStorePort {
     } finally {
       this._isLoading.set(false);
     }
+  }
+
+  async fetchPendingScoreHistories(): Promise<void> {
+    this._isLoading.set(true);
+    this._error.set(null);
+
+    try {
+      const data = await this.scoreHistoryApi.fetchPendingScoreHistories();
+      this._pendingHistories.set(data);
+    } catch (err: unknown) {
+      this._error.set(getErrorMessage(err));
+      this._pendingHistories.set([]);
+      throw err;
+    } finally {
+      this._isLoading.set(false);
+    }
+  }
+
+  async approveScoreHistory(id: string): Promise<void> {
+    this._isLoading.set(true);
+    this._error.set(null);
+
+    try {
+      await this.scoreHistoryApi.approveScoreHistory(id);
+      this._pendingHistories.update((list) =>
+        list.filter((item) => item.id !== id),
+      );
+    } catch (err: unknown) {
+      this._error.set(getErrorMessage(err));
+      throw err;
+    } finally {
+      this._isLoading.set(false);
+    }
+  }
+
+  async rejectScoreHistory(id: string): Promise<void> {
+    this._isLoading.set(true);
+    this._error.set(null);
+
+    try {
+      await this.scoreHistoryApi.rejectScoreHistory(id);
+      this._pendingHistories.update((list) =>
+        list.filter((item) => item.id !== id),
+      );
+    } catch (err: unknown) {
+      this._error.set(getErrorMessage(err));
+      throw err;
+    } finally {
+      this._isLoading.set(false);
+    }
+  }
+
+  clearError(): void {
+    this._error.set(null);
   }
 }

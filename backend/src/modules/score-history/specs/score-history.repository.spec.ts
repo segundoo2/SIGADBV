@@ -194,6 +194,7 @@ describe('ScoreHistoryRepository', () => {
       expect(unitOrmMock.find).toHaveBeenCalledWith({
         where: { tenantId: mockScoreHistory.tenantId },
         select: { id: true, name: true },
+        order: { name: 'ASC' },
       });
     });
 

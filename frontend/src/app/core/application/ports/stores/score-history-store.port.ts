@@ -6,6 +6,7 @@ export interface IScoreHistoryStorePort {
   readonly isLoading: () => boolean;
   readonly error: () => string | null;
   readonly unitsOptions: () => Pick<IUnitEntity, 'id' | 'name'>[];
+  readonly pendingHistories: () => IScoreHistoryEntity[];
 
   registerUnitScore(
     unitId: string,
@@ -16,4 +17,8 @@ export interface IScoreHistoryStorePort {
     limit?: number,
   ): Promise<IScoreHistoryEntity[]>;
   fetchAllUnitsOptions(): Promise<void>;
+  fetchPendingScoreHistories(): Promise<void>;
+  approveScoreHistory(id: string): Promise<void>;
+  rejectScoreHistory(id: string): Promise<void>;
+  clearError(): void;
 }

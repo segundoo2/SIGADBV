@@ -7,6 +7,11 @@ export interface IScoreHistoryEntity {
   readonly unit?: IUnitEntity;
   readonly score: number;
   readonly description: string;
+  readonly requestedById?: string;
+  readonly requestedBy?: {
+    readonly id: string;
+    readonly username: string;
+  };
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }
