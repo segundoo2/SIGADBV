@@ -18,7 +18,7 @@ export function generateReportHtml<T>(config: ReportConfig<T>): string {
             return `<tr class="even:bg-slate-50 border-b border-slate-200">${cells}</tr>`;
           })
           .join('')
-      : `<tr><td colspan="${config.columns.length}" class="text-center py-8 text-slate-400">Nenhum registo encontrado para este relatório.</td></tr>`;
+      : `<tr><td colspan="${config.columns.length}" class="text-center py-8 text-slate-400">Nenhum registro encontrado para este relatório.</td></tr>`;
 
   const headersHtml = config.columns
     .map(
