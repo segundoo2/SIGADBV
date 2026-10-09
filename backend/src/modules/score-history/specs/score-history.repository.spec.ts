@@ -194,6 +194,7 @@ describe('ScoreHistoryRepository', () => {
       expect(unitOrmMock.find).toHaveBeenCalledWith({
         where: { tenantId: mockScoreHistory.tenantId },
         select: { id: true, name: true },
+        order: { name: 'ASC' },
       });
     });
 
@@ -213,6 +214,21 @@ describe('ScoreHistoryRepository', () => {
       ).resolves.toEqual(expectedResult);
 
       expect(ormMock.find).toHaveBeenCalledWith({
+        select: {
+          id: true,
+          tenantId: true,
+          unitId: true,
+          score: true,
+          description: true,
+          status: true,
+          requestedById: true,
+          createdAt: true,
+          updatedAt: true,
+          requestedBy: {
+            id: true,
+            username: true,
+          },
+        },
         where: {
           tenantId: mockScoreHistory.tenantId,
           status: EScoreHistoryStatus.PENDING,

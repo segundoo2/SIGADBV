@@ -60,7 +60,7 @@ export interface ChartItem {
         </div>
       } @else {
         <p
-          class="flex-1 flex items-center justify-center min-h-120 text-slate-500 text-sm m-0"
+          class="flex-1 flex items-center justify-center min-h-120 text-slate-500 text-sm text-center m-0"
         >
           {{ emptyMessage }}
         </p>

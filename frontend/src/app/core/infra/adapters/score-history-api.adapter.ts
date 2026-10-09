@@ -55,4 +55,34 @@ export class ScoreHistoryApiAdapter implements IScoreHistoryApiPort {
     );
     return response.data;
   }
+
+  async fetchPendingScoreHistories(): Promise<IScoreHistoryEntity[]> {
+    const response = await firstValueFrom(
+      this.http.get<IApiResponseModel<IScoreHistoryEntity[]>>(
+        `${this.baseUrl}/pending`,
+        { withCredentials: true },
+      ),
+    );
+    return response.data;
+  }
+
+  async approveScoreHistory(id: string): Promise<void> {
+    await firstValueFrom(
+      this.http.post<IApiResponseModel<null>>(
+        `${this.baseUrl}/${id}/approve`,
+        {},
+        { withCredentials: true },
+      ),
+    );
+  }
+
+  async rejectScoreHistory(id: string): Promise<void> {
+    await firstValueFrom(
+      this.http.post<IApiResponseModel<null>>(
+        `${this.baseUrl}/${id}/reject`,
+        {},
+        { withCredentials: true },
+      ),
+    );
+  }
 }

@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   inject,
   signal,
+  computed,
   OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -38,7 +39,13 @@ export class UnitScoreManagerComponent implements OnInit {
 
   readonly isScoreModalOpen = signal<boolean>(false);
 
-  readonly unitOptions = signal<SelectOption[]>([]);
+  // Opções computadas reativamente a partir da store
+  readonly unitOptions = computed<SelectOption[]>(() =>
+    this.scoreHistory.unitsOptions().map((unit) => ({
+      id: unit.id,
+      name: unit.name,
+    })),
+  );
 
   readonly scoreForm = this.formBuilder.nonNullable.group({
     unitId: ['', [Validators.required.bind(Validators)]],
@@ -53,24 +60,12 @@ export class UnitScoreManagerComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    void this.loadUnits();
-  }
-
-  private loadUnits(): void {
-    try {
-      const options: SelectOption[] = this.scoreHistory
-        .unitsOptions()
-        .map((unit) => ({
-          id: unit.id,
-          name: unit.name,
-        }));
-      this.unitOptions.set(options);
-    } catch {
-      // Erro capturado e gerido pela unitsStore
-    }
+    void this.scoreHistory.fetchAllUnitsOptions();
   }
 
   openScoreModal(): void {
+    void this.scoreHistory.fetchAllUnitsOptions();
+    this.scoreHistory.clearError();
     this.scoreForm.reset({ unitId: '', score: 0, description: '' });
     this.isScoreModalOpen.set(true);
   }

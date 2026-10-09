@@ -12,4 +12,7 @@ export interface IScoreHistoryApiPort {
     limit?: number,
   ): Promise<IScoreHistoryEntity[]>;
   fetchAllUnitsOptions(): Promise<Pick<IUnitEntity, 'id' | 'name'>[]>;
+  fetchPendingScoreHistories(): Promise<IScoreHistoryEntity[]>;
+  approveScoreHistory(id: string): Promise<void>;
+  rejectScoreHistory(id: string): Promise<void>;
 }

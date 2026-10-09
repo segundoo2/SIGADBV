@@ -9,7 +9,7 @@ import { UsersApiAdapter } from '../users-api.adapter';
 import { apiErrorInterceptor } from '../../interceptors/api-error.interceptor';
 import { UserEntity } from '../../../domain/entities/user.entity';
 import { URL } from '../../tokens/url.token';
-import { ApiResponseDto } from '../dtos/api-response.dto';
+import { IApiResponseModel } from '../../../application/models/api-response.model';
 
 describe('UsersApiAdapter', () => {
   let adapter: UsersApiAdapter;
@@ -49,7 +49,7 @@ describe('UsersApiAdapter', () => {
       updatedAt: new Date('2026-09-02T10:00:00.000Z'),
     };
 
-    const response: ApiResponseDto<UserEntity> = {
+    const response: IApiResponseModel<UserEntity> = {
       message: 'User found',
       data: user,
     };

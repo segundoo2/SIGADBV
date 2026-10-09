@@ -17,7 +17,8 @@
 
   <!-- Desktop Navigation Links with Dropdowns -->
   <nav
-    class="hidden md:flex items-center gap-3 bg-slate-800/80 px-4 py-2 rounded-full border border-slate-700/60 relative"
+    class="hidden md:flex items-center gap-3 bg-slate-800/80 px-4 py-2 rounded-full border border-slate-700/60"
+    aria-label="Navegação principal"
   >
     @for (item of navItems; track trackByLabel($index, item)) {
     <div class="relative">
@@ -26,7 +27,7 @@
       <button
         type="button"
         (click)="toggleDropdown(item.label, $event)"
-        class="flex items-center gap-1.5 text-slate-300 hover:text-white px-4 py-1.5 rounded-full transition-colors text-sm focus:outline-none"
+        class="flex items-center gap-1.5 text-slate-300 hover:text-white px-4 py-1.5 rounded-full transition-colors text-sm focus:outline-none cursor-pointer"
         [class.bg-slate-700]="activeDropdown() === item.label"
         [class.text-white]="activeDropdown() === item.label"
       >
@@ -82,7 +83,7 @@
       <button
         type="button"
         (click)="toggleProfileMenu($event)"
-        class="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white hover:border-slate-600 transition-colors focus:outline-none"
+        class="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white hover:border-slate-600 transition-colors focus:outline-none cursor-pointer"
         [class.border-slate-500]="isProfileMenuOpen()"
         aria-label="Perfil do usuário"
       >
@@ -105,7 +106,7 @@
       <div
         class="absolute right-0 mt-2 w-56 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl py-1 z-50"
       >
-        <!-- Informações do Usuário (Ícone à esquerda, textos à direita) -->
+        <!-- Informações do Usuário -->
         <div
           class="px-4 py-3 border-b border-slate-700/60 flex items-center gap-3"
         >
@@ -142,7 +143,7 @@
         <button
           type="button"
           (click)="logout()"
-          class="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 transition-colors flex items-center gap-2"
+          class="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 transition-colors flex items-center gap-2 cursor-pointer"
         >
           <svg
             class="w-4 h-4"
@@ -163,11 +164,11 @@
       }
     </div>
 
-    <!-- Mobile -->
+    <!-- Mobile Button -->
     <button
       type="button"
       (click)="toggleMobileMenu()"
-      class="md:hidden w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white focus:outline-none"
+      class="md:hidden w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:text-white focus:outline-none cursor-pointer"
       aria-label="Abrir menu de navegação"
     >
       <svg
@@ -196,10 +197,11 @@
   </div>
 </header>
 
-<!-- Mobile -->
+<!-- Mobile Navigation Menu -->
 @if (isMobileMenuOpen()) {
-<div
-  class="md:hidden bg-slate-900 border-b border-slate-800 px-6 py-4 space-y-3 relative z-40 shadow-2xl"
+<nav
+  class="md:hidden bg-slate-900 border-b border-slate-800 px-6 py-4 space-y-3 sticky top-18.25 z-45 shadow-2xl"
+  aria-label="Navegação móvel"
 >
   @for (item of navItems; track trackByLabel($index, item)) {
   <div>
@@ -235,5 +237,5 @@
     }
   </div>
   }
-</div>
+</nav>
 }

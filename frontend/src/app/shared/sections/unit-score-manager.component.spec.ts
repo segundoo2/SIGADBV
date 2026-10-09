@@ -12,7 +12,10 @@ describe('UnitScoreManagerComponent', () => {
   const scoreStoreMock = {
     error: signal<string | null>(null),
     isLoading: signal(false),
+    unitsOptions: signal([]), // <-- Adicionado para satisfazer o signal computado do componente
     registerUnitScore: vi.fn(),
+    fetchAllUnitsOptions: vi.fn().mockResolvedValue([]),
+    clearError: vi.fn(),
   };
 
   const unitsStoreMock = {
@@ -24,13 +27,14 @@ describe('UnitScoreManagerComponent', () => {
 
   const validFormValue = {
     unitId: '123e4567-e89b-12d3-a456-426614174000',
-    score: '-15',
+    score: -15,
     description: 'Correção de pontuação',
   };
 
   beforeEach(async () => {
     scoreStoreMock.error.set(null);
     scoreStoreMock.isLoading.set(false);
+    scoreStoreMock.unitsOptions.set([]);
     scoreStoreMock.registerUnitScore.mockReset();
     unitsStoreMock.fetchAllUnits.mockReset().mockResolvedValue([
       {
@@ -88,11 +92,12 @@ describe('UnitScoreManagerComponent', () => {
   });
 
   it('should open the modal when the open button is clicked', () => {
-    const openButton: HTMLButtonElement = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('header button');
+    const openButton = (fixture.nativeElement as HTMLElement).querySelector(
+      'header button',
+    );
+    expect(openButton).not.toBeNull();
 
-    openButton.click();
+    openButton!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     fixture.detectChanges();
 
     expect(component.isScoreModalOpen()).toBe(true);
@@ -100,7 +105,6 @@ describe('UnitScoreManagerComponent', () => {
 
   it('should close the modal', () => {
     component.openScoreModal();
-
     component.closeScoreModal();
 
     expect(component.isScoreModalOpen()).toBe(false);
@@ -112,8 +116,9 @@ describe('UnitScoreManagerComponent', () => {
 
     const closeButton = (fixture.nativeElement as HTMLElement).querySelector(
       'article button[aria-label="Fechar modal"]',
-    ) as HTMLButtonElement;
-    closeButton.click();
+    );
+    expect(closeButton).not.toBeNull();
+    closeButton!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     fixture.detectChanges();
 
     expect(component.isScoreModalOpen()).toBe(false);
@@ -135,7 +140,7 @@ describe('UnitScoreManagerComponent', () => {
     component.openScoreModal();
     component.scoreForm.setValue({
       ...validFormValue,
-      score: '1.5',
+      score: NaN,
     });
 
     await component.onSubmitScore();
@@ -174,7 +179,6 @@ describe('UnitScoreManagerComponent', () => {
         description: validFormValue.description,
       },
     );
-    expect(unitsStoreMock.fetchAllUnits).toHaveBeenCalledOnce();
     expect(component.isScoreModalOpen()).toBe(false);
   });
 

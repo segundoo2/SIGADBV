@@ -56,17 +56,14 @@ describe('ModalComponent', () => {
     fixture.componentRef.setInput('isOpen', true);
     fixture.detectChanges();
 
-    expect(
-      (fixture.nativeElement as HTMLElement).querySelector('[role="dialog"]'),
-    ).toBeTruthy();
+    const dialog = (fixture.nativeElement as HTMLElement).querySelector(
+      '[role="dialog"]',
+    );
+    expect(dialog).not.toBeNull();
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
       'Confirmação',
     );
-    expect(
-      (fixture.nativeElement as HTMLElement)
-        .querySelector('[role="dialog"]')
-        .getAttribute('aria-modal'),
-    ).toBe('true');
+    expect(dialog!.getAttribute('aria-modal')).toBe('true');
   });
 
   it('should render a custom title', () => {
@@ -92,17 +89,19 @@ describe('ModalComponent', () => {
     const dialog = (fixture.nativeElement as HTMLElement).querySelector(
       '[role="dialog"]',
     );
-    expect(dialog.classList).toContain(expectedClass);
+    expect(dialog).not.toBeNull();
+    expect(dialog!.classList).toContain(expectedClass);
   });
 
   it('should emit close when the close button is clicked', () => {
     fixture.componentRef.setInput('isOpen', true);
     fixture.detectChanges();
 
-    const closeButton: HTMLButtonElement = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('button[aria-label="Fechar modal"]');
-    closeButton.click();
+    const closeButton = (fixture.nativeElement as HTMLElement).querySelector(
+      'button[aria-label="Fechar modal"]',
+    );
+    expect(closeButton).not.toBeNull();
+    closeButton!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(closeCount).toBe(1);
   });
@@ -111,10 +110,11 @@ describe('ModalComponent', () => {
     fixture.componentRef.setInput('isOpen', true);
     fixture.detectChanges();
 
-    const backdropButton: HTMLButtonElement = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('button[aria-label="Fechar modal"]');
-    backdropButton.click();
+    const backdropButton = (fixture.nativeElement as HTMLElement).querySelector(
+      'button[aria-label="Fechar modal"]',
+    );
+    expect(backdropButton).not.toBeNull();
+    backdropButton!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(closeCount).toBe(1);
   });
@@ -123,10 +123,11 @@ describe('ModalComponent', () => {
     fixture.componentRef.setInput('isOpen', true);
     fixture.detectChanges();
 
-    const dialog: HTMLDivElement = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('[role="dialog"]');
-    dialog.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    const dialog = (fixture.nativeElement as HTMLElement).querySelector(
+      '[role="dialog"]',
+    );
+    expect(dialog).not.toBeNull();
+    dialog!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(closeCount).toBe(0);
   });
@@ -150,10 +151,11 @@ describe('ModalComponent', () => {
     const hostFixture = TestBed.createComponent(ModalHostComponent);
     hostFixture.detectChanges();
 
-    const backdropButton: HTMLButtonElement = (
+    const backdropButton = (
       hostFixture.nativeElement as HTMLElement
     ).querySelector('button[aria-label="Fechar modal"]');
-    backdropButton.click();
+    expect(backdropButton).not.toBeNull();
+    backdropButton!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
     expect(hostFixture.componentInstance.onClose).toHaveBeenCalledOnce();
 
