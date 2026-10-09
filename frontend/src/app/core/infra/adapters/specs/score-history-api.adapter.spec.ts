@@ -4,12 +4,13 @@ import {
   provideHttpClientTesting,
   HttpTestingController,
 } from '@angular/common/http/testing';
+import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import { IScoreHistoryEntity } from '../../../domain/entities/score-history.entity';
 import { IScoreHistoryPayload } from '../../../application/models/score-history-payload.model';
 import { URL } from '../../../infra/tokens/url.token';
 import { ScoreHistoryApiAdapter } from '../score-history-api.adapter';
 import { apiErrorInterceptor } from '../../interceptors/api-error.interceptor';
-import { ApiResponseDto } from '../dtos/api-response.dto';
+import { IApiResponseModel } from '../../../application/models/api-response.model';
 
 describe('ScoreHistoryApiAdapter', () => {
   let adapter: ScoreHistoryApiAdapter;
@@ -45,7 +46,7 @@ describe('ScoreHistoryApiAdapter', () => {
         description: 'Presença com uniforme completo',
       };
 
-      const mockResponse: ApiResponseDto<{ newScore: number }> = {
+      const mockResponse: IApiResponseModel<{ newScore: number }> = {
         message: 'Score registered successfully',
         data: { newScore: 150 },
       };
@@ -91,7 +92,7 @@ describe('ScoreHistoryApiAdapter', () => {
   describe('fetchUnitScoreHistory', () => {
     it('should send a GET request with limit query param to the correct url and return the score history list', async () => {
       const unitId = '123e4567-e89b-12d3-a456-426614174000';
-      const mockResponse: ApiResponseDto<IScoreHistoryEntity[]> = {
+      const mockResponse: IApiResponseModel<IScoreHistoryEntity[]> = {
         message: 'Score history retrieved successfully',
         data: [],
       };

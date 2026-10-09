@@ -10,7 +10,7 @@ import { IUnitEntity } from '../../../domain/entities/unit.entity';
 import { apiErrorInterceptor } from '../../interceptors/api-error.interceptor';
 import { URL } from '../../tokens/url.token';
 import { UnitsApiAdapter } from '../units-api.adapter';
-import { ApiResponseDto } from '../dtos/api-response.dto';
+import { IApiResponseModel } from '../../../application/models/api-response.model';
 
 describe('UnitsApiAdapter', () => {
   let adapter: UnitsApiAdapter;
@@ -43,7 +43,7 @@ describe('UnitsApiAdapter', () => {
       createdAt: new Date('2026-09-01T10:00:00.000Z'),
       updatedAt: new Date('2026-09-02T10:00:00.000Z'),
     };
-    const response: ApiResponseDto<IUnitEntity[]> = {
+    const response: IApiResponseModel<IUnitEntity[]> = {
       message: 'Units loaded',
       data: [unit],
     };

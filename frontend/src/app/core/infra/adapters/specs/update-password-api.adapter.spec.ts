@@ -9,7 +9,7 @@ import { UpdatePasswordApiAdapter } from '../update-password-api.adapter';
 import { IUpdatePasswordInput } from '../../../application/models/update-password-input.model';
 import { URL } from '../../tokens/url.token';
 import { apiErrorInterceptor } from '../../interceptors/api-error.interceptor';
-import { ApiResponseDto } from '../dtos/api-response.dto';
+import { IApiResponseModel } from '../../../application/models/api-response.model';
 
 describe('UpdatePasswordApiAdapter', () => {
   let adapter: UpdatePasswordApiAdapter;
@@ -40,7 +40,7 @@ describe('UpdatePasswordApiAdapter', () => {
       mustChangePassword: false,
     };
 
-    const mockResponse: ApiResponseDto<null> = {
+    const mockResponse: IApiResponseModel<null> = {
       message: 'Password updated successfully',
       data: null,
     };

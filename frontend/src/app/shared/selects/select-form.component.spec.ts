@@ -25,15 +25,16 @@ describe('SelectFormComponent', () => {
   });
 
   it('should create the component and render its options', () => {
-    const select: HTMLSelectElement = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('select');
-    const renderedOptions = Array.from(select.options).map((option) =>
+    const select = (fixture.nativeElement as HTMLElement).querySelector(
+      'select',
+    );
+    expect(select).not.toBeNull();
+    const renderedOptions = Array.from(select!.options).map((option) =>
       option.textContent?.trim(),
     );
 
     expect(component).toBeTruthy();
-    expect(select.id).toBe('unit-select');
+    expect(select!.id).toBe('unit-select');
     expect(renderedOptions).toContain('Selecione uma unidade...');
     expect(renderedOptions).toContain('Unidade Alpha');
     expect(renderedOptions).toContain('Unidade Beta');
@@ -54,47 +55,52 @@ describe('SelectFormComponent', () => {
     component.writeValue('unit-1');
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('select');
+    const select = (fixture.nativeElement as HTMLElement).querySelector(
+      'select',
+    );
+    expect(select).not.toBeNull();
 
     expect(component.value()).toBe('unit-1');
-    expect(select.value).toBe('unit-1');
+    expect(select!.value).toBe('unit-1');
   });
 
   it('should support numeric option ids when writing a value', () => {
     component.writeValue(2);
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('select');
+    const select = (fixture.nativeElement as HTMLElement).querySelector(
+      'select',
+    );
+    expect(select).not.toBeNull();
 
     expect(component.value()).toBe(2);
-    expect(select.value).toBe('2');
+    expect(select!.value).toBe('2');
   });
 
   it('should reset the selected value when writeValue receives null', () => {
     component.writeValue(null as unknown as string);
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('select');
+    const select = (fixture.nativeElement as HTMLElement).querySelector(
+      'select',
+    );
+    expect(select).not.toBeNull();
 
     expect(component.value()).toBe('');
-    expect(select.value).toBe('');
+    expect(select!.value).toBe('');
   });
 
   it('should notify the registered change callback when an option is selected', () => {
     const onChange = vi.fn();
     component.registerOnChange(onChange);
 
-    const select: HTMLSelectElement = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('select');
-    select.value = 'unit-1';
-    select.dispatchEvent(new Event('change'));
+    const select = (fixture.nativeElement as HTMLElement).querySelector(
+      'select',
+    );
+    expect(select).not.toBeNull();
+
+    select!.value = 'unit-1';
+    select!.dispatchEvent(new Event('change'));
     fixture.detectChanges();
 
     expect(component.value()).toBe('unit-1');
@@ -106,10 +112,12 @@ describe('SelectFormComponent', () => {
     const onTouched = vi.fn();
     component.registerOnTouched(onTouched);
 
-    const select: HTMLSelectElement = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('select');
-    select.dispatchEvent(new Event('blur'));
+    const select = (fixture.nativeElement as HTMLElement).querySelector(
+      'select',
+    );
+    expect(select).not.toBeNull();
+
+    select!.dispatchEvent(new Event('blur'));
     fixture.detectChanges();
 
     expect(onTouched).toHaveBeenCalledOnce();
@@ -119,12 +127,13 @@ describe('SelectFormComponent', () => {
     component.setDisabledState(true);
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('select');
+    const select = (fixture.nativeElement as HTMLElement).querySelector(
+      'select',
+    );
+    expect(select).not.toBeNull();
 
     expect(component.disabled()).toBe(true);
-    expect(select.disabled).toBe(true);
+    expect(select!.disabled).toBe(true);
   });
 
   it('should enable the select when setDisabledState receives false', () => {
@@ -132,12 +141,13 @@ describe('SelectFormComponent', () => {
     component.setDisabledState(false);
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('select');
+    const select = (fixture.nativeElement as HTMLElement).querySelector(
+      'select',
+    );
+    expect(select).not.toBeNull();
 
     expect(component.disabled()).toBe(false);
-    expect(select.disabled).toBe(false);
+    expect(select!.disabled).toBe(false);
   });
 
   it('should display the error message when errors are enabled', () => {
@@ -146,9 +156,9 @@ describe('SelectFormComponent', () => {
     fixture.componentRef.setInput('errorTestId', 'unit-select-error');
     fixture.detectChanges();
 
-    const error: HTMLElement | null = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('[data-testid="unit-select-error"]');
+    const error = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="unit-select-error"]',
+    );
 
     expect(error).toBeTruthy();
     expect(error?.textContent?.trim()).toBe('Selecione uma unidade.');

@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import { Application, Response } from 'express';
 import helmet from 'helmet';
 import { PermissionsMetadataDto } from './modules/roles/permissions.controller';
+import { TooManyRequestsExceptionFilter } from './common/filters/too-many-requests.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -102,6 +103,9 @@ async function bootstrap() {
     },
     credentials: true,
   });
+
+  // Configuração do throttle
+  app.useGlobalFilters(new TooManyRequestsExceptionFilter());
 
   // Configuração do Express para Proxy reverso
   const expressApp = app.getHttpAdapter().getInstance() as Application;

@@ -10,7 +10,7 @@ import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import {
   SelectFormComponent,
   SelectOption,
-} from '../../shared/selects/select-form.component';
+} from '../selects/select-form.component';
 
 @Component({
   selector: 'app-table-card',

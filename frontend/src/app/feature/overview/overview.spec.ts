@@ -9,7 +9,6 @@ import { SCORE_HISTORY_STORE_PORT } from '../../core/infra/tokens/score-history.
 import { OverviewPage } from './overview';
 import { EPermission } from '../../core/domain/enums/permissions.enum';
 import { UserEntity } from '../../core/domain/entities/user.entity';
-import { IScoreHistoryEntity } from '../../core/domain/entities/score-history.entity';
 
 describe('OverviewPage', () => {
   let component: OverviewPage;
@@ -25,7 +24,7 @@ describe('OverviewPage', () => {
         id: 'role-admin',
         tenantId: '00000000-0000-0000-0000-000000000000',
         name: 'Super Usuário',
-        permissions: [EPermission.SCORE_HISTORY_READ],
+        permissions: [EPermission.UNIT_READ],
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -51,32 +50,26 @@ describe('OverviewPage', () => {
   };
 
   const mockScoreHistoryStore = {
-    fetchUnitScoreHistory: vi.fn().mockImplementation((unitId: string) => {
-      if (unitId === 'error-unit') {
-        return Promise.reject(new Error('Falha ao buscar histórico'));
-      }
-      const history: IScoreHistoryEntity[] = [
-        {
-          id: 'hist-1',
-          tenantId: 'tenant-1',
-          unitId,
-          score: 500,
-          description: 'Pontuação positiva',
-          createdAt: new Date('2026-10-01T10:00:00Z'),
-          updatedAt: new Date('2026-10-01T10:00:00Z'),
-        },
-        {
-          id: 'hist-2',
-          tenantId: 'tenant-1',
-          unitId,
-          score: -100,
-          description: 'Penalização aplicada',
-          createdAt: new Date('2026-10-02T10:00:00Z'),
-          updatedAt: new Date('2026-10-02T10:00:00Z'),
-        },
-      ];
-      return Promise.resolve(history);
-    }),
+    unitsOptions: signal([
+      { id: '1', name: 'Unidade Alpha' },
+      { id: '2', name: 'Unidade Beta' },
+    ]),
+    pendingHistories: signal([
+      {
+        id: 'hist-1',
+        tenantId: 'tenant-1',
+        unitId: '1',
+        score: 50,
+        description: 'Participação em evento',
+        createdAt: new Date('2026-10-01T10:00:00Z'),
+        updatedAt: new Date('2026-10-01T10:00:00Z'),
+        requestedBy: { username: 'joao.silva' },
+      },
+    ]),
+    fetchPendingScoreHistories: vi.fn().mockResolvedValue([]),
+    fetchAllUnitsOptions: vi.fn().mockResolvedValue([]),
+    approveScoreHistory: vi.fn().mockResolvedValue(undefined),
+    rejectScoreHistory: vi.fn().mockResolvedValue(undefined),
   };
 
   const mockAuthStore = {
@@ -103,21 +96,25 @@ describe('OverviewPage', () => {
     component = fixture.componentInstance;
   });
 
-  it('should create the component successfully', async () => {
+  it('should create the component successfully and load data on init', async () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(component).toBeTruthy();
+    expect(mockScoreHistoryStore.fetchPendingScoreHistories).toHaveBeenCalled();
+    expect(mockScoreHistoryStore.fetchAllUnitsOptions).toHaveBeenCalled();
+    expect(mockUnitsStore.fetchAllUnits).toHaveBeenCalled();
   });
 
-  it('should render score history and charts when user has permission', async () => {
-    component.unitControl.setValue('1');
+  it('should render overview contents, chart items, and pending histories when user has permission', async () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
     const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('Bem-vindo, edilson.segundo!');
     expect(element.textContent).toContain('Ranking de Unidade');
-    expect(element.textContent).toContain('Histórico de Pontuações recentes');
+    expect(element.textContent).toContain('Pontuações Pendentes');
+    expect(element.textContent).toContain('Participação em evento');
+    expect(element.textContent).toContain('joao.silva');
   });
 
   it('should render access denied message when user lacks permission', async () => {
@@ -140,69 +137,81 @@ describe('OverviewPage', () => {
 
     const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain(
-      'Acesso restrito: você não possui permissão para visualizar o histórico de pontuações recentes e o gráfico de pontuação geral.',
+      'Acesso restrito: você não possui permissão para visualizar o painel de pontuações pendentes e o gráfico de pontuação geral.',
     );
   });
 
-  it('should load and sort history records correctly when a unit is selected', async () => {
-    // Garante que o usuário possui a permissão necessária para este teste
-    mockUsersStore.userCurrentEntity.set({
-      ...mockUser,
-    });
-
+  it('should successfully approve a pending history and refresh units', async () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    component.unitControl.setValue('1', { emitEvent: true });
+    await component.onApprove('hist-1');
 
-    await vi.waitFor(() => {
-      expect(component.historyRows().length).toBe(2);
-    });
+    expect(mockScoreHistoryStore.approveScoreHistory).toHaveBeenCalledWith(
+      'hist-1',
+    );
+    expect(mockUnitsStore.fetchAllUnits).toHaveBeenCalled();
+  });
+
+  it('should handle error gracefully when approving history fails', async () => {
+    mockScoreHistoryStore.approveScoreHistory.mockRejectedValueOnce(
+      new Error('Erro ao aprovar'),
+    );
 
     fixture.detectChanges();
+    await component.onApprove('hist-1');
 
-    expect(component.historyRows().length).toBe(2);
-    const element = fixture.nativeElement as HTMLElement;
-    expect(element.textContent).toContain('Pontuação positiva');
-    expect(element.textContent).toContain('Penalização aplicada');
+    expect(mockScoreHistoryStore.approveScoreHistory).toHaveBeenCalledWith(
+      'hist-1',
+    );
   });
 
-  it('should clear history rows when unitControl is reset/empty', async () => {
-    component.unitControl.setValue('1');
+  it('should successfully reject a pending history', async () => {
+    fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(component.historyRows().length).toBeGreaterThan(0);
+    await component.onReject('hist-1');
 
-    component.unitControl.setValue('');
-    await fixture.whenStable();
-
-    expect(component.historyRows().length).toBe(0);
+    expect(mockScoreHistoryStore.rejectScoreHistory).toHaveBeenCalledWith(
+      'hist-1',
+    );
   });
 
-  it('should handle history fetch errors and clear history', async () => {
-    component.unitControl.setValue('error-unit');
-    await fixture.whenStable();
+  it('should handle error gracefully when rejecting history fails', async () => {
+    mockScoreHistoryStore.rejectScoreHistory.mockRejectedValueOnce(
+      new Error('Erro ao rejeitar'),
+    );
 
-    expect(component.historyRows()).toEqual([]);
+    fixture.detectChanges();
+    await component.onReject('hist-1');
+
+    expect(mockScoreHistoryStore.rejectScoreHistory).toHaveBeenCalledWith(
+      'hist-1',
+    );
   });
 
-  it('should return a stable id for each score history row', async () => {
-    component.unitControl.setValue('1');
-    await fixture.whenStable();
+  it('should return a stable id for each pending history item', () => {
+    const mockRecord = {
+      id: 'rec-123',
+      tenantId: 't-1',
+      unitId: 'u-1',
+      score: 10,
+      description: 'test',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
-    component.historyRows().forEach((record, index) => {
-      expect(component.trackById(index, record)).toBe(record.id);
-    });
+    expect(component.trackById(0, mockRecord)).toBe('rec-123');
   });
 
-  it('should handle units fetch error gracefully during ngOnInit', async () => {
+  it('should handle data loading errors gracefully during initialization', async () => {
     mockUnitsStore.fetchAllUnits.mockRejectedValueOnce(
-      new Error('Erro de conexão'),
+      new Error('Erro de carregamento'),
     );
 
     fixture.detectChanges();
-    await vi.waitFor(() => {
-      expect(mockUnitsStore.fetchAllUnits).toHaveBeenCalled();
-    });
+    await fixture.whenStable();
+
+    expect(component).toBeTruthy();
   });
 });

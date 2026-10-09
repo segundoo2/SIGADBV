@@ -58,10 +58,11 @@ describe('HeaderComponent', () => {
   });
 
   it('should open and close the profile menu and display username and role', () => {
-    const profileButton: HTMLButtonElement = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('button[aria-label="Perfil do usuário"]');
+    const profileButton = (fixture.nativeElement as HTMLElement).querySelector(
+      'button[aria-label="Perfil do usuário"]',
+    ) as HTMLButtonElement;
 
+    expect(profileButton).not.toBeNull();
     profileButton.click();
     fixture.detectChanges();
 
@@ -164,10 +165,11 @@ describe('HeaderComponent', () => {
   it('should invoke logout when the Sair button is clicked', async () => {
     vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
-    const profileButton: HTMLButtonElement = (
-      fixture.nativeElement as HTMLElement
-    ).querySelector('button[aria-label="Perfil do usuário"]');
+    const profileButton = (fixture.nativeElement as HTMLElement).querySelector(
+      'button[aria-label="Perfil do usuário"]',
+    ) as HTMLButtonElement;
 
+    expect(profileButton).not.toBeNull();
     profileButton.click();
     fixture.detectChanges();
 

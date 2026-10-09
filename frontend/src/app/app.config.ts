@@ -43,6 +43,8 @@ import {
 } from './core/infra/tokens/users.token';
 import { CurrentUserStore } from './core/store/users.store';
 import { UsersApiAdapter } from './core/infra/adapters/users-api.adapter';
+import { PDF_REPORT_PORT } from './core/infra/tokens/pdf-report.token';
+import { PdfReportBrowserAdapter } from './core/infra/adapters/pdf-report-browser.adapter';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -73,6 +75,7 @@ export const appConfig: ApplicationConfig = {
     { provide: SCORE_HISTORY_API_PORT, useClass: ScoreHistoryApiAdapter },
     { provide: UNITS_API_PORT, useClass: UnitsApiAdapter },
     { provide: USERS_API_PORT, useClass: UsersApiAdapter },
+    { provide: PDF_REPORT_PORT, useClass: PdfReportBrowserAdapter },
     // store
     {
       provide: AUTH_STORE_PORT,
