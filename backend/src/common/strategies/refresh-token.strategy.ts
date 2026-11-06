@@ -5,6 +5,7 @@ import { IJwtPayloadWithExpiry } from '../../modules/auth/interfaces/jwt-payload
 import { RequestWithCookies } from './interfaces/req-with-cookies.interface';
 import { EErrorsGlobal } from '../enum/global/errors-global.enum';
 import type { ICacheStorageService } from '../redis/interface/cache-storage.interface';
+import { ConfigService } from '@nestjs/config';
 
 export const cookieRefreshExtractor = (
   req: RequestWithCookies,
@@ -25,11 +26,12 @@ export class JwtRefreshStrategy extends PassportStrategy(
   constructor(
     @Inject('ICacheStorageService')
     private readonly redisService: ICacheStorageService,
+    configService: ConfigService,
   ) {
     super({
       jwtFromRequest: cookieRefreshExtractor,
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_REFRESH_SECRET || 'refresh-secret-key',
+      secretOrKey: configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
       passReqToCallback: true,
     });
   }

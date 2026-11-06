@@ -4,6 +4,7 @@ import { IResponse } from '../../../common/interfaces/response.interface';
 import { UpdatePasswordDto } from '../dtos/update-password.dto';
 import { UserDto } from '../dtos/user.dto';
 import { User } from '../entities/user.entity';
+import { IJwtPayload } from '../../auth/interfaces/jwt-payload.interface';
 
 export interface IUsersController {
   createUser(
@@ -12,9 +13,9 @@ export interface IUsersController {
   ): Promise<IResponse<{ temporaryPassword: string }>>;
 
   updateUserPassword(
+    currentUser: IJwtPayload,
     passwordDto: UpdatePasswordDto,
-    tenantId: string,
-  ): Promise<IResponse<string | null>>;
+  ): Promise<IResponse<null>>;
 
   findAllUsers(
     tenantId: string,

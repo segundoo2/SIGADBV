@@ -1,5 +1,18 @@
 import { ReportConfig } from '../../core/application/models/pdf-report.model';
 
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (character) => {
+    const entities: Record<string, string> = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    };
+    return entities[character];
+  });
+}
+
 export function generateReportHtml<T>(config: ReportConfig<T>): string {
   const rowsHtml =
     config.data.length > 0
@@ -12,7 +25,13 @@ export function generateReportHtml<T>(config: ReportConfig<T>): string {
                   : col.field
                     ? String(item[col.field] ?? '-')
                     : '-';
-                return `<td class="py-2.5 px-3 ${col.className || 'text-slate-700'}">${content}</td>`;
+                const className = [
+                  col.className || 'text-slate-700',
+                  col.classNameFor?.(item),
+                ]
+                  .filter(Boolean)
+                  .join(' ');
+                return `<td class="py-2.5 px-3 ${escapeHtml(className)}">${escapeHtml(content)}</td>`;
               })
               .join('');
             return `<tr class="even:bg-slate-50 border-b border-slate-200">${cells}</tr>`;
@@ -23,7 +42,7 @@ export function generateReportHtml<T>(config: ReportConfig<T>): string {
   const headersHtml = config.columns
     .map(
       (col) =>
-        `<th class="py-2.5 px-3 font-semibold text-left">${col.header}</th>`,
+        `<th class="py-2.5 px-3 font-semibold text-left">${escapeHtml(col.header)}</th>`,
     )
     .join('');
 
@@ -32,7 +51,7 @@ export function generateReportHtml<T>(config: ReportConfig<T>): string {
     <html lang="pt-BR">
       <head>
         <meta charset="UTF-8">
-        <title>${config.title}</title>
+        <title>${escapeHtml(config.title)}</title>
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
         <style>
           @page {
@@ -44,8 +63,8 @@ export function generateReportHtml<T>(config: ReportConfig<T>): string {
       <body class="bg-white text-slate-900 p-6 font-sans">
         <header class="mb-6 border-b-2 border-slate-200 pb-4 flex justify-between items-end">
           <div>
-            <h1 class="text-xl font-bold text-slate-900 mb-1">${config.title}</h1>
-            ${config.subtitle ? `<p class="text-xs text-slate-500">${config.subtitle}</p>` : ''}
+            <h1 class="text-xl font-bold text-slate-900 mb-1">${escapeHtml(config.title)}</h1>
+            ${config.subtitle ? `<p class="text-xs text-slate-500">${escapeHtml(config.subtitle)}</p>` : ''}
           </div>
           <div class="text-xs text-slate-400 text-right">
             Gerado em: ${new Date().toLocaleString('pt-BR')}

@@ -254,8 +254,9 @@ describe('ScoreHistoryRepository', () => {
       const transactionalRepository = {
         findOne: jest.fn().mockResolvedValue(mockScoreHistory),
       };
+      const getRepository = jest.fn().mockReturnValue(transactionalRepository);
       const manager = {
-        getRepository: jest.fn().mockReturnValue(transactionalRepository),
+        getRepository,
       } as unknown as EntityManager;
 
       await expect(
@@ -266,7 +267,7 @@ describe('ScoreHistoryRepository', () => {
         ),
       ).resolves.toEqual(mockScoreHistory);
 
-      expect(manager.getRepository).toHaveBeenCalledWith(ScoreHistoryEntity);
+      expect(getRepository).toHaveBeenCalledWith(ScoreHistoryEntity);
       expect(transactionalRepository.findOne).toHaveBeenCalledWith({
         where: {
           id: mockScoreHistory.id,
@@ -301,8 +302,9 @@ describe('ScoreHistoryRepository', () => {
       const transactionalRepository = {
         update: jest.fn().mockResolvedValue(updateResult),
       };
+      const getRepository = jest.fn().mockReturnValue(transactionalRepository);
       const manager = {
-        getRepository: jest.fn().mockReturnValue(transactionalRepository),
+        getRepository,
       } as unknown as EntityManager;
 
       await expect(
@@ -314,7 +316,7 @@ describe('ScoreHistoryRepository', () => {
         ),
       ).resolves.toEqual(updateResult);
 
-      expect(manager.getRepository).toHaveBeenCalledWith(ScoreHistoryEntity);
+      expect(getRepository).toHaveBeenCalledWith(ScoreHistoryEntity);
       expect(transactionalRepository.update).toHaveBeenCalledWith(
         {
           id: mockScoreHistory.id,
@@ -351,8 +353,9 @@ describe('ScoreHistoryRepository', () => {
       const transactionalRepository = {
         update: jest.fn().mockResolvedValue(updateResult),
       };
+      const getRepository = jest.fn().mockReturnValue(transactionalRepository);
       const manager = {
-        getRepository: jest.fn().mockReturnValue(transactionalRepository),
+        getRepository,
       } as unknown as EntityManager;
 
       await expect(
@@ -364,7 +367,7 @@ describe('ScoreHistoryRepository', () => {
         ),
       ).resolves.toEqual(updateResult);
 
-      expect(manager.getRepository).toHaveBeenCalledWith(ScoreHistoryEntity);
+      expect(getRepository).toHaveBeenCalledWith(ScoreHistoryEntity);
       expect(transactionalRepository.update).toHaveBeenCalledWith(
         {
           id: mockScoreHistory.id,

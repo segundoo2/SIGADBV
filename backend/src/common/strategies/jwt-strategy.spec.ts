@@ -5,13 +5,20 @@ import { RequestWithCookies } from './interfaces/req-with-cookies.interface';
 import { JwtStrategy, cookieJwtExtractor } from './jwt.strategy';
 import { EPermission } from '../../common/enum/role/permissions.enum';
 import { EErrorsGlobal } from '../enum/global/errors-global.enum';
+import { ConfigService } from '@nestjs/config';
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [JwtStrategy],
+      providers: [
+        JwtStrategy,
+        {
+          provide: ConfigService,
+          useValue: { getOrThrow: () => 'test-access-secret' },
+        },
+      ],
     }).compile();
 
     strategy = module.get<JwtStrategy>(JwtStrategy);

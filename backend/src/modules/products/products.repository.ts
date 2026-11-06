@@ -123,8 +123,9 @@ export class ProductsRepository implements IProductsRepository {
         .createQueryBuilder('product')
         .update(Product)
         .set({
-          currentStock: () => `current_stock + ${delta}`,
+          currentStock: () => 'current_stock + :delta',
         })
+        .setParameter('delta', delta)
         .where('id = :productId AND tenant_id = :tenantId', {
           productId,
           tenantId,

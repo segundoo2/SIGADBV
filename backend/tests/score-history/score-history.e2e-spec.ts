@@ -345,7 +345,7 @@ describe('ScoreHistoryModule', () => {
       expect(body.data[0].unitId).toEqual(unitId);
     });
 
-    it('should return 404 when history does not exist for the unit', async () => {
+    it('should return 200 with an empty list when the unit has no history', async () => {
       const nonExistentUnitId = '999e9999-e99b-99d3-a999-426614174999';
 
       const response = await request(httpServer)
@@ -354,7 +354,8 @@ describe('ScoreHistoryModule', () => {
         .set('user-agent', 'Supertest-E2E-Agent')
         .expect(200);
 
-      expect(response.body.data).toEqual([]);
+      const responseBody = response.body as { data: unknown[] };
+      expect(responseBody.data).toEqual([]);
     });
   });
 });

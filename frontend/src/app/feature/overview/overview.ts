@@ -21,6 +21,7 @@ import {
 import { AccessDeniedCard } from '../../shared/cards/access-denied-card.component';
 import { IScoreHistoryEntity } from '../../core/domain/entities/score-history.entity';
 import { CommonModule } from '@angular/common';
+import { PendingScoreRequestsComponent } from './components/pending-score-requests.component';
 
 @Component({
   selector: 'app-overview',
@@ -31,6 +32,7 @@ import { CommonModule } from '@angular/common';
     CardComponent,
     BarChartCardComponent,
     AccessDeniedCard,
+    PendingScoreRequestsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './overview.html',
@@ -52,8 +54,19 @@ export class OverviewPage implements OnInit {
     })),
   );
 
-  readonly totalUnitsCount = computed(
-    () => this.scoreHistoryStore.unitsOptions().length,
+  readonly totalUnitsCount = computed(() =>
+    Math.max(
+      this.scoreHistoryStore.unitsOptions().length,
+      this.unitsStore.unitsList().length,
+    ),
+  );
+
+  readonly canReadUnits = computed(() =>
+    this.userHasPermission(EPermission.UNIT_READ),
+  );
+
+  readonly canApproveScore = computed(() =>
+    this.userHasPermission(EPermission.SCORE_HISTORY_APPROVE),
   );
 
   readonly unitNameMap = computed(() => {
@@ -68,7 +81,8 @@ export class OverviewPage implements OnInit {
     const map = this.unitNameMap();
     return this.scoreHistoryStore.pendingHistories().map((item) => ({
       ...item,
-      unitName: map.get(item.unitId) || 'Unidade desconhecida',
+      unitName:
+        map.get(item.unitId) || item.unit?.name || 'Unidade desconhecida',
       requestedByName: item.requestedBy?.username || 'Usuário desconhecido',
     }));
   });
@@ -91,20 +105,38 @@ export class OverviewPage implements OnInit {
 
   private async loadData(): Promise<void> {
     try {
-      await Promise.all([
-        this.scoreHistoryStore.fetchPendingScoreHistories(),
-        this.scoreHistoryStore.fetchAllUnitsOptions(),
-        this.unitsStore.fetchAllUnits(),
-      ]);
+      const requests: Promise<unknown>[] = [];
+
+      if (this.canReadUnits()) {
+        requests.push(this.unitsStore.fetchAllUnits());
+      }
+
+      if (this.canApproveScore()) {
+        requests.push(
+          this.scoreHistoryStore.fetchPendingScoreHistories(),
+          this.scoreHistoryStore.fetchAllUnitsOptions(),
+        );
+      }
+
+      await Promise.all(requests);
     } catch {
       // tratado na store
     }
   }
 
+  private userHasPermission(permission: EPermission): boolean {
+    const user = this.currentUserEntity();
+    return (
+      user?.roles.some((role) => role.permissions.includes(permission)) ?? false
+    );
+  }
+
   async onApprove(id: string): Promise<void> {
     try {
       await this.scoreHistoryStore.approveScoreHistory(id);
-      await this.unitsStore.fetchAllUnits();
+      if (this.canReadUnits()) {
+        await this.unitsStore.fetchAllUnits();
+      }
     } catch {
       // Tratado na store
     }

@@ -17,6 +17,7 @@ import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 import type { ICacheStorageService } from '../../common/redis/interface/cache-storage.interface';
 import { EAuthErrors } from '../../common/enum/auth/auth-errors.enum';
 import { ILoginResponse } from './interfaces/login-response.interface';
+import { ConfigService } from '@nestjs/config';
 
 type PermissionItem = EPermission | { slug: EPermission };
 
@@ -29,6 +30,7 @@ export class AuthService {
     private readonly authRepository: IAuthRepository,
     @Inject('ICacheStorageService')
     private readonly redisService: ICacheStorageService,
+    private readonly configService: ConfigService,
   ) {}
 
   async login(
@@ -57,18 +59,20 @@ export class AuthService {
 
     const payload = this.buildJwtPayload(user, fingerprint);
 
-    const accessTokenExpiresIn = (process.env.ACCESS_TOKEN_EXPIRES_IN ||
-      '15m') as TokenDuration;
-    const refreshTokenExpiresIn = (process.env.REFRESH_TOKEN_EXPIRES_IN ||
-      '7d') as TokenDuration;
+    const accessTokenExpiresIn = (this.configService.get<string>(
+      'ACCESS_TOKEN_EXPIRES_IN',
+    ) || '15m') as TokenDuration;
+    const refreshTokenExpiresIn = (this.configService.get<string>(
+      'REFRESH_TOKEN_EXPIRES_IN',
+    ) || '7d') as TokenDuration;
 
     const [accessToken, refreshToken] = await Promise.all([
       this.tokenService.signAsync(payload, {
-        secret: process.env.JWT_SECRET,
+        secret: this.configService.getOrThrow<string>('JWT_SECRET'),
         expiresIn: accessTokenExpiresIn,
       }),
       this.tokenService.signAsync(payload, {
-        secret: process.env.JWT_REFRESH_SECRET,
+        secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
         expiresIn: refreshTokenExpiresIn,
       }),
     ]);
@@ -113,18 +117,20 @@ export class AuthService {
 
     const newPayload = this.buildJwtPayload(user, newFingerprint);
 
-    const accessTokenExpiresIn = (process.env.ACCESS_TOKEN_EXPIRES_IN ||
-      '15m') as TokenDuration;
-    const refreshTokenExpiresIn = (process.env.REFRESH_TOKEN_EXPIRES_IN ||
-      '7d') as TokenDuration;
+    const accessTokenExpiresIn = (this.configService.get<string>(
+      'ACCESS_TOKEN_EXPIRES_IN',
+    ) || '15m') as TokenDuration;
+    const refreshTokenExpiresIn = (this.configService.get<string>(
+      'REFRESH_TOKEN_EXPIRES_IN',
+    ) || '7d') as TokenDuration;
 
     const [accessToken, refreshToken] = await Promise.all([
       this.tokenService.signAsync(newPayload, {
-        secret: process.env.JWT_SECRET,
+        secret: this.configService.getOrThrow<string>('JWT_SECRET'),
         expiresIn: accessTokenExpiresIn,
       }),
       this.tokenService.signAsync(newPayload, {
-        secret: process.env.JWT_REFRESH_SECRET,
+        secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
         expiresIn: refreshTokenExpiresIn,
       }),
     ]);

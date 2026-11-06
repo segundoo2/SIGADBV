@@ -31,6 +31,8 @@ export async function setupTestDatabase(app: INestApplication): Promise<void> {
     'unit.delete',
     'users.create',
     'users.read',
+    'users.update',
+    'users.update',
     'products.create',
     'products.read',
     'score-history.adjust',

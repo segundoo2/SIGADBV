@@ -113,7 +113,11 @@ export class ScoreHistoryService implements IScoreHistoryService {
       }
 
       if (scoreHistory.status !== EScoreHistoryStatus.PENDING) {
-        throw new BadRequestException(EScoreHistoryErrors.SCORE_APPROVE);
+        throw new BadRequestException(
+          scoreHistory.status === EScoreHistoryStatus.REJECTED
+            ? EScoreHistoryErrors.SCORE_REJECT
+            : EScoreHistoryErrors.SCORE_APPROVE,
+        );
       }
 
       const response = await this.unitsService.adjustUnitScore(
@@ -155,7 +159,11 @@ export class ScoreHistoryService implements IScoreHistoryService {
       }
 
       if (scoreHistory.status !== EScoreHistoryStatus.PENDING) {
-        throw new BadRequestException(EScoreHistoryErrors.SCORE_APPROVE);
+        throw new BadRequestException(
+          scoreHistory.status === EScoreHistoryStatus.APPROVED
+            ? EScoreHistoryErrors.SCORE_APPROVE
+            : EScoreHistoryErrors.SCORE_REJECT,
+        );
       }
 
       const result = await this.repository.rejectScoreHistory(
@@ -166,7 +174,7 @@ export class ScoreHistoryService implements IScoreHistoryService {
       );
 
       if (result.affected !== 1) {
-        throw new BadRequestException(EScoreHistoryErrors.SCORE_APPROVE);
+        throw new BadRequestException(EScoreHistoryErrors.SCORE_REJECT);
       }
 
       return {

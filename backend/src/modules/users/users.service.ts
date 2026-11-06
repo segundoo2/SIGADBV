@@ -12,7 +12,6 @@ import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { UserDto } from './dtos/user.dto';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
-import { UpdateResult } from 'typeorm';
 import type { ICacheStorageService } from '../../common/redis/interface/cache-storage.interface';
 import { EUsersSuccess } from '../../common/enum/user/users-sucess.enum';
 import { EUsersErrors } from '../../common/enum/user/users-errors.enum';
@@ -118,25 +117,43 @@ export class UsersService implements IUsersService {
     };
   }
 
-  async updateUserPassword(
-    passwordDto: UpdatePasswordDto & { tenantId: string },
-  ): Promise<IResponse<string | null>> {
-    const plainPassword =
-      passwordDto.password || this.generateTemporaryPassword();
+  async updateOwnPassword(
+    userId: string,
+    tenantId: string,
+    passwordDto: UpdatePasswordDto,
+  ): Promise<IResponse<null>> {
+    const result = await this.usersRepository.updateOwnPassword(
+      userId,
+      tenantId,
+      await bcrypt.hash(passwordDto.password, this.SALT_ROUNDS),
+    );
 
-    const passwordUpdated: UpdateResult =
-      await this.usersRepository.updateUserPassword({
-        ...passwordDto,
-        password: await bcrypt.hash(plainPassword, this.SALT_ROUNDS),
-      });
-
-    if (passwordUpdated.affected === 0) {
+    if (result.affected !== 1) {
       throw new NotFoundException(EUsersErrors.USER_NOT_FOUND);
     }
 
-    const returnData = passwordDto.password ? null : plainPassword;
+    return { message: EUsersSuccess.PASSWORD_UPDATE, data: null };
+  }
 
-    return { message: EUsersSuccess.PASSWORD_UPDATE, data: returnData };
+  async resetTemporaryPassword(
+    username: string,
+    tenantId: string,
+  ): Promise<IResponse<{ temporaryPassword: string }>> {
+    const temporaryPassword = this.generateTemporaryPassword();
+    const result = await this.usersRepository.resetTemporaryPassword(
+      username,
+      tenantId,
+      await bcrypt.hash(temporaryPassword, this.SALT_ROUNDS),
+    );
+
+    if (result.affected !== 1) {
+      throw new NotFoundException(EUsersErrors.USER_NOT_FOUND);
+    }
+
+    return {
+      message: EUsersSuccess.PASSWORD_UPDATE,
+      data: { temporaryPassword },
+    };
   }
 
   async addRoleToUser(

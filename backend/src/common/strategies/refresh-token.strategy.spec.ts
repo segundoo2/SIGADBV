@@ -6,6 +6,7 @@ import { RequestWithCookies } from './interfaces/req-with-cookies.interface';
 import { JwtRefreshStrategy } from './refresh-token.strategy';
 import { EPermission } from '../enum/role/permissions.enum';
 import { ICacheStorageService } from '../redis/interface/cache-storage.interface';
+import { ConfigService } from '@nestjs/config';
 
 describe('JwtRefreshStrategy', () => {
   let strategy: JwtRefreshStrategy;
@@ -24,6 +25,10 @@ describe('JwtRefreshStrategy', () => {
         {
           provide: 'ICacheStorageService',
           useValue: mockRedisService,
+        },
+        {
+          provide: ConfigService,
+          useValue: { getOrThrow: () => 'test-refresh-secret' },
         },
       ],
     }).compile();

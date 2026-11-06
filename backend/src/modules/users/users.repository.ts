@@ -13,7 +13,6 @@ import {
   UpdateResult,
 } from 'typeorm';
 import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
-import { UpdatePasswordDto } from './dtos/update-password.dto';
 import { IDatabaseDriverError } from '../../common/interfaces/database-driver-Error.interface';
 import { EUsersErrors } from '../../common/enum/user/users-errors.enum';
 import { UserDto } from './dtos/user.dto';
@@ -107,15 +106,35 @@ export class UsersRepository implements IUsersRepository {
     }
   }
 
-  async updateUserPassword(
-    passwordDto: UpdatePasswordDto & { tenantId: string },
+  async updateOwnPassword(
+    userId: string,
+    tenantId: string,
+    passwordHash: string,
   ): Promise<UpdateResult> {
     try {
       return await this.repository.update(
-        { username: passwordDto.username, tenantId: passwordDto.tenantId },
+        { id: userId, tenantId },
         {
-          password: passwordDto.password,
-          mustChangePassword: passwordDto.mustChangePassword,
+          password: passwordHash,
+          mustChangePassword: false,
+        },
+      );
+    } catch {
+      throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
+    }
+  }
+
+  async resetTemporaryPassword(
+    username: string,
+    tenantId: string,
+    passwordHash: string,
+  ): Promise<UpdateResult> {
+    try {
+      return await this.repository.update(
+        { username, tenantId },
+        {
+          password: passwordHash,
+          mustChangePassword: true,
         },
       );
     } catch {

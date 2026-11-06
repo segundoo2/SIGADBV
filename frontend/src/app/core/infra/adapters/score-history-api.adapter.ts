@@ -20,7 +20,7 @@ export class ScoreHistoryApiAdapter implements IScoreHistoryApiPort {
     payload: IScoreHistoryPayload,
   ): Promise<void> {
     await firstValueFrom(
-      this.http.post<IApiResponseModel<{ newScore: number }>>(
+      this.http.post<IApiResponseModel<null>>(
         `${this.baseUrl}/${unitId}`,
         payload,
         { withCredentials: true },

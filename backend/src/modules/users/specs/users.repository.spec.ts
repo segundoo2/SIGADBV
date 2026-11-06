@@ -148,32 +148,66 @@ describe('UsersRepository', () => {
     );
   });
 
-  describe('updateUserPassword', () => {
+  describe('updateOwnPassword', () => {
     const response: UpdateResult = { raw: [], affected: 0, generatedMaps: [] };
 
-    it('should return property affected === 1 when the password has successfully persisted', async () => {
+    it('should update by authenticated user id and clear mustChangePassword', async () => {
       const successResponse = { ...response, affected: 1 };
       ormRepositoryMock.update?.mockResolvedValue(successResponse);
 
-      expect(await repository.updateUserPassword(userDto)).toEqual(
-        successResponse,
-      );
+      expect(
+        await repository.updateOwnPassword(user.id, userDto.tenantId, 'hash'),
+      ).toEqual(successResponse);
       expect(ormRepositoryMock.update).toHaveBeenCalledWith(
-        { username: userDto.username, tenantId: userDto.tenantId },
-        {
-          mustChangePassword: userDto.mustChangePassword,
-          password: userDto.password,
-        },
+        { id: user.id, tenantId: userDto.tenantId },
+        { mustChangePassword: false, password: 'hash' },
       );
-    });
-
-    it('should return the property affected === 0 when the user not found', async () => {
-      ormRepositoryMock.update?.mockResolvedValue(response);
-      expect(await repository.updateUserPassword(userDto)).toEqual(response);
     });
 
     shouldHandleDatabaseErrors(
-      () => repository.updateUserPassword(userDto),
+      () => repository.updateOwnPassword(user.id, userDto.tenantId, 'hash'),
+      () => ormRepositoryMock.update,
+    );
+  });
+
+  describe('resetTemporaryPassword', () => {
+    const response: UpdateResult = { raw: [], affected: 0, generatedMaps: [] };
+
+    it('should update the target account and require password change', async () => {
+      const successResponse = { ...response, affected: 1 };
+      ormRepositoryMock.update?.mockResolvedValue(successResponse);
+
+      expect(
+        await repository.resetTemporaryPassword(
+          userDto.username,
+          userDto.tenantId,
+          'temporary-hash',
+        ),
+      ).toEqual(successResponse);
+      expect(ormRepositoryMock.update).toHaveBeenCalledWith(
+        { username: userDto.username, tenantId: userDto.tenantId },
+        { password: 'temporary-hash', mustChangePassword: true },
+      );
+    });
+
+    it('should return the property affected === 0 when the user is not found', async () => {
+      ormRepositoryMock.update?.mockResolvedValue(response);
+      expect(
+        await repository.resetTemporaryPassword(
+          userDto.username,
+          userDto.tenantId,
+          'temporary-hash',
+        ),
+      ).toEqual(response);
+    });
+
+    shouldHandleDatabaseErrors(
+      () =>
+        repository.resetTemporaryPassword(
+          userDto.username,
+          userDto.tenantId,
+          'temporary-hash',
+        ),
       () => ormRepositoryMock.update,
     );
   });

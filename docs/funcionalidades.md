@@ -11,7 +11,7 @@ Este inventário distingue funcionalidades observadas no código de disponibilid
 
 ### Usuários e troca de senha
 
-- **Backend:** criação de usuário com senha temporária, consulta e listagem paginada, alteração de senha, associação/remoção de papéis e exclusão. A criação marca a conta para troca de senha. O contrato de negócio limita a alteração de senha à própria conta; há uma divergência de autorização no endpoint atual, detalhada em [regras-de-negocio.md](regras-de-negocio.md). Evidências: `backend/src/modules/users/users.controller.ts`, `backend/src/modules/users/users.service.ts`.
+- **Backend:** criação de usuário com senha temporária, consulta e listagem paginada, alteração da própria senha, reset de senha temporária com `USERS_UPDATE`, associação/remoção de papéis e exclusão. A criação e o reset marcam a conta para troca obrigatória no próximo acesso. Evidências: `backend/src/modules/users/users.controller.ts`, `backend/src/modules/users/users.service.ts`.
 - **Frontend:** jornada de troca de senha. O contexto confirmado define que o administrador gera a senha temporária e o usuário estabelece a senha definitiva no primeiro acesso. Evidências: `frontend/src/app/feature/update-password/`, `frontend/src/app/core/store/update-password.store.ts`.
 - Não foi localizada uma tela de administração de usuários no conjunto de rotas e features inspecionado.
 
@@ -42,7 +42,7 @@ Este inventário distingue funcionalidades observadas no código de disponibilid
 | Área              | Interface Angular                                                  | API NestJS                                                                        |
 | ----------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
 | Autenticação      | Login, guards, sessão e logout                                     | Login, refresh e logout                                                           |
-| Senhas            | Fluxo de definição da senha definitiva                             | Criação de senha temporária e atualização de senha                                |
+| Senhas            | Fluxo de definição da senha definitiva                             | Criação/reset de senha temporária e alteração da própria senha                    |
 | Unidades          | Consulta e exibição de pontuação                                   | CRUD e consulta de unidades                                                       |
 | Pontuação         | Solicitação, histórico, aprovação/rejeição no overview e relatório | Solicitação, persistência de histórico, aprovação/rejeição e atualização do saldo |
 | Usuários e papéis | Não há telas correspondentes identificadas                         | CRUD/consulta de usuários e papéis, atribuições e permissões                      |
@@ -50,7 +50,7 @@ Este inventário distingue funcionalidades observadas no código de disponibilid
 
 ## Testes localizados
 
-No inventário de arquivos foram encontrados 33 testes unitários backend, 4 testes E2E backend, 35 testes unitários frontend e 2 testes E2E frontend. As suites E2E backend abrangem autenticação, histórico de pontuação, unidades e throttle; as E2E frontend abrangem autenticação e troca de senha. A existência dos arquivos não demonstra cobertura percentual. Em 2026-11-06, `pnpm test:e2e` passou com 4 suites e 30 testes no banco de testes configurado.
+No inventário de arquivos foram encontrados testes unitários backend, 5 arquivos E2E backend, 35 testes unitários frontend e 2 testes E2E frontend. As suites E2E backend abrangem autenticação, troca/reset de senha, histórico de pontuação, unidades e throttle; as E2E frontend abrangem autenticação e troca de senha. A existência dos arquivos não demonstra cobertura percentual. Em 2026-11-06, um registro anterior de `pnpm test:e2e` passou com 4 suites e 30 testes no banco de testes configurado; a nova suite de senha passou isoladamente com 5 testes.
 
 O E2E de pontuação inclui cenários para solicitação pendente, aprovação positiva/negativa, rejeição, rollback diante de falhas de persistência e tentativas concorrentes, com assertions contra PostgreSQL. Em 2026-11-06, os 10 testes dessa suite passaram. O helper E2E sincroniza e limpa o banco configurado; execute-o somente com um banco de testes descartável.
 

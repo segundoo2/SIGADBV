@@ -80,7 +80,7 @@ Esses módulos estão registrados em `src/app.module.ts`. Ter um endpoint na API
 - `ValidationPipe` global transforma DTOs, remove campos não declarados e rejeita propriedades extras (`whitelist` e `forbidNonWhitelisted`).
 - Helmet configura cabeçalhos de segurança; CORS aceita origens configuradas e credenciais.
 
-**Limitação conhecida:** a regra de produto diz que cada usuário altera apenas a própria senha, mas o código atual de `PATCH /users` recebe username no corpo e não o vincula ao usuário autenticado. A implementação não comprova essa restrição. Consulte `../docs/regras-de-negocio.md`.
+`PATCH /users` altera a senha da conta autenticada e rejeita campos extras como `username`. Para emitir uma nova senha temporária para outra conta, use `POST /users/:username/temporary-password`, protegido pela permissão `USERS_UPDATE`; o próximo acesso exige a definição de uma senha definitiva. Consulte `../docs/regras-de-negocio.md`.
 
 ## Persistência
 
@@ -220,7 +220,7 @@ backend/
 - Multi-tenancy foi adiado; a aplicação usa tenant fixo.
 - A aprovação de pontuação usa uma transação TypeORM compartilhada entre o bloqueio/leitura da solicitação, o incremento/decremento do saldo e a atualização do status. O bloqueio `pessimistic_write`, a validação de estado e a atualização condicional previnem processamento duplicado; erros causam rollback das duas alterações.
 - O comportamento de exclusões relacionais depende das constraints presentes no banco; o metadata ORM não comprova sozinho o schema de produção.
-- A regra de troca de senha confirmada pelo responsável ainda não é garantida pelo controller/service atual.
+- `PATCH /users` altera apenas a conta identificada pelo JWT; o reset de senha temporária para outra conta exige `USERS_UPDATE`.
 - `pnpm run lint` executa ESLint com `--fix`; pode modificar arquivos. Use-o sabendo desse efeito.
 
 Para o contexto de negócio e as regras detalhadas, consulte [`../docs/visao.md`](../docs/visao.md), [`../docs/funcionalidades.md`](../docs/funcionalidades.md) e [`../docs/regras-de-negocio.md`](../docs/regras-de-negocio.md).

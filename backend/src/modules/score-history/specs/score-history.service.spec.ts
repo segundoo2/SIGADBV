@@ -269,6 +269,26 @@ describe('ScoreHistoryService', () => {
       expect(repository.approveScoreHistory).not.toHaveBeenCalled();
     });
 
+    it('should report the rejected state when approval is retried', async () => {
+      repository.findOneScoreHistoryForUpdate.mockResolvedValue({
+        ...mockScoreHistory,
+        status: EScoreHistoryStatus.REJECTED,
+      });
+
+      await expect(
+        service.approveUnitScore(
+          mockScoreHistory.id,
+          unit.userId,
+          unit.tenantId,
+        ),
+      ).rejects.toThrow(
+        new BadRequestException(EScoreHistoryErrors.SCORE_REJECT),
+      );
+
+      expect(unitsService.adjustUnitScore).not.toHaveBeenCalled();
+      expect(repository.approveScoreHistory).not.toHaveBeenCalled();
+    });
+
     it('should reject the transaction when the conditional status update affects no row', async () => {
       repository.findOneScoreHistoryForUpdate.mockResolvedValue(
         mockScoreHistory,
@@ -375,7 +395,7 @@ describe('ScoreHistoryService', () => {
           unit.tenantId,
         ),
       ).rejects.toThrow(
-        new BadRequestException(EScoreHistoryErrors.SCORE_APPROVE),
+        new BadRequestException(EScoreHistoryErrors.SCORE_REJECT),
       );
     });
   });

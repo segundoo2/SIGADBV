@@ -1,8 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SCORE_HISTORY_STORE_PORT } from '../../core/infra/tokens/score-history.token';
-import { UNITS_STORE_PORT } from '../../core/infra/tokens/units.token';
+import { SCORE_HISTORY_STORE_PORT } from '../../../core/infra/tokens/score-history.token';
+import { UNITS_STORE_PORT } from '../../../core/infra/tokens/units.token';
+import { USERS_STORE_PORT } from '../../../core/infra/tokens/users.token';
+import { EPermission } from '../../../core/domain/enums/permissions.enum';
+import { UserEntity } from '../../../core/domain/entities/user.entity';
 import { UnitScoreManagerComponent } from './unit-score-manager.component';
 
 describe('UnitScoreManagerComponent', () => {
@@ -19,10 +22,45 @@ describe('UnitScoreManagerComponent', () => {
   };
 
   const unitsStoreMock = {
-    unitsList: signal([]),
+    unitsList: signal([
+      {
+        id: '123e4567-e89b-12d3-a456-426614174000',
+        tenantId: 'tenant-1',
+        name: 'Unidade Alpha',
+        gender: 'MIXED',
+        maxMembers: 8,
+        score: 120,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]),
     isLoading: signal(false),
     error: signal<string | null>(null),
     fetchAllUnits: vi.fn(),
+  };
+
+  const usersStoreMock = {
+    userCurrentEntity: signal<UserEntity | null>({
+      id: 'user-1',
+      tenantId: 'tenant-1',
+      username: 'test.user',
+      mustChangePassword: false,
+      roles: [
+        {
+          id: 'role-1',
+          tenantId: 'tenant-1',
+          name: 'Pontuador',
+          permissions: [
+            EPermission.SCORE_HISTORY_ADJUST,
+            EPermission.UNIT_READ,
+          ],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }),
   };
 
   const validFormValue = {
@@ -32,10 +70,39 @@ describe('UnitScoreManagerComponent', () => {
   };
 
   beforeEach(async () => {
+    usersStoreMock.userCurrentEntity.set({
+      ...usersStoreMock.userCurrentEntity()!,
+      roles: [
+        {
+          id: 'role-1',
+          tenantId: 'tenant-1',
+          name: 'Pontuador',
+          permissions: [
+            EPermission.SCORE_HISTORY_ADJUST,
+            EPermission.UNIT_READ,
+          ],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+    });
     scoreStoreMock.error.set(null);
     scoreStoreMock.isLoading.set(false);
     scoreStoreMock.unitsOptions.set([]);
     scoreStoreMock.registerUnitScore.mockReset();
+    scoreStoreMock.fetchAllUnitsOptions.mockClear();
+    unitsStoreMock.unitsList.set([
+      {
+        id: validFormValue.unitId,
+        tenantId: 'tenant-1',
+        name: 'Unidade Alpha',
+        gender: 'MIXED',
+        maxMembers: 8,
+        score: 120,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
     unitsStoreMock.fetchAllUnits.mockReset().mockResolvedValue([
       {
         id: validFormValue.unitId,
@@ -52,6 +119,7 @@ describe('UnitScoreManagerComponent', () => {
     await TestBed.configureTestingModule({
       imports: [UnitScoreManagerComponent],
       providers: [
+        { provide: USERS_STORE_PORT, useValue: usersStoreMock },
         {
           provide: SCORE_HISTORY_STORE_PORT,
           useValue: scoreStoreMock,
@@ -101,6 +169,119 @@ describe('UnitScoreManagerComponent', () => {
     fixture.detectChanges();
 
     expect(component.isScoreModalOpen()).toBe(true);
+  });
+
+  it('should not show request capability without score-history.adjust', () => {
+    usersStoreMock.userCurrentEntity.set({
+      ...usersStoreMock.userCurrentEntity()!,
+      roles: [
+        {
+          id: 'role-reader',
+          tenantId: 'tenant-1',
+          name: 'Leitor',
+          permissions: [EPermission.UNIT_READ],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+    });
+
+    component.openScoreModal();
+
+    expect(component.canRequestScore()).toBe(false);
+    expect(component.isScoreModalOpen()).toBe(false);
+    expect(scoreStoreMock.registerUnitScore).not.toHaveBeenCalled();
+  });
+
+  it('should use the dedicated unit-options endpoint for adjust and approve permissions without unit.read', () => {
+    usersStoreMock.userCurrentEntity.set({
+      ...usersStoreMock.userCurrentEntity()!,
+      roles: [
+        {
+          id: 'role-approver',
+          tenantId: 'tenant-1',
+          name: 'Aprovador e solicitante',
+          permissions: [
+            EPermission.SCORE_HISTORY_ADJUST,
+            EPermission.SCORE_HISTORY_APPROVE,
+          ],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+    });
+    unitsStoreMock.unitsList.set([]);
+    scoreStoreMock.unitsOptions.set([
+      { id: validFormValue.unitId, name: 'Unidade Alpha' },
+    ]);
+
+    component.openScoreModal();
+
+    expect(scoreStoreMock.fetchAllUnitsOptions).toHaveBeenCalledOnce();
+    expect(component.unitOptions()).toEqual([
+      { id: validFormValue.unitId, name: 'Unidade Alpha' },
+    ]);
+    expect(component.isScoreModalOpen()).toBe(true);
+  });
+
+  it('should not open the request modal when the user has no score-history.adjust permission', () => {
+    usersStoreMock.userCurrentEntity.set({
+      ...usersStoreMock.userCurrentEntity()!,
+      roles: [
+        {
+          id: 'role-reader',
+          tenantId: 'tenant-1',
+          name: 'Leitor',
+          permissions: [EPermission.UNIT_READ],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+    });
+
+    component.openScoreModal();
+
+    expect(component.isScoreModalOpen()).toBe(false);
+    expect(scoreStoreMock.fetchAllUnitsOptions).not.toHaveBeenCalled();
+  });
+
+  it('allows an adjust-only user to submit a manually selected unit UUID', async () => {
+    usersStoreMock.userCurrentEntity.set({
+      ...usersStoreMock.userCurrentEntity()!,
+      roles: [
+        {
+          id: 'role-adjust-only',
+          tenantId: 'tenant-1',
+          name: 'Solicitante',
+          permissions: [EPermission.SCORE_HISTORY_ADJUST],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+    });
+    unitsStoreMock.unitsList.set([]);
+    scoreStoreMock.unitsOptions.set([]);
+
+    component.openScoreModal();
+    fixture.detectChanges();
+
+    expect(component.isScoreModalOpen()).toBe(true);
+    expect(component.canListTargetUnits()).toBe(false);
+    expect(scoreStoreMock.fetchAllUnitsOptions).not.toHaveBeenCalled();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector(
+        '[data-testid="unit-id-input"]',
+      ),
+    ).not.toBeNull();
+
+    scoreStoreMock.registerUnitScore.mockResolvedValue(undefined);
+    component.scoreForm.setValue(validFormValue);
+    await component.onSubmitScore();
+
+    expect(scoreStoreMock.registerUnitScore).toHaveBeenCalledWith(
+      validFormValue.unitId,
+      { score: -15, description: validFormValue.description },
+    );
   });
 
   it('should close the modal', () => {

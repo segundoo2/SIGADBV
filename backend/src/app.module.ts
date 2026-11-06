@@ -16,11 +16,13 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { UnitsModule } from './modules/units/units.module';
 import { PermissionGuard } from './common/guards/permission.guard';
 import { ScoreHistoryModule } from './modules/score-history/score-history.module';
+import { validateEnvironment } from './common/environment.validation';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validate: validateEnvironment,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
