@@ -2,6 +2,7 @@ import { IResponse } from '../../../common/interfaces/response.interface';
 import { CreateUnitDto } from '../dto/create-unit.dto';
 import { UpdateUnitDto } from '../dto/update-unit.dto';
 import { UnitEntity } from '../entities/unit.entity';
+import { EntityManager } from 'typeorm';
 
 export interface IUnitsService {
   createUnit(
@@ -24,6 +25,7 @@ export interface IUnitsService {
     id: string,
     tenantId: string,
     scoreDelta: number,
+    manager?: EntityManager,
   ): Promise<IResponse<null>>;
 
   deleteUnit(id: string, tenantId: string): Promise<IResponse<null>>;

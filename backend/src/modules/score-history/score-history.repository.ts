@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository, UpdateResult } from 'typeorm';
 import { IScoreHistoryRepository } from './interfaces/score-history.repository.interface';
 import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 import { ScoreHistoryDto } from './dtos/score-history.dto';
@@ -103,13 +103,15 @@ export class ScoreHistoryRepository implements IScoreHistoryRepository {
     }
   }
 
-  async findOneScoreHistoryPending(
+  async findOneScoreHistoryForUpdate(
     id: string,
     tenantId: string,
+    manager: EntityManager,
   ): Promise<ScoreHistoryEntity | null> {
     try {
-      return await this.repository.findOne({
+      return await manager.getRepository(ScoreHistoryEntity).findOne({
         where: { id, tenantId },
+        lock: { mode: 'pessimistic_write' },
       });
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
@@ -120,12 +122,15 @@ export class ScoreHistoryRepository implements IScoreHistoryRepository {
     id: string,
     tenantId: string,
     approvedById: string,
-  ): Promise<void> {
+    manager: EntityManager,
+  ): Promise<UpdateResult> {
     try {
-      await this.repository.update(
-        { id, tenantId },
-        { status: EScoreHistoryStatus.APPROVED, approvedById },
-      );
+      return await manager
+        .getRepository(ScoreHistoryEntity)
+        .update(
+          { id, tenantId, status: EScoreHistoryStatus.PENDING },
+          { status: EScoreHistoryStatus.APPROVED, approvedById },
+        );
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
     }
@@ -135,12 +140,15 @@ export class ScoreHistoryRepository implements IScoreHistoryRepository {
     id: string,
     tenantId: string,
     rejectedById: string,
-  ): Promise<void> {
+    manager: EntityManager,
+  ): Promise<UpdateResult> {
     try {
-      await this.repository.update(
-        { id, tenantId },
-        { status: EScoreHistoryStatus.REJECTED, rejectedById },
-      );
+      return await manager
+        .getRepository(ScoreHistoryEntity)
+        .update(
+          { id, tenantId, status: EScoreHistoryStatus.PENDING },
+          { status: EScoreHistoryStatus.REJECTED, rejectedById },
+        );
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);
     }

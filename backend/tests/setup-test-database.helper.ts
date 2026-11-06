@@ -33,6 +33,9 @@ export async function setupTestDatabase(app: INestApplication): Promise<void> {
     'users.read',
     'products.create',
     'products.read',
+    'score-history.adjust',
+    'score-history.read',
+    'score-history.approve',
   ];
 
   if (!superAdminRole) {

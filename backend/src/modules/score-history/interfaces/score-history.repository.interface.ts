@@ -2,6 +2,7 @@ import { EScoreHistoryStatus } from '../../../common/enum/score-story/score-hist
 import { UnitEntity } from '../../units/entities/unit.entity';
 import { ScoreHistoryDto } from '../dtos/score-history.dto';
 import { ScoreHistoryEntity } from '../entity/score-history.entity';
+import { EntityManager, UpdateResult } from 'typeorm';
 
 export interface IScoreHistoryRepository {
   requestAdjustUnitScore(
@@ -25,20 +26,23 @@ export interface IScoreHistoryRepository {
 
   retrivePendingUnitsScore(tenantId: string): Promise<ScoreHistoryEntity[]>;
 
-  findOneScoreHistoryPending(
+  findOneScoreHistoryForUpdate(
     id: string,
     tenantId: string,
+    manager: EntityManager,
   ): Promise<ScoreHistoryEntity | null>;
 
   approveScoreHistory(
     id: string,
     tenantId: string,
     approvedById: string,
-  ): Promise<void>;
+    manager: EntityManager,
+  ): Promise<UpdateResult>;
 
   rejectScoreHistory(
     id: string,
     tenantId: string,
     rejectedById: string,
-  ): Promise<void>;
+    manager: EntityManager,
+  ): Promise<UpdateResult>;
 }

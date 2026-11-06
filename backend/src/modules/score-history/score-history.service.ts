@@ -16,6 +16,7 @@ import { UnitEntity } from '../units/entities/unit.entity';
 import { EUnitErrors } from '../../common/enum/unit/unit-errors.enum';
 import { EUnitSuccess } from '../../common/enum/unit/unit-success.enum';
 import { EScoreHistoryStatus } from '../../common/enum/score-story/score-history-status.enum';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class ScoreHistoryService implements IScoreHistoryService {
@@ -24,6 +25,7 @@ export class ScoreHistoryService implements IScoreHistoryService {
     private readonly repository: IScoreHistoryRepository,
     @Inject('IUnitsService')
     private readonly unitsService: IUnitsService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async requestAdjustUnitScore(
@@ -99,26 +101,41 @@ export class ScoreHistoryService implements IScoreHistoryService {
     userId: string,
     tenantId: string,
   ): Promise<IResponse<null>> {
-    const scoreHistory = await this.repository.findOneScoreHistoryPending(
-      id,
-      tenantId,
-    );
+    return await this.dataSource.transaction(async (manager) => {
+      const scoreHistory = await this.repository.findOneScoreHistoryForUpdate(
+        id,
+        tenantId,
+        manager,
+      );
 
-    if (!scoreHistory) {
-      throw new NotFoundException(EScoreHistoryErrors.NOT_FOUND);
-    }
+      if (!scoreHistory) {
+        throw new NotFoundException(EScoreHistoryErrors.NOT_FOUND);
+      }
 
-    if (scoreHistory.status !== EScoreHistoryStatus.PENDING) {
-      throw new BadRequestException(EScoreHistoryErrors.SCORE_APPROVE);
-    }
+      if (scoreHistory.status !== EScoreHistoryStatus.PENDING) {
+        throw new BadRequestException(EScoreHistoryErrors.SCORE_APPROVE);
+      }
 
-    await this.repository.approveScoreHistory(id, tenantId, userId);
+      const response = await this.unitsService.adjustUnitScore(
+        scoreHistory.unitId,
+        tenantId,
+        scoreHistory.score,
+        manager,
+      );
 
-    return await this.unitsService.adjustUnitScore(
-      scoreHistory.unitId,
-      tenantId,
-      scoreHistory.score,
-    );
+      const result = await this.repository.approveScoreHistory(
+        id,
+        tenantId,
+        userId,
+        manager,
+      );
+
+      if (result.affected !== 1) {
+        throw new BadRequestException(EScoreHistoryErrors.SCORE_APPROVE);
+      }
+
+      return response;
+    });
   }
 
   async rejectUnitScore(
@@ -126,24 +143,36 @@ export class ScoreHistoryService implements IScoreHistoryService {
     userId: string,
     tenantId: string,
   ): Promise<IResponse<null>> {
-    const scoreHistory = await this.repository.findOneScoreHistoryPending(
-      id,
-      tenantId,
-    );
+    return await this.dataSource.transaction(async (manager) => {
+      const scoreHistory = await this.repository.findOneScoreHistoryForUpdate(
+        id,
+        tenantId,
+        manager,
+      );
 
-    if (!scoreHistory) {
-      throw new NotFoundException(EScoreHistoryErrors.NOT_FOUND);
-    }
+      if (!scoreHistory) {
+        throw new NotFoundException(EScoreHistoryErrors.NOT_FOUND);
+      }
 
-    if (scoreHistory.status !== EScoreHistoryStatus.PENDING) {
-      throw new BadRequestException(EScoreHistoryErrors.SCORE_APPROVE);
-    }
+      if (scoreHistory.status !== EScoreHistoryStatus.PENDING) {
+        throw new BadRequestException(EScoreHistoryErrors.SCORE_APPROVE);
+      }
 
-    await this.repository.rejectScoreHistory(id, tenantId, userId);
+      const result = await this.repository.rejectScoreHistory(
+        id,
+        tenantId,
+        userId,
+        manager,
+      );
 
-    return {
-      message: EScoreHistorySuccess.REQUEST_SCORE,
-      data: null,
-    };
+      if (result.affected !== 1) {
+        throw new BadRequestException(EScoreHistoryErrors.SCORE_APPROVE);
+      }
+
+      return {
+        message: EScoreHistorySuccess.REQUEST_SCORE,
+        data: null,
+      };
+    });
   }
 }

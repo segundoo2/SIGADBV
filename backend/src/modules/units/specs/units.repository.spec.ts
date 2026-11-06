@@ -184,8 +184,13 @@ describe('UnitRepository', () => {
 
     it('should increment or decrement score value with success', async () => {
       const scoreDelta = 500;
-      await repository.adjustUnitScore(unit.id, unit.tenantId, scoreDelta);
+      const result = await repository.adjustUnitScore(
+        unit.id,
+        unit.tenantId,
+        scoreDelta,
+      );
 
+      expect(result.affected).toBe(1);
       expect(ormMock.createQueryBuilder).toHaveBeenCalledTimes(1);
 
       expect(queryBuilderMock.update).toHaveBeenCalledTimes(1);

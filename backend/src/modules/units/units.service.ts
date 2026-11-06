@@ -12,6 +12,7 @@ import type { IUnitsRepository } from './interfaces/units.repository.interface';
 import { EUnitSuccess } from '../../common/enum/unit/unit-success.enum';
 import { EUnitErrors } from '../../common/enum/unit/unit-errors.enum';
 import { UpdateUnitDto } from './dto/update-unit.dto';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class UnitsService implements IUnitsService {
@@ -82,14 +83,18 @@ export class UnitsService implements IUnitsService {
     id: string,
     tenantId: string,
     scoreDelta: number,
+    manager?: EntityManager,
   ): Promise<IResponse<null>> {
-    const unitExisted = await this.repository.findOneScoreById(id, tenantId);
+    const result = await this.repository.adjustUnitScore(
+      id,
+      tenantId,
+      scoreDelta,
+      manager,
+    );
 
-    if (unitExisted === null) {
+    if (result.affected !== 1) {
       throw new NotFoundException(EUnitErrors.UNITS_NOT_FOUND);
     }
-
-    await this.repository.adjustUnitScore(id, tenantId, scoreDelta);
 
     return {
       message: EUnitSuccess.ADJUST_SCORE,

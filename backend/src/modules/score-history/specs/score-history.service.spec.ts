@@ -13,11 +13,20 @@ import { EScoreHistoryErrors } from '../../../common/enum/score-story/score-hist
 import { EUnitErrors } from '../../../common/enum/unit/unit-errors.enum';
 import { EScoreHistoryStatus } from '../../../common/enum/score-story/score-history-status.enum';
 import { User } from '../../users/entities/user.entity';
+import { DataSource, EntityManager, UpdateResult } from 'typeorm';
 
 describe('ScoreHistoryService', () => {
   let service: ScoreHistoryService;
   let repository: jest.Mocked<IScoreHistoryRepository>;
   let unitsService: jest.Mocked<IUnitsService>;
+  let dataSource: DataSource;
+  let manager: EntityManager;
+
+  const updatedRow: UpdateResult = {
+    raw: [],
+    generatedMaps: [],
+    affected: 1,
+  };
 
   const dto: ScoreHistoryDto = {
     score: 100,
@@ -58,12 +67,20 @@ describe('ScoreHistoryService', () => {
   };
 
   beforeEach(() => {
+    manager = {} as EntityManager;
+    dataSource = {
+      transaction: jest.fn(
+        async (callback: (manager: EntityManager) => Promise<unknown>) =>
+          callback(manager),
+      ),
+    } as unknown as DataSource;
+
     repository = {
       requestAdjustUnitScore: jest.fn(),
       findHistoryByUnitId: jest.fn(),
       findAllUnitsNameAndId: jest.fn(),
       retrivePendingUnitsScore: jest.fn(),
-      findOneScoreHistoryPending: jest.fn(),
+      findOneScoreHistoryForUpdate: jest.fn(),
       approveScoreHistory: jest.fn(),
       rejectScoreHistory: jest.fn(),
     };
@@ -77,7 +94,7 @@ describe('ScoreHistoryService', () => {
       remove: jest.fn(),
     } as unknown as jest.Mocked<IUnitsService>;
 
-    service = new ScoreHistoryService(repository, unitsService);
+    service = new ScoreHistoryService(repository, unitsService, dataSource);
   });
 
   describe('requestAdjustUnitScore', () => {
@@ -182,8 +199,10 @@ describe('ScoreHistoryService', () => {
 
   describe('approveUnitScore', () => {
     it('should approve unit score successfully', async () => {
-      repository.findOneScoreHistoryPending.mockResolvedValue(mockScoreHistory);
-      repository.approveScoreHistory.mockResolvedValue();
+      repository.findOneScoreHistoryForUpdate.mockResolvedValue(
+        mockScoreHistory,
+      );
+      repository.approveScoreHistory.mockResolvedValue(updatedRow);
       const expectedResponse: IResponse<null> = {
         message: EUnitSuccess.ADJUST_SCORE,
         data: null,
@@ -197,24 +216,34 @@ describe('ScoreHistoryService', () => {
       );
 
       expect(result).toEqual(expectedResponse);
+      expect(repository.findOneScoreHistoryForUpdate).toHaveBeenCalledWith(
+        mockScoreHistory.id,
+        unit.tenantId,
+        manager,
+      );
       expect(repository.approveScoreHistory).toHaveBeenCalledWith(
         mockScoreHistory.id,
         unit.tenantId,
         unit.userId,
+        manager,
       );
       expect(unitsService.adjustUnitScore).toHaveBeenCalledWith(
         mockScoreHistory.unitId,
         unit.tenantId,
         mockScoreHistory.score,
+        manager,
       );
     });
 
     it('should throw NotFoundException when score history is not found for approval', async () => {
-      repository.findOneScoreHistoryPending.mockResolvedValue(null);
+      repository.findOneScoreHistoryForUpdate.mockResolvedValue(null);
 
       await expect(
         service.approveUnitScore('invalid-id', unit.userId, unit.tenantId),
       ).rejects.toThrow(new NotFoundException(EScoreHistoryErrors.NOT_FOUND));
+
+      expect(unitsService.adjustUnitScore).not.toHaveBeenCalled();
+      expect(repository.approveScoreHistory).not.toHaveBeenCalled();
     });
 
     it('should throw BadRequestException when score history status is not pending', async () => {
@@ -222,7 +251,36 @@ describe('ScoreHistoryService', () => {
         ...mockScoreHistory,
         status: EScoreHistoryStatus.APPROVED,
       };
-      repository.findOneScoreHistoryPending.mockResolvedValue(approvedHistory);
+      repository.findOneScoreHistoryForUpdate.mockResolvedValue(
+        approvedHistory,
+      );
+
+      await expect(
+        service.approveUnitScore(
+          mockScoreHistory.id,
+          unit.userId,
+          unit.tenantId,
+        ),
+      ).rejects.toThrow(
+        new BadRequestException(EScoreHistoryErrors.SCORE_APPROVE),
+      );
+
+      expect(unitsService.adjustUnitScore).not.toHaveBeenCalled();
+      expect(repository.approveScoreHistory).not.toHaveBeenCalled();
+    });
+
+    it('should reject the transaction when the conditional status update affects no row', async () => {
+      repository.findOneScoreHistoryForUpdate.mockResolvedValue(
+        mockScoreHistory,
+      );
+      repository.approveScoreHistory.mockResolvedValue({
+        ...updatedRow,
+        affected: 0,
+      });
+      unitsService.adjustUnitScore.mockResolvedValue({
+        message: EUnitSuccess.ADJUST_SCORE,
+        data: null,
+      });
 
       await expect(
         service.approveUnitScore(
@@ -238,8 +296,10 @@ describe('ScoreHistoryService', () => {
 
   describe('rejectUnitScore', () => {
     it('should reject unit score successfully', async () => {
-      repository.findOneScoreHistoryPending.mockResolvedValue(mockScoreHistory);
-      repository.rejectScoreHistory.mockResolvedValue();
+      repository.findOneScoreHistoryForUpdate.mockResolvedValue(
+        mockScoreHistory,
+      );
+      repository.rejectScoreHistory.mockResolvedValue(updatedRow);
 
       const result = await service.rejectUnitScore(
         mockScoreHistory.id,
@@ -251,27 +311,62 @@ describe('ScoreHistoryService', () => {
         message: EScoreHistorySuccess.REQUEST_SCORE,
         data: null,
       });
+      expect(repository.findOneScoreHistoryForUpdate).toHaveBeenCalledWith(
+        mockScoreHistory.id,
+        unit.tenantId,
+        manager,
+      );
       expect(repository.rejectScoreHistory).toHaveBeenCalledWith(
         mockScoreHistory.id,
         unit.tenantId,
         unit.userId,
+        manager,
       );
+      expect(unitsService.adjustUnitScore).not.toHaveBeenCalled();
     });
 
     it('should throw NotFoundException when score history is not found for rejection', async () => {
-      repository.findOneScoreHistoryPending.mockResolvedValue(null);
+      repository.findOneScoreHistoryForUpdate.mockResolvedValue(null);
 
       await expect(
         service.rejectUnitScore('invalid-id', unit.userId, unit.tenantId),
       ).rejects.toThrow(new NotFoundException(EScoreHistoryErrors.NOT_FOUND));
+
+      expect(repository.rejectScoreHistory).not.toHaveBeenCalled();
+      expect(unitsService.adjustUnitScore).not.toHaveBeenCalled();
     });
 
-    it('should throw BadRequestException when score history status is not pending during rejection', async () => {
+    it('should throw BadRequestException when an approved score history is rejected', async () => {
+      const approvedHistory: ScoreHistoryEntity = {
+        ...mockScoreHistory,
+        status: EScoreHistoryStatus.APPROVED,
+      };
+      repository.findOneScoreHistoryForUpdate.mockResolvedValue(
+        approvedHistory,
+      );
+
+      await expect(
+        service.rejectUnitScore(
+          mockScoreHistory.id,
+          unit.userId,
+          unit.tenantId,
+        ),
+      ).rejects.toThrow(
+        new BadRequestException(EScoreHistoryErrors.SCORE_APPROVE),
+      );
+
+      expect(repository.rejectScoreHistory).not.toHaveBeenCalled();
+      expect(unitsService.adjustUnitScore).not.toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException when a rejected score history is processed again', async () => {
       const rejectedHistory: ScoreHistoryEntity = {
         ...mockScoreHistory,
         status: EScoreHistoryStatus.REJECTED,
       };
-      repository.findOneScoreHistoryPending.mockResolvedValue(rejectedHistory);
+      repository.findOneScoreHistoryForUpdate.mockResolvedValue(
+        rejectedHistory,
+      );
 
       await expect(
         service.rejectUnitScore(

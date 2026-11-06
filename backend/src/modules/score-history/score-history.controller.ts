@@ -83,7 +83,7 @@ export class ScoreHistoryController implements IScoreHistoryController {
   }
 
   @Get('pending')
-  @RequiresPermission(EPermission.SCORE_HISTORY_READ)
+  @RequiresPermission(EPermission.SCORE_HISTORY_APPROVE)
   @ApiOperation({
     summary: 'Buscar todas as pontuações pendentes do clube',
     description:
@@ -101,7 +101,7 @@ export class ScoreHistoryController implements IScoreHistoryController {
   }
 
   @Post(':id/approve')
-  @RequiresPermission(EPermission.SCORE_HISTORY_ADJUST)
+  @RequiresPermission(EPermission.SCORE_HISTORY_APPROVE)
   @ApiOperation({
     summary: 'Aprovar solicitação de pontuação',
     description:
@@ -121,7 +121,7 @@ export class ScoreHistoryController implements IScoreHistoryController {
   }
 
   @Post(':id/reject')
-  @RequiresPermission(EPermission.SCORE_HISTORY_ADJUST)
+  @RequiresPermission(EPermission.SCORE_HISTORY_APPROVE)
   @ApiOperation({
     summary: 'Rejeitar solicitação de pontuação',
     description:
@@ -176,7 +176,7 @@ export class ScoreHistoryController implements IScoreHistoryController {
   }
 
   @Get('units/units-options')
-  @RequiresPermission(EPermission.SCORE_HISTORY_ADJUST)
+  @RequiresPermission(EPermission.SCORE_HISTORY_APPROVE)
   @ApiOperation({
     summary: 'Listar ID e nome de todas as unidades para seleção',
     description:
