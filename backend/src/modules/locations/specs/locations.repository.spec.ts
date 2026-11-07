@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { InternalServerErrorException } from '@nestjs/common';
@@ -23,13 +24,14 @@ describe('LocationsRepository', () => {
 
   beforeEach(async () => {
     const mockFactory = (): MockRepository<Location> => ({
-      create: jest.fn(),
-      save: jest.fn(),
-      update: jest.fn(),
-      find: jest.fn(),
-      findOne: jest.fn(),
-      findAndCount: jest.fn(),
-      delete: jest.fn(),
+      create: jest.fn() as unknown as MockRepository<Location>['create'],
+      save: jest.fn() as unknown as MockRepository<Location>['save'],
+      update: jest.fn() as unknown as MockRepository<Location>['update'],
+      find: jest.fn() as unknown as MockRepository<Location>['find'],
+      findOne: jest.fn() as unknown as MockRepository<Location>['findOne'],
+      findAndCount:
+        jest.fn() as unknown as MockRepository<Location>['findAndCount'],
+      delete: jest.fn() as unknown as MockRepository<Location>['delete'],
     });
 
     const module: TestingModule = await Test.createTestingModule({

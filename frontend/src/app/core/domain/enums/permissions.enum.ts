@@ -36,6 +36,7 @@ export enum EPermission {
   METRICS = 'metrics.read',
 
   SCORE_HISTORY_ADJUST = 'score-history.adjust',
+  SCORE_HISTORY_APPROVE = 'score-history.approve',
   SCORE_HISTORY_READ = 'score-history.read',
 }
 

@@ -56,4 +56,29 @@ describe('generateReportHtml', () => {
     expect(html).toContain('Relatório Vazio');
     expect(html).toContain('Nenhum registo encontrado para este relatório.');
   });
+
+  it('should escape user-controlled values in title, subtitle, headers, fields, and rendered cells', () => {
+    const config: ReportConfig<TestItem> = {
+      title: '<script>alert("title")</script>',
+      subtitle: '<img src=x onerror=alert(1)>',
+      columns: [
+        { header: '<svg onload=alert(1)>', field: 'name' },
+        { header: 'Rendered', render: () => '<script>alert("cell")</script>' },
+      ],
+      data: [{ id: '1', name: `O'Neil & <b>Team</b>`, active: true }],
+    };
+
+    const html = generateReportHtml(config);
+
+    expect(html).toContain(
+      '&lt;script&gt;alert(&quot;title&quot;)&lt;/script&gt;',
+    );
+    expect(html).toContain('&lt;img src=x onerror=alert(1)&gt;');
+    expect(html).toContain('&lt;svg onload=alert(1)&gt;');
+    expect(html).toContain('O&#39;Neil &amp; &lt;b&gt;Team&lt;/b&gt;');
+    expect(html).toContain(
+      '&lt;script&gt;alert(&quot;cell&quot;)&lt;/script&gt;',
+    );
+    expect(html).not.toContain('<script>alert("cell")</script>');
+  });
 });

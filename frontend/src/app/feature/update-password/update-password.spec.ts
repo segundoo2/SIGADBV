@@ -101,7 +101,7 @@ describe('PasswordUpdatePage', () => {
     expect(form.hasError('mismatch')).toBe(false);
   });
 
-  it('should call updatePassword store method on valid submit using authStore username', () => {
+  it('should call updatePassword store method with only the new password', () => {
     const form = component.updatePasswordForm;
     form.controls['password'].setValue('12345678');
     form.controls['confirmPassword'].setValue('12345678');
@@ -109,10 +109,25 @@ describe('PasswordUpdatePage', () => {
     component.onSubmit();
 
     expect(mockUpdatePasswordStore.updatePassword).toHaveBeenCalledWith({
-      username: 'testuser',
       password: '12345678',
-      mustChangePassword: false,
     });
+  });
+
+  it('should reject passwords longer than twelve characters', () => {
+    const form = component.updatePasswordForm;
+    form.controls['password'].setValue('1234567890123');
+    form.controls['confirmPassword'].setValue('1234567890123');
+
+    expect(form.invalid).toBe(true);
+    expect(form.controls['password'].hasError('maxlength')).toBe(true);
+  });
+
+  it('should allow a password at the twelve-character maximum', () => {
+    const form = component.updatePasswordForm;
+    form.controls['password'].setValue('123456789012');
+    form.controls['confirmPassword'].setValue('123456789012');
+
+    expect(form.valid).toBe(true);
   });
 
   it('should not call updatePassword if form is invalid', () => {

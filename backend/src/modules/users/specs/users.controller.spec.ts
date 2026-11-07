@@ -8,6 +8,7 @@ import { IUsersService } from '../interfaces/users.service.interface';
 import { UsersController } from '../users.controller';
 import { ERolesSuccess } from '../../../common/enum/role/roles-success.enum';
 import { IPaginatedResponse } from '../../../common/interfaces/paginated-response.interface';
+import { IJwtPayload } from '../../auth/interfaces/jwt-payload.interface';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -20,7 +21,8 @@ describe('UsersController', () => {
   beforeEach(() => {
     mockService = {
       createUser: jest.fn(),
-      updateUserPassword: jest.fn(),
+      updateOwnPassword: jest.fn(),
+      resetTemporaryPassword: jest.fn(),
       findAllUsers: jest.fn(),
       findOneByUsername: jest.fn(),
       deleteUser: jest.fn(),
@@ -104,26 +106,48 @@ describe('UsersController', () => {
 
   describe('updateUserPassword', () => {
     it('should return corresponding payload details containing update responses', async () => {
-      const response: IResponse<string | null> = {
+      const response: IResponse<null> = {
         message: EUsersSuccess.PASSWORD_UPDATE,
-        data: '1234567890ab',
+        data: null,
       };
-      const userDto: UserDto & {
-        tenantId: string;
-        mustChangePassword: boolean;
-      } = {
-        username: user.username,
+      const currentUser: IJwtPayload = {
+        sub: user.id,
         tenantId,
-        mustChangePassword: true,
-        roleIds: [roleId],
+        username: user.username,
+        roles: [],
+        permissions: [],
+        fingerprint: 'test-device',
       };
+      const passwordDto = { password: 'NovaSenha12' };
 
-      mockService.updateUserPassword.mockResolvedValue(response);
+      mockService.updateOwnPassword.mockResolvedValue(response);
 
-      expect(await controller.updateUserPassword(userDto, tenantId)).toEqual(
-        response,
+      expect(
+        await controller.updateUserPassword(currentUser, passwordDto),
+      ).toEqual(response);
+      expect(mockService.updateOwnPassword).toHaveBeenCalledWith(
+        currentUser.sub,
+        currentUser.tenantId,
+        passwordDto,
       );
-      expect(mockService.updateUserPassword).toHaveBeenCalledWith(userDto);
+    });
+  });
+
+  describe('resetTemporaryPassword', () => {
+    it('should forward the target username and tenant for authorized reset', async () => {
+      const response: IResponse<{ temporaryPassword: string }> = {
+        message: EUsersSuccess.PASSWORD_UPDATE,
+        data: { temporaryPassword: 'a1b2c3d4e5f6' },
+      };
+      mockService.resetTemporaryPassword.mockResolvedValue(response);
+
+      expect(
+        await controller.resetTemporaryPassword(user.username, tenantId),
+      ).toEqual(response);
+      expect(mockService.resetTemporaryPassword).toHaveBeenCalledWith(
+        user.username,
+        tenantId,
+      );
     });
   });
 

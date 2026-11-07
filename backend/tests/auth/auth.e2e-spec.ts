@@ -194,10 +194,11 @@ describe('AuthModule', () => {
 
   describe('POST /auth/logout', () => {
     it('should clear authentication cookies upon logout', async () => {
+      const userAgent = 'Logout-Clear-Cookies-E2E-Agent';
       const loginResponse = await request(httpServer)
         .post('/auth/')
         .set('x-tenant-slug', 'dummy-tenant')
-        .set('user-agent', 'Supertest-E2E-Agent')
+        .set('user-agent', userAgent)
         .send({ username: 'test.user', password: 'password123' })
         .expect(200);
 
@@ -205,7 +206,7 @@ describe('AuthModule', () => {
 
       const logoutResponse = await request(httpServer)
         .post('/auth/logout')
-        .set('user-agent', 'Supertest-E2E-Agent')
+        .set('user-agent', userAgent)
         .set('Cookie', cookieHeader)
         .expect(200);
 
@@ -216,10 +217,11 @@ describe('AuthModule', () => {
     });
 
     it('should reject refresh requests after logout (revoked token in redis)', async () => {
+      const userAgent = 'Logout-Revoked-Token-E2E-Agent';
       const loginResponse = await request(httpServer)
         .post('/auth/')
         .set('x-tenant-slug', 'dummy-tenant')
-        .set('user-agent', 'Supertest-E2E-Agent')
+        .set('user-agent', userAgent)
         .send({ username: 'test.user', password: 'password123' })
         .expect(200);
 
@@ -227,13 +229,13 @@ describe('AuthModule', () => {
 
       await request(httpServer)
         .post('/auth/logout')
-        .set('user-agent', 'Supertest-E2E-Agent')
+        .set('user-agent', userAgent)
         .set('Cookie', cookieHeader)
         .expect(200);
 
       await request(httpServer)
         .post('/auth/refresh')
-        .set('user-agent', 'Supertest-E2E-Agent')
+        .set('user-agent', userAgent)
         .set('Cookie', cookieHeader)
         .expect(401);
     });

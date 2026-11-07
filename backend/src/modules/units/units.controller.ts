@@ -8,7 +8,13 @@ import {
   Delete,
   Inject,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import {
+  ApiCookieAuth,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+} from '@nestjs/swagger';
 import { CreateUnitDto } from './dto/create-unit.dto';
 import { IUnitsController } from './interfaces/units.controller.interface';
 import type { IResponse } from '../../common/interfaces/response.interface';
@@ -20,6 +26,7 @@ import { RequiresPermission } from '../../common/decorators/permission.decorator
 import { EPermission } from '../../common/enum/role/permissions.enum';
 
 @ApiTags('Units')
+@ApiCookieAuth('access_token')
 @Controller('units')
 export class UnitsController implements IUnitsController {
   constructor(

@@ -13,7 +13,6 @@ import { InputFormComponent } from '../../shared/inputs/input-form';
 import { ErrorMessageComponent } from '../../shared/error-message/error-message.component';
 import { ButtonComponent } from '../../shared/buttons/button.component';
 import { UPDATE_PASSWORD_STORE_PORT } from '../../core/infra/tokens/update-password.token';
-import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 
 // Validador customizado para comparar os campos de senha
 function passwordMatchValidator(
@@ -36,11 +35,11 @@ function passwordMatchValidator(
     ButtonComponent,
   ],
   selector: 'app-update-password',
+  host: { class: 'flex flex-1 flex-col' },
   templateUrl: './update-password.html',
 })
 export class PasswordUpdatePage {
   private readonly updatePasswordStore = inject(UPDATE_PASSWORD_STORE_PORT);
-  private readonly authStore = inject(AUTH_STORE_PORT);
   private readonly titleService = inject(Title);
   private readonly router = inject(Router);
 
@@ -49,6 +48,7 @@ export class PasswordUpdatePage {
       password: new FormControl('', [
         Validators.required.bind(Validators),
         Validators.minLength(8),
+        Validators.maxLength(12),
       ]),
       confirmPassword: new FormControl('', [
         Validators.required.bind(Validators),
@@ -95,15 +95,12 @@ export class PasswordUpdatePage {
     }
 
     const { password } = this._updatePasswordForm.value;
-    const currentUser = this.authStore.currentUserEntity();
-    if (!currentUser) {
+    if (!password) {
       return;
     }
 
     void this.updatePasswordStore.updatePassword({
-      username: currentUser.username,
-      password: password!,
-      mustChangePassword: false,
+      password: password,
     });
   }
 }

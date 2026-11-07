@@ -18,7 +18,7 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiUnauthorizedResponse,
   ApiForbiddenResponse,
   ApiParam,
@@ -37,7 +37,7 @@ import { EPermission } from '../../common/enum/role/permissions.enum';
 import { Movement } from './entities/movement.entity';
 
 @ApiTags('Movements')
-@ApiBearerAuth()
+@ApiCookieAuth('access_token')
 @Controller('movements')
 export class MovementsController implements IMovementsController {
   constructor(

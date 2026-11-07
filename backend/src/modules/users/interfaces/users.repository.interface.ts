@@ -1,6 +1,5 @@
 import { DeleteResult, UpdateResult } from 'typeorm';
 import { PaginationQueryDto } from '../../../common/dtos/pagination-query.dto';
-import { UpdatePasswordDto } from '../dtos/update-password.dto';
 import { User } from '../entities/user.entity';
 import { UserDto } from '../dtos/user.dto';
 
@@ -19,8 +18,16 @@ export interface IUsersRepository {
     tenantId: string,
   ): Promise<Omit<User, 'password'> | null>;
 
-  updateUserPassword(
-    passwordDto: UpdatePasswordDto & { tenantId: string },
+  updateOwnPassword(
+    userId: string,
+    tenantId: string,
+    passwordHash: string,
+  ): Promise<UpdateResult>;
+
+  resetTemporaryPassword(
+    username: string,
+    tenantId: string,
+    passwordHash: string,
   ): Promise<UpdateResult>;
 
   addRoleToUser(

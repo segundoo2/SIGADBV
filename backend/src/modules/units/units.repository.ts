@@ -3,7 +3,7 @@ import { CreateUnitDto } from './dto/create-unit.dto';
 import { UnitEntity } from './entities/unit.entity';
 import { IUnitsRepository } from './interfaces/units.repository.interface';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository, UpdateResult } from 'typeorm';
+import { DeleteResult, EntityManager, Repository, UpdateResult } from 'typeorm';
 import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 import { UpdateUnitDto } from './dto/update-unit.dto';
 
@@ -84,11 +84,16 @@ export class UnitsRepository implements IUnitsRepository {
     id: string,
     tenantId: string,
     scoreDelta: number,
-  ): Promise<void> {
+    manager?: EntityManager,
+  ): Promise<UpdateResult> {
     try {
-      await this.repository
+      const repository = manager
+        ? manager.getRepository(UnitEntity)
+        : this.repository;
+
+      return await repository
         .createQueryBuilder()
-        .update()
+        .update(UnitEntity)
         .set({ score: () => 'score + :scoreDelta' })
         .setParameter('scoreDelta', scoreDelta)
         .where('id = :id AND tenantId = :tenantId', { id, tenantId })

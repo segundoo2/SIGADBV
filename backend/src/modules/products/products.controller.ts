@@ -13,12 +13,12 @@ import {
   Query,
 } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiHeader,
   ApiOperation,
   ApiParam,
   ApiResponse,
   ApiTags,
+  ApiCookieAuth,
 } from '@nestjs/swagger';
 import { IProductsController } from './interfaces/products.controller.interface';
 import { ProductDto } from './dtos/product.dto';
@@ -33,7 +33,7 @@ import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
 import { IPaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @ApiTags('Products')
-@ApiBearerAuth()
+@ApiCookieAuth('access_token')
 @ApiHeader({
   name: 'x-tenant-id',
   description: 'Identificador do Tenant',

@@ -4,6 +4,7 @@ import {
   ApiOperation,
   ApiProperty,
   ApiTags,
+  ApiCookieAuth,
 } from '@nestjs/swagger';
 import {
   ALL_PERMISSIONS,
@@ -29,6 +30,7 @@ export class PermissionsMetadataDto {
 }
 
 @ApiTags('Permissions')
+@ApiCookieAuth('access_token')
 @Controller('permissions')
 export class PermissionsController {
   @Get()

@@ -14,6 +14,17 @@ async function loginForPasswordChange(page: Page): Promise<void> {
       body: JSON.stringify({
         message: 'Login successful',
         mustChangePassword: true,
+        data: {
+          user: {
+            id: 'test-user',
+            tenantId: 'test-tenant',
+            username: FIRST_ACCESS_USERNAME,
+            mustChangePassword: true,
+            roles: [],
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          },
+        },
       }),
     });
   });
@@ -27,7 +38,7 @@ async function loginForPasswordChange(page: Page): Promise<void> {
 
 async function fillMatchingPasswords(
   page: Page,
-  password = 'nova_senha_segura_123',
+  password = 'nova123456',
 ): Promise<void> {
   await page.getByTestId('password-input').fill(password);
   await page.getByTestId('confirm-password-input').fill(password);
@@ -86,7 +97,20 @@ test.describe('/auth/update-password', () => {
     await passwordInput.blur();
 
     await expect(page.getByTestId('password-error')).toHaveText(
-      'Senha inválida (mínimo de 8 caracteres)',
+      'A senha deve ter entre 8 e 12 caracteres.',
+    );
+    await expect(page.getByTestId('submit-btn')).toBeDisabled();
+  });
+
+  test('should reject passwords longer than twelve characters', async ({
+    page,
+  }) => {
+    const passwordInput = page.getByTestId('password-input');
+    await passwordInput.fill('1234567890123');
+    await passwordInput.blur();
+
+    await expect(page.getByTestId('password-error')).toHaveText(
+      'A senha deve ter entre 8 e 12 caracteres.',
     );
     await expect(page.getByTestId('submit-btn')).toBeDisabled();
   });
@@ -105,7 +129,7 @@ test.describe('/auth/update-password', () => {
     await expect(page.getByTestId('submit-btn')).toBeDisabled();
   });
 
-  test('should submit the authenticated username and redirect to overview on success', async ({
+  test('should submit only the new password and redirect to overview on success', async ({
     page,
   }) => {
     await page.route(UPDATE_PASSWORD_URL, async (route) => {
@@ -129,9 +153,7 @@ test.describe('/auth/update-password', () => {
 
     const request = await updateRequest;
     expect(request.postDataJSON()).toEqual({
-      username: FIRST_ACCESS_USERNAME,
-      password: 'nova_senha_segura_123',
-      mustChangePassword: false,
+      password: 'nova123456',
     });
     await expect(page).toHaveURL(/\/overview$/);
   });

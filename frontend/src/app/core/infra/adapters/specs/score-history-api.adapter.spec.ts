@@ -39,16 +39,16 @@ describe('ScoreHistoryApiAdapter', () => {
   });
 
   describe('registerUnitScore', () => {
-    it('should send a POST request with the correct url and payload, returning the updated score', async () => {
+    it('should send a POST request with the correct url and payload and accept the pending-request response', async () => {
       const unitId = '123e4567-e89b-12d3-a456-426614174000';
       const payload: IScoreHistoryPayload = {
         score: 50,
         description: 'Presença com uniforme completo',
       };
 
-      const mockResponse: IApiResponseModel<{ newScore: number }> = {
-        message: 'Score registered successfully',
-        data: { newScore: 150 },
+      const mockResponse: IApiResponseModel<null> = {
+        message: 'Score request created successfully',
+        data: null,
       };
 
       const promise = adapter.registerUnitScore(unitId, payload);
@@ -110,24 +110,16 @@ describe('ScoreHistoryApiAdapter', () => {
       expect(result).toEqual(mockResponse.data);
     });
 
-    it('should normalize NestJS errors when getHistoryByUnitId fails', async () => {
+    it('should return an empty array when the unit has no history', async () => {
       const unitId = '123e4567-e89b-12d3-a456-426614174000';
 
       const promise = adapter.fetchUnitScoreHistory(unitId);
 
       const req = httpMock.expectOne(`${mockBaseUrl}/score-history/${unitId}`);
       expect(req.request.method).toBe('GET');
+      req.flush({ message: 'Score history retrieved successfully', data: [] });
 
-      req.flush(
-        { statusCode: 404, message: 'Unit not found', error: 'Not Found' },
-        { status: 404, statusText: 'Not Found' },
-      );
-
-      await expect(promise).rejects.toMatchObject({
-        name: 'ApiError',
-        message: 'Unit not found',
-        status: 404,
-      });
+      await expect(promise).resolves.toEqual([]);
     });
   });
 });

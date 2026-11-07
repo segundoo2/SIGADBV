@@ -22,9 +22,12 @@
     "migration:generate": "pnpm typeorm migration:generate -d src/database/data-source.ts",
     "migration:run": "pnpm typeorm migration:run -d src/database/data-source.ts",
     "migration:revert": "pnpm typeorm migration:revert -d src/database/data-source.ts",
+    "migration:run:prod": "node ./node_modules/typeorm/cli.js migration:run -d dist/src/database/data-source.js",
+    "schema:prepare:prod": "node dist/src/database/prepare-production-schema.js",
     "seed:permissions": "node --no-deprecation -r ts-node/register -r tsconfig-paths/register src/database/seeds/run-sync-permissions.ts",
     "seed:admin": "node --no-deprecation -r ts-node/register -r tsconfig-paths/register src/database/seeds/run-create-admin.ts",
-    "seed:units": "node --no-deprecation -r ts-node/register -r tsconfig-paths/register src/database/seeds/run-units.ts"
+    "seed:admin:prod": "node dist/src/database/seeds/run-create-admin.js",
+    "deploy:prod": "sh ./scripts/deploy-prod.sh"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

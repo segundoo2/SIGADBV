@@ -66,7 +66,8 @@ describe('ProductsRepository', () => {
 
   const createQueryBuilderMock = {
     update: jest.fn().mockReturnThis(),
-    set: jest.fn().mockReturnThis(),
+    set: jest.fn<unknown, [{ currentStock: () => string }]>().mockReturnThis(),
+    setParameter: jest.fn().mockReturnThis(),
     where: jest.fn().mockReturnThis(),
     andWhere: jest.fn().mockReturnThis(),
     returning: jest.fn().mockReturnThis(),
@@ -303,16 +304,69 @@ describe('ProductsRepository', () => {
       generatedMaps: [],
     };
 
-    it('should execute atomic update query successfully', async () => {
-      createQueryBuilderMock.execute.mockResolvedValue(response);
+    beforeEach(() => {
+      createQueryBuilderMock.update.mockClear();
+      createQueryBuilderMock.set.mockClear();
+      createQueryBuilderMock.setParameter.mockClear();
+      createQueryBuilderMock.where.mockClear();
+      createQueryBuilderMock.andWhere.mockClear();
+      createQueryBuilderMock.returning.mockClear();
+      createQueryBuilderMock.execute.mockReset().mockResolvedValue(response);
+    });
+
+    it.each([
+      { delta: 5, remainsNonNegative: false },
+      { delta: -5, remainsNonNegative: true },
+    ])(
+      'should atomically apply delta $delta using a SQL parameter',
+      async ({ delta, remainsNonNegative }) => {
+        const result = await productsRepository.updateStockAtomic(
+          mockProduct.id,
+          mockProduct.tenantId,
+          delta,
+        );
+
+        expect(result).toEqual(response);
+        const currentStockExpression =
+          createQueryBuilderMock.set.mock.calls[0][0].currentStock;
+        expect(currentStockExpression()).toBe('current_stock + :delta');
+        expect(createQueryBuilderMock.setParameter).toHaveBeenCalledWith(
+          'delta',
+          delta,
+        );
+        expect(createQueryBuilderMock.where).toHaveBeenCalledWith(
+          'id = :productId AND tenant_id = :tenantId',
+          { productId: mockProduct.id, tenantId: mockProduct.tenantId },
+        );
+        if (remainsNonNegative) {
+          expect(createQueryBuilderMock.andWhere).toHaveBeenCalledWith(
+            'current_stock + :delta >= 0',
+            { delta },
+          );
+        } else {
+          expect(createQueryBuilderMock.andWhere).not.toHaveBeenCalled();
+        }
+      },
+    );
+
+    it('should report no affected row when an output would make stock negative', async () => {
+      createQueryBuilderMock.execute.mockResolvedValue({
+        ...response,
+        raw: [],
+        affected: 0,
+      });
 
       const result = await productsRepository.updateStockAtomic(
         mockProduct.id,
         mockProduct.tenantId,
-        5,
+        -mockProduct.currentStock - 1,
       );
 
-      expect(result).toEqual(response);
+      expect(result.affected).toBe(0);
+      expect(createQueryBuilderMock.andWhere).toHaveBeenCalledWith(
+        'current_stock + :delta >= 0',
+        { delta: -mockProduct.currentStock - 1 },
+      );
     });
 
     shouldHandleDatabaseErrors(

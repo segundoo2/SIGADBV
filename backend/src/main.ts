@@ -28,14 +28,25 @@ async function bootstrap() {
       'Documentação da API do SIGADBV - Sistema de Gestão Automatizada de Desbravadores.',
     )
     .setVersion('1.0')
-    .addBearerAuth()
+    .addCookieAuth(
+      'access_token',
+      { type: 'apiKey', in: 'cookie' },
+      'access_token',
+    )
+    .addCookieAuth(
+      'refresh_token',
+      { type: 'apiKey', in: 'cookie' },
+      'refresh_token',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {
     extraModels: [PermissionsMetadataDto],
   });
 
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document, {
+    swaggerOptions: { withCredentials: true },
+  });
   app.use('/api-json', (res: Response): Response => res.json(document));
 
   // Configuração de parsing de cookie

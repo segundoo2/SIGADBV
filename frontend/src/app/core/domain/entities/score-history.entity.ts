@@ -1,4 +1,5 @@
 import { IUnitEntity } from './unit.entity';
+import { EScoreHistoryStatus } from '../enums/score-history-status.enum';
 
 export interface IScoreHistoryEntity {
   readonly id: string;
@@ -7,6 +8,7 @@ export interface IScoreHistoryEntity {
   readonly unit?: IUnitEntity;
   readonly score: number;
   readonly description: string;
+  readonly status: EScoreHistoryStatus;
   readonly requestedById?: string;
   readonly requestedBy?: {
     readonly id: string;

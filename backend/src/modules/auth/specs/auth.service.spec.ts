@@ -15,12 +15,14 @@ import { LoginDto } from '../dtos/login.dto';
 import { EErrorsGlobal } from '../../../common/enum/global/errors-global.enum';
 import { ICacheStorageService } from '../../../common/redis/interface/cache-storage.interface';
 import { EAuthErrors } from '../../../common/enum/auth/auth-errors.enum';
+import { ConfigService } from '@nestjs/config';
 
 describe('AuthService', () => {
   let service: AuthService;
   let mockRepository: jest.Mocked<IAuthRepository>;
   let mockTokenService: jest.Mocked<ITokenService>;
   let mockRedisService: jest.Mocked<ICacheStorageService>;
+  let mockConfigService: ConfigService;
   let validPasswordHash: string;
 
   const DEFAULT_TENANT_ID = '00000000-0000-0000-0000-000000000000';
@@ -52,11 +54,21 @@ describe('AuthService', () => {
       get: jest.fn(),
       delete: jest.fn(),
     };
+    mockConfigService = {
+      get: (key: string) => {
+        if (key === 'ACCESS_TOKEN_EXPIRES_IN') return '15m';
+        if (key === 'REFRESH_TOKEN_EXPIRES_IN') return '7d';
+        return undefined;
+      },
+      getOrThrow: (key: string) =>
+        key === 'JWT_SECRET' ? 'test-access-secret' : 'test-refresh-secret',
+    } as unknown as ConfigService;
 
     service = new AuthService(
       mockTokenService,
       mockRepository,
       mockRedisService,
+      mockConfigService,
     );
   });
 
@@ -154,9 +166,14 @@ describe('AuthService', () => {
         fingerprint: testFingerprint,
       };
 
-      expect(mockTokenService.signAsync).toHaveBeenCalledWith(expectedPayload, {
-        expiresIn: '15m',
-      });
+      const accessTokenPayload = mockTokenService.signAsync.mock
+        .calls[0][0] as IJwtPayload;
+      const refreshTokenPayload = mockTokenService.signAsync.mock
+        .calls[1][0] as IJwtPayload;
+
+      expect(accessTokenPayload).toMatchObject(expectedPayload);
+      expect(accessTokenPayload.jti).toEqual(expect.any(String));
+      expect(refreshTokenPayload).toEqual(accessTokenPayload);
     });
   });
 

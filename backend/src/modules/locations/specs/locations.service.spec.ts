@@ -108,7 +108,7 @@ describe('LocationsService', () => {
       repository.findById.mockImplementation((id) => {
         if (id === locationDisplay.id) return Promise.resolve(locationDisplay);
         if (id === locationStorage.id) return Promise.resolve(locationStorage);
-        return Promise.resolve(null);
+        return null;
       });
 
       productLocationsRepository.findByProductAndLocation.mockImplementation(
@@ -181,10 +181,10 @@ describe('LocationsService', () => {
         code: 'DISPLAY-02',
       };
 
-      repository.findById.mockImplementation(async (id) => {
-        if (id === locationDisplay.id) return locationDisplay;
-        if (id === anotherDisplay.id) return anotherDisplay;
-        return Promise.resolve(null);
+      repository.findById.mockImplementation((id): Promise<Location | null> => {
+        if (id === locationDisplay.id) return Promise.resolve(locationDisplay);
+        if (id === anotherDisplay.id) return Promise.resolve(anotherDisplay);
+        return Promise.resolve<Location | null>(null);
       });
 
       await expect(

@@ -1,4 +1,4 @@
-import { DeleteResult, UpdateResult } from 'typeorm';
+import { DeleteResult, EntityManager, UpdateResult } from 'typeorm';
 import { CreateUnitDto } from '../dto/create-unit.dto';
 import { UpdateUnitDto } from '../dto/update-unit.dto';
 import { UnitEntity } from '../entities/unit.entity';
@@ -24,7 +24,8 @@ export interface IUnitsRepository {
     id: string,
     tenantId: string,
     scoreDelta: number,
-  ): Promise<void>;
+    manager?: EntityManager,
+  ): Promise<UpdateResult>;
 
   deleteUnit(id: string, tenantId: string): Promise<DeleteResult>;
 }
