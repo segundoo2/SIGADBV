@@ -20,7 +20,23 @@ async function mockSuccessfulLogin(
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ message: 'Login successful', mustChangePassword }),
+      body: JSON.stringify({
+        message: 'Login successful',
+        mustChangePassword,
+        data: {
+          user: {
+            id: 'test-user',
+            tenantId: 'test-tenant',
+            username:
+              (route.request().postDataJSON() as { username?: string })
+                .username ?? 'usuario_teste',
+            mustChangePassword,
+            roles: [],
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          },
+        },
+      }),
     });
   });
 }
@@ -77,7 +93,7 @@ test.describe('/auth', () => {
 
     await expect(page).toHaveURL(/\/overview$/);
     await expect(
-      page.getByRole('heading', { name: 'Visão Geral do Sistema' }),
+      page.getByRole('heading', { name: 'Bem-vindo, usuario_normal!' }),
     ).toBeVisible();
   });
 
@@ -134,6 +150,17 @@ test.describe('/auth', () => {
         body: JSON.stringify({
           message: 'Login successful',
           mustChangePassword: false,
+          data: {
+            user: {
+              id: 'test-user',
+              tenantId: 'test-tenant',
+              username: 'usuario_teste',
+              mustChangePassword: false,
+              roles: [],
+              createdAt: '2026-01-01T00:00:00.000Z',
+              updatedAt: '2026-01-01T00:00:00.000Z',
+            },
+          },
         }),
       });
     });

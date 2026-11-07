@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiTags,
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiOperation,
   ApiResponse,
   ApiParam,
@@ -30,7 +30,7 @@ import type { ICategoriesService } from './interfaces/categories.service.interfa
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
 
 @ApiTags('Categories')
-@ApiBearerAuth()
+@ApiCookieAuth('access_token')
 @Controller('categories')
 export class CategoriesController implements ICategoriesController {
   constructor(

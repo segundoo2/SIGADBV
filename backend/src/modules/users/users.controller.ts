@@ -32,6 +32,8 @@ import { RequiresPermission } from '../../common/decorators/permission.decorator
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
 import { IPaginatedResponse } from '../../common/interfaces/paginated-response.interface';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { IJwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
 @ApiTags('Users')
 @ApiCookieAuth('access_token')
@@ -141,17 +143,36 @@ export class UsersController implements IUsersController {
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'Senha atual incorreta ou nova senha inválida.',
+    description: 'Nova senha inválida.',
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
     description: 'Não autorizado.',
   })
   async updateUserPassword(
+    @CurrentUser() currentUser: IJwtPayload,
     @Body() userDto: UpdatePasswordDto,
+  ): Promise<IResponse<null>> {
+    return await this.usersService.updateOwnPassword(
+      currentUser.sub,
+      currentUser.tenantId,
+      userDto,
+    );
+  }
+
+  @Post(':username/temporary-password')
+  @HttpCode(HttpStatus.OK)
+  @RequiresPermission(EPermission.USERS_UPDATE)
+  @ApiOperation({ summary: 'Gerar nova senha temporária para um usuário' })
+  @ApiParam({
+    name: 'username',
+    description: 'Usuário que receberá a senha temporária',
+  })
+  async resetTemporaryPassword(
+    @Param('username') username: string,
     @TenantId() tenantId: string,
-  ): Promise<IResponse<string | null>> {
-    return await this.usersService.updateUserPassword({ ...userDto, tenantId });
+  ): Promise<IResponse<{ temporaryPassword: string }>> {
+    return await this.usersService.resetTemporaryPassword(username, tenantId);
   }
 
   @Post(':username/roles/:roleId')

@@ -1,0 +1,109 @@
+name: sigadbv-prod
+
+services:
+  database:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:?Set DB_NAME in backend/.env.production}
+      POSTGRES_USER: ${DB_USER:?Set DB_USER in backend/.env.production}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in backend/.env.production}
+    volumes:
+      - production-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - ${REDIS_PASSWORD:?Set REDIS_PASSWORD in backend/.env.production}
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in backend/.env.production}
+    volumes:
+      - production-redis-data:/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - REDISCLI_AUTH="$${REDIS_PASSWORD}" redis-cli ping | grep -q PONG
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: "no"
+    environment:
+      NODE_ENV: production
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:?Set DB_NAME in backend/.env.production}
+      DB_USER: ${DB_USER:?Set DB_USER in backend/.env.production}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in backend/.env.production}
+      DB_SSL: "false"
+    command: ["node", "dist/src/database/prepare-production-schema.js"]
+    depends_on:
+      database:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:?Set DB_NAME in backend/.env.production}
+      DB_USER: ${DB_USER:?Set DB_USER in backend/.env.production}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in backend/.env.production}
+      DB_SSL: "false"
+      REDIS_URL: redis://:${REDIS_PASSWORD:?Set REDIS_PASSWORD in backend/.env.production}@redis:6379
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in backend/.env.production}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?Set JWT_REFRESH_SECRET in backend/.env.production}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:?Set ALLOWED_ORIGINS in backend/.env.production}
+      FRONTEND_URL: ${FRONTEND_URL:?Set FRONTEND_URL in backend/.env.production}
+    ports:
+      - "127.0.0.1:${API_PORT:-3000}:3000"
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/api-json').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-8080}:80"
+
+volumes:
+  production-postgres-data:
+  production-redis-data:

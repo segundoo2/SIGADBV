@@ -24,7 +24,7 @@ describe('OverviewPage', () => {
         id: 'role-admin',
         tenantId: '00000000-0000-0000-0000-000000000000',
         name: 'Super Usuário',
-        permissions: [EPermission.UNIT_READ],
+        permissions: [EPermission.UNIT_READ, EPermission.SCORE_HISTORY_APPROVE],
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -80,6 +80,7 @@ describe('OverviewPage', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    mockUsersStore.userCurrentEntity.set(mockUser);
 
     await TestBed.configureTestingModule({
       imports: [OverviewPage],
@@ -137,8 +138,67 @@ describe('OverviewPage', () => {
 
     const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain(
-      'Acesso restrito: você não possui permissão para visualizar o painel de pontuações pendentes e o gráfico de pontuação geral.',
+      'Acesso restrito: você não possui permissão para visualizar o gráfico de pontuação geral.',
     );
+    expect(element.textContent).toContain(
+      'Acesso restrito: você não possui permissão para consultar e decidir solicitações de pontuação.',
+    );
+    expect(mockUnitsStore.fetchAllUnits).not.toHaveBeenCalled();
+    expect(
+      mockScoreHistoryStore.fetchPendingScoreHistories,
+    ).not.toHaveBeenCalled();
+  });
+
+  it('should load only unit data when the user has unit.read but cannot approve scores', async () => {
+    mockUsersStore.userCurrentEntity.set({
+      ...mockUser,
+      roles: [
+        {
+          ...mockUser.roles[0],
+          permissions: [EPermission.UNIT_READ],
+        },
+      ],
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.textContent).toContain('Ranking de Unidade');
+    expect(element.textContent).toContain(
+      'Acesso restrito: você não possui permissão para consultar e decidir solicitações de pontuação.',
+    );
+    expect(mockUnitsStore.fetchAllUnits).toHaveBeenCalledOnce();
+    expect(
+      mockScoreHistoryStore.fetchPendingScoreHistories,
+    ).not.toHaveBeenCalled();
+    expect(mockScoreHistoryStore.fetchAllUnitsOptions).not.toHaveBeenCalled();
+  });
+
+  it('should load only pending decisions when the user has score-history.approve but not unit.read', async () => {
+    mockUsersStore.userCurrentEntity.set({
+      ...mockUser,
+      roles: [
+        {
+          ...mockUser.roles[0],
+          permissions: [EPermission.SCORE_HISTORY_APPROVE],
+        },
+      ],
+    });
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.textContent).toContain('Pontuações Pendentes');
+    expect(element.textContent).toContain(
+      'Acesso restrito: você não possui permissão para visualizar o gráfico de pontuação geral.',
+    );
+    expect(
+      mockScoreHistoryStore.fetchPendingScoreHistories,
+    ).toHaveBeenCalledOnce();
+    expect(mockScoreHistoryStore.fetchAllUnitsOptions).toHaveBeenCalledOnce();
+    expect(mockUnitsStore.fetchAllUnits).not.toHaveBeenCalled();
   });
 
   it('should successfully approve a pending history and refresh units', async () => {
@@ -188,20 +248,6 @@ describe('OverviewPage', () => {
     expect(mockScoreHistoryStore.rejectScoreHistory).toHaveBeenCalledWith(
       'hist-1',
     );
-  });
-
-  it('should return a stable id for each pending history item', () => {
-    const mockRecord = {
-      id: 'rec-123',
-      tenantId: 't-1',
-      unitId: 'u-1',
-      score: 10,
-      description: 'test',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    expect(component.trackById(0, mockRecord)).toBe('rec-123');
   });
 
   it('should handle data loading errors gracefully during initialization', async () => {

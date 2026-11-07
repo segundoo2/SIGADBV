@@ -12,6 +12,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,html,css}\"",
     "test": "ng test",
     "test:e2e": "pnpm playwright test",
+    "test:e2e:integration": "pnpm playwright test --config=playwright.integration.config.ts",
     "generate:types": "npx openapi-typescript http://localhost:3000/api-json -o src/app/core/infra/types/api.generated.ts"
   },
   "private": true,

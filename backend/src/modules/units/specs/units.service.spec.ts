@@ -151,8 +151,11 @@ describe('UnitsService', () => {
 
   describe('adjustUnitScore', () => {
     it(`should return { message: ${EUnitSuccess.ADJUST_SCORE}, data: null } when score is adujusted with success`, async () => {
-      const newScore = unit.score + unit.score;
-      repositoryMock.findOneScoreById.mockResolvedValue(newScore);
+      repositoryMock.adjustUnitScore.mockResolvedValue({
+        raw: [],
+        generatedMaps: [],
+        affected: 1,
+      });
       expect(
         await service.adjustUnitScore(unit.id, unit.tenantId, unit.score),
       ).toEqual({
@@ -162,7 +165,11 @@ describe('UnitsService', () => {
     });
 
     it('should return NotFoundException when unit not found', async () => {
-      repositoryMock.findOneScoreById.mockResolvedValue(null);
+      repositoryMock.adjustUnitScore.mockResolvedValue({
+        raw: [],
+        generatedMaps: [],
+        affected: 0,
+      });
       await expect(
         service.adjustUnitScore(unit.id, unit.tenantId, unit.score),
       ).rejects.toThrow(new NotFoundException(EUnitErrors.UNITS_NOT_FOUND));

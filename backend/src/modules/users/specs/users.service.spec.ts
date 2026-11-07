@@ -40,7 +40,8 @@ describe('UsersService', () => {
   beforeEach(() => {
     mockUsersRepository = {
       createUser: jest.fn(),
-      updateUserPassword: jest.fn(),
+      updateOwnPassword: jest.fn(),
+      resetTemporaryPassword: jest.fn(),
       findAllUsers: jest.fn(),
       findOneByUsername: jest.fn(),
       deleteUser: jest.fn(),
@@ -165,51 +166,68 @@ describe('UsersService', () => {
     });
   });
 
-  describe('updateUserPassword', () => {
+  describe('updateOwnPassword', () => {
     const response: UpdateResult = { raw: [], affected: 1, generatedMaps: [] };
-    const baseDto = {
-      tenantId: '1',
-      username: user.username,
-      roleIds: [roleId],
-      mustChangePassword: true,
-    };
 
-    it('should generate a temporary password if none is provided in the payload', async () => {
-      mockUsersRepository.updateUserPassword.mockResolvedValue(response);
+    it('should hash and update the authenticated user password', async () => {
+      mockUsersRepository.updateOwnPassword.mockResolvedValue(response);
 
-      const result = await service.updateUserPassword(baseDto);
-
-      expect(result.message).toBe(EUsersSuccess.PASSWORD_UPDATE);
-      expect(result.data).toHaveLength(12);
-      expect(mockUsersRepository.updateUserPassword).toHaveBeenCalledWith(
-        expect.objectContaining({
-          username: user.username,
-          password: expect.stringMatching(/^\$2[ayb]\$\d{2}\$/) as string,
-        }),
-      );
-    });
-
-    it('should update successfully and return null data if cleartext password is provided', async () => {
-      mockUsersRepository.updateUserPassword.mockResolvedValue(response);
-
-      const result = await service.updateUserPassword({
-        ...baseDto,
-        password: 'NovaSenhaDefinida123',
+      const result = await service.updateOwnPassword(user.id, fakeTenantId, {
+        password: 'NovaSenha12',
       });
 
       expect(result.message).toBe(EUsersSuccess.PASSWORD_UPDATE);
       expect(result.data).toBeNull();
+      expect(mockUsersRepository.updateOwnPassword).toHaveBeenCalledWith(
+        user.id,
+        fakeTenantId,
+        expect.stringMatching(/^\$2[ayb]\$\d{2}\$/),
+      );
     });
 
     it('should throw NotFoundException when affected rows count is zero', async () => {
-      mockUsersRepository.updateUserPassword.mockResolvedValue({
+      mockUsersRepository.updateOwnPassword.mockResolvedValue({
         ...response,
         affected: 0,
       });
 
-      await expect(service.updateUserPassword(baseDto)).rejects.toThrow(
-        new NotFoundException(EUsersErrors.USER_NOT_FOUND),
+      await expect(
+        service.updateOwnPassword(user.id, fakeTenantId, {
+          password: 'NovaSenha12',
+        }),
+      ).rejects.toThrow(new NotFoundException(EUsersErrors.USER_NOT_FOUND));
+    });
+  });
+
+  describe('resetTemporaryPassword', () => {
+    const response: UpdateResult = { raw: [], affected: 1, generatedMaps: [] };
+
+    it('should return a temporary password and persist its hash for the target user', async () => {
+      mockUsersRepository.resetTemporaryPassword.mockResolvedValue(response);
+
+      const result = await service.resetTemporaryPassword(
+        user.username,
+        fakeTenantId,
       );
+
+      expect(result.message).toBe(EUsersSuccess.PASSWORD_UPDATE);
+      expect(result.data.temporaryPassword).toHaveLength(12);
+      expect(mockUsersRepository.resetTemporaryPassword).toHaveBeenCalledWith(
+        user.username,
+        fakeTenantId,
+        expect.stringMatching(/^\$2[ayb]\$\d{2}\$/),
+      );
+    });
+
+    it('should throw NotFoundException when the reset target does not exist', async () => {
+      mockUsersRepository.resetTemporaryPassword.mockResolvedValue({
+        ...response,
+        affected: 0,
+      });
+
+      await expect(
+        service.resetTemporaryPassword(user.username, fakeTenantId),
+      ).rejects.toThrow(new NotFoundException(EUsersErrors.USER_NOT_FOUND));
     });
   });
 

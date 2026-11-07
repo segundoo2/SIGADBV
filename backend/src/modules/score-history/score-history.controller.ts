@@ -14,6 +14,7 @@ import {
   ApiParam,
   ApiBody,
   ApiQuery,
+  ApiCookieAuth,
 } from '@nestjs/swagger';
 import { IScoreHistoryController } from './interfaces/score-history.controller.interface';
 import { IScoreHistoryService } from './interfaces/score-history.service.interface';
@@ -28,6 +29,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { IJwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
 @ApiTags('Score History - Ajuste de Pontuação')
+@ApiCookieAuth('access_token')
 @Controller('score-history')
 export class ScoreHistoryController implements IScoreHistoryController {
   constructor(
@@ -38,9 +40,9 @@ export class ScoreHistoryController implements IScoreHistoryController {
   @Post(':unitId')
   @RequiresPermission(EPermission.SCORE_HISTORY_ADJUST)
   @ApiOperation({
-    summary: 'Ajustar pontuação de uma unidade',
+    summary: 'Solicitar ajuste de pontuação de uma unidade',
     description:
-      'Registra um histórico de ajuste e atualiza o saldo de pontos da unidade. ' +
+      'Registra uma solicitação pendente. O saldo da unidade só é alterado após aprovação. ' +
       '⚠️ **ATENÇÃO:** Para adicionar pontos, envie um valor **positivo** (ex: 50). ' +
       'Para subtrair/remover pontos da unidade, envie um valor **negativo** (ex: -20).',
   })
@@ -56,13 +58,12 @@ export class ScoreHistoryController implements IScoreHistoryController {
   })
   @ApiResponse({
     status: 201,
-    description: 'Pontuação ajustada com sucesso e histórico registrado.',
+    description:
+      'Solicitação de ajuste registrada; a pontuação permanece inalterada enquanto pendente.',
     schema: {
       example: {
-        success: true,
-        data: {
-          newScore: 130,
-        },
+        message: 'Solicitação de ajuste registrada com sucesso.',
+        data: null,
       },
     },
   })
@@ -83,7 +84,7 @@ export class ScoreHistoryController implements IScoreHistoryController {
   }
 
   @Get('pending')
-  @RequiresPermission(EPermission.SCORE_HISTORY_READ)
+  @RequiresPermission(EPermission.SCORE_HISTORY_APPROVE)
   @ApiOperation({
     summary: 'Buscar todas as pontuações pendentes do clube',
     description:
@@ -101,7 +102,7 @@ export class ScoreHistoryController implements IScoreHistoryController {
   }
 
   @Post(':id/approve')
-  @RequiresPermission(EPermission.SCORE_HISTORY_ADJUST)
+  @RequiresPermission(EPermission.SCORE_HISTORY_APPROVE)
   @ApiOperation({
     summary: 'Aprovar solicitação de pontuação',
     description:
@@ -121,7 +122,7 @@ export class ScoreHistoryController implements IScoreHistoryController {
   }
 
   @Post(':id/reject')
-  @RequiresPermission(EPermission.SCORE_HISTORY_ADJUST)
+  @RequiresPermission(EPermission.SCORE_HISTORY_APPROVE)
   @ApiOperation({
     summary: 'Rejeitar solicitação de pontuação',
     description:
@@ -160,12 +161,9 @@ export class ScoreHistoryController implements IScoreHistoryController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Histórico de pontuação encontrado com sucesso.',
-    type: ScoreHistoryEntity,
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Histórico não encontrado para a unidade informada.',
+    description:
+      'Histórico de pontuação retornado; data pode ser uma lista vazia.',
+    type: [ScoreHistoryEntity],
   })
   async findHistoryByUnitId(
     @Param('unitId') unitId: string,
@@ -176,7 +174,7 @@ export class ScoreHistoryController implements IScoreHistoryController {
   }
 
   @Get('units/units-options')
-  @RequiresPermission(EPermission.SCORE_HISTORY_ADJUST)
+  @RequiresPermission(EPermission.SCORE_HISTORY_APPROVE)
   @ApiOperation({
     summary: 'Listar ID e nome de todas as unidades para seleção',
     description:

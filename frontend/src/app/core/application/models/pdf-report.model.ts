@@ -2,6 +2,7 @@ export interface ReportColumn<T> {
   readonly header: string;
   readonly field?: keyof T;
   readonly className?: string;
+  readonly classNameFor?: (item: T) => string;
   readonly render?: (item: T) => string;
 }
 

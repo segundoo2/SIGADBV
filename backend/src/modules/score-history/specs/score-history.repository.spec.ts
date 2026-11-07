@@ -1,6 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ObjectLiteral, Repository } from 'typeorm';
+import {
+  EntityManager,
+  ObjectLiteral,
+  Repository,
+  UpdateResult,
+} from 'typeorm';
 import { ScoreHistoryRepository } from '../score-history.repository';
 import { EUnitGender } from '../../../common/enum/unit/unit-gender.enum';
 import { InternalServerErrorException } from '@nestjs/common';
@@ -244,30 +249,44 @@ describe('ScoreHistoryRepository', () => {
     );
   });
 
-  describe('findOneScoreHistoryPending', () => {
+  describe('findOneScoreHistoryForUpdate', () => {
     it('should return a score history when found', async () => {
-      ormMock.findOne.mockResolvedValue(mockScoreHistory);
+      const transactionalRepository = {
+        findOne: jest.fn().mockResolvedValue(mockScoreHistory),
+      };
+      const getRepository = jest.fn().mockReturnValue(transactionalRepository);
+      const manager = {
+        getRepository,
+      } as unknown as EntityManager;
 
       await expect(
-        repository.findOneScoreHistoryPending(
+        repository.findOneScoreHistoryForUpdate(
           mockScoreHistory.id,
           mockScoreHistory.tenantId,
+          manager,
         ),
       ).resolves.toEqual(mockScoreHistory);
 
-      expect(ormMock.findOne).toHaveBeenCalledWith({
+      expect(getRepository).toHaveBeenCalledWith(ScoreHistoryEntity);
+      expect(transactionalRepository.findOne).toHaveBeenCalledWith({
         where: {
           id: mockScoreHistory.id,
           tenantId: mockScoreHistory.tenantId,
         },
+        lock: { mode: 'pessimistic_write' },
       });
     });
 
     shouldHandleDatabaseErrors(
       () =>
-        repository.findOneScoreHistoryPending(
+        repository.findOneScoreHistoryForUpdate(
           mockScoreHistory.id,
           mockScoreHistory.tenantId,
+          {
+            getRepository: jest.fn().mockReturnValue({
+              findOne: ormMock.findOne,
+            }),
+          } as unknown as EntityManager,
         ),
       () => ormMock.findOne,
     );
@@ -275,18 +294,35 @@ describe('ScoreHistoryRepository', () => {
 
   describe('approveScoreHistory', () => {
     it('should update score history status to approved', async () => {
-      ormMock.update.mockResolvedValue({ affected: 1 });
+      const updateResult: UpdateResult = {
+        raw: [],
+        generatedMaps: [],
+        affected: 1,
+      };
+      const transactionalRepository = {
+        update: jest.fn().mockResolvedValue(updateResult),
+      };
+      const getRepository = jest.fn().mockReturnValue(transactionalRepository);
+      const manager = {
+        getRepository,
+      } as unknown as EntityManager;
 
       await expect(
         repository.approveScoreHistory(
           mockScoreHistory.id,
           mockScoreHistory.tenantId,
           'approver-uuid',
+          manager,
         ),
-      ).resolves.toBeUndefined();
+      ).resolves.toEqual(updateResult);
 
-      expect(ormMock.update).toHaveBeenCalledWith(
-        { id: mockScoreHistory.id, tenantId: mockScoreHistory.tenantId },
+      expect(getRepository).toHaveBeenCalledWith(ScoreHistoryEntity);
+      expect(transactionalRepository.update).toHaveBeenCalledWith(
+        {
+          id: mockScoreHistory.id,
+          tenantId: mockScoreHistory.tenantId,
+          status: EScoreHistoryStatus.PENDING,
+        },
         { status: EScoreHistoryStatus.APPROVED, approvedById: 'approver-uuid' },
       );
     });
@@ -297,6 +333,11 @@ describe('ScoreHistoryRepository', () => {
           mockScoreHistory.id,
           mockScoreHistory.tenantId,
           'approver-uuid',
+          {
+            getRepository: jest
+              .fn()
+              .mockReturnValue({ update: ormMock.update }),
+          } as unknown as EntityManager,
         ),
       () => ormMock.update,
     );
@@ -304,18 +345,35 @@ describe('ScoreHistoryRepository', () => {
 
   describe('rejectScoreHistory', () => {
     it('should update score history status to rejected', async () => {
-      ormMock.update.mockResolvedValue({ affected: 1 });
+      const updateResult: UpdateResult = {
+        raw: [],
+        generatedMaps: [],
+        affected: 1,
+      };
+      const transactionalRepository = {
+        update: jest.fn().mockResolvedValue(updateResult),
+      };
+      const getRepository = jest.fn().mockReturnValue(transactionalRepository);
+      const manager = {
+        getRepository,
+      } as unknown as EntityManager;
 
       await expect(
         repository.rejectScoreHistory(
           mockScoreHistory.id,
           mockScoreHistory.tenantId,
           'rejecter-uuid',
+          manager,
         ),
-      ).resolves.toBeUndefined();
+      ).resolves.toEqual(updateResult);
 
-      expect(ormMock.update).toHaveBeenCalledWith(
-        { id: mockScoreHistory.id, tenantId: mockScoreHistory.tenantId },
+      expect(getRepository).toHaveBeenCalledWith(ScoreHistoryEntity);
+      expect(transactionalRepository.update).toHaveBeenCalledWith(
+        {
+          id: mockScoreHistory.id,
+          tenantId: mockScoreHistory.tenantId,
+          status: EScoreHistoryStatus.PENDING,
+        },
         { status: EScoreHistoryStatus.REJECTED, rejectedById: 'rejecter-uuid' },
       );
     });
@@ -326,6 +384,11 @@ describe('ScoreHistoryRepository', () => {
           mockScoreHistory.id,
           mockScoreHistory.tenantId,
           'rejecter-uuid',
+          {
+            getRepository: jest
+              .fn()
+              .mockReturnValue({ update: ormMock.update }),
+          } as unknown as EntityManager,
         ),
       () => ormMock.update,
     );

@@ -20,6 +20,7 @@ import { ButtonComponent } from '../../shared/buttons/button.component';
     ButtonComponent,
   ],
   selector: 'app-auth',
+  host: { class: 'flex flex-1 flex-col' },
   templateUrl: './auth.html',
 })
 export class LoginPage {

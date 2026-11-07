@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
@@ -38,7 +38,7 @@ import { EErrorsGlobal } from '../../common/enum/global/errors-global.enum';
 import { RequiresPermission } from '../../common/decorators/permission.decorator';
 
 @ApiTags('locations')
-@ApiBearerAuth()
+@ApiCookieAuth('access_token')
 @Controller('locations')
 export class LocationsController implements ILocationsController {
   constructor(
