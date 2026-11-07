@@ -29,7 +29,23 @@ import { validateEnvironment } from './common/environment.validation';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        url: configService.get<string>('DATABASE_URL'),
+        host: configService.get<string>('DB_HOST'),
+        port: Number(configService.get<string>('DB_PORT') ?? 5432),
+        database: configService.get<string>('DB_NAME'),
+        username: configService.get<string>('DB_USER'),
+        password: configService.get<string>('DB_PASSWORD'),
+        ssl:
+          configService.get<string>('DB_SSL') === 'true'
+            ? {
+                rejectUnauthorized:
+                  configService.get<string>('DB_SSL_REJECT_UNAUTHORIZED') !==
+                  'false',
+              }
+            : false,
+        extra: {
+          enableChannelBinding:
+            configService.get<string>('DB_CHANNEL_BINDING') === 'true',
+        },
         autoLoadEntities: true,
         synchronize: configService.get<string>('NODE_ENV') === 'development',
         logging:

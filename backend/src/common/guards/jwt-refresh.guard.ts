@@ -8,6 +8,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { EErrorsGlobal } from '../enum/global/errors-global.enum';
 import type { ICacheStorageService } from '../../common/redis/interface/cache-storage.interface';
 import { IJwtPayloadWithExpiry } from '../../modules/auth/interfaces/jwt-payload.interface';
+import { getRefreshTokenBlacklistKey } from '../../modules/auth/utils/refresh-token-blacklist-key';
 
 @Injectable()
 export class JwtRefreshGuard extends AuthGuard('jwt-refresh') {
@@ -34,7 +35,7 @@ export class JwtRefreshGuard extends AuthGuard('jwt-refresh') {
     }
 
     const isBlacklisted = await this.redisService.get(
-      `blacklist:refresh:${user.sub}:${user.exp}`,
+      getRefreshTokenBlacklistKey(user),
     );
 
     if (isBlacklisted) {

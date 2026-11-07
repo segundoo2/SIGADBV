@@ -1,0 +1,72 @@
+name: sigadbv
+
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: sigadbv_sim
+      POSTGRES_USER: sigadbv_sim
+      POSTGRES_PASSWORD: local-simulation-only
+    volumes:
+      - simulation-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sigadbv_sim -d sigadbv_sim"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - development-redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "corepack enable && pnpm install --frozen-lockfile && pnpm start:dev"
+    volumes:
+      - ./backend:/app
+      - backend-node-modules:/app/node_modules
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_NAME: sigadbv_sim
+      DB_USER: sigadbv_sim
+      DB_PASSWORD: local-simulation-only
+      DB_SSL: "false"
+      REDIS_URL: redis://redis:6379
+      ALLOWED_ORIGINS: http://localhost:4200
+      FRONTEND_URL: http://localhost:4200/
+    ports:
+      - "3000:3000"
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "corepack enable && pnpm install --frozen-lockfile && pnpm exec ng serve --host 0.0.0.0"
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    ports:
+      - "4200:4200"
+
+volumes:
+  simulation-postgres:
+    external: true
+    name: sigadbv_sigadbv-sim-postgres
+  backend-node-modules:
+  frontend-node-modules:
+  development-redis-data:

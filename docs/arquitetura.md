@@ -30,7 +30,7 @@ O padrão de ports/adapters separa contratos da aplicação dos adapters HTTP e 
 
 ## Banco de dados e infraestrutura
 
-O TypeORM conecta-se ao PostgreSQL por `DATABASE_URL`; entidades são carregadas automaticamente. `synchronize` é habilitado apenas quando `NODE_ENV` é `development`. Foi localizada uma migração em `backend/src/migration/`; os scripts de banco e seeds estão em `backend/src/database/`.
+O TypeORM conecta-se ao PostgreSQL pelas variáveis `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` e `DB_PASSWORD`; entidades são carregadas automaticamente. `synchronize` é habilitado apenas quando `NODE_ENV` é `development`. Migrations e seeds ficam em `backend/src/migration/` e `backend/src/database/`.
 
 O Redis é configurado por `REDIS_URL` (padrão local no código) e fornece armazenamento com expiração para blacklist de refresh token e chaves relacionadas a usuários. Evidências: `backend/src/common/redis/redis.service.ts`, `backend/src/modules/auth/auth.service.ts`.
 

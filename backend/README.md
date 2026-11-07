@@ -84,11 +84,11 @@ Esses módulos estão registrados em `src/app.module.ts`. Ter um endpoint na API
 
 ## Persistência
 
-O TypeORM conecta-se ao PostgreSQL pela variável `DATABASE_URL` e carrega entidades dos módulos. Em `NODE_ENV=development`, `AppModule` habilita `synchronize` e logging de queries/erros; fora desse modo, sincronização fica desabilitada. O `DataSource` usado pelos scripts de migração também define `synchronize: false`.
+O TypeORM conecta-se ao PostgreSQL usando `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` e `DB_PASSWORD`, e carrega entidades dos módulos. `DB_SSL` ativa TLS; `DB_SSL_REJECT_UNAUTHORIZED` controla a validação do certificado, e `DB_CHANNEL_BINDING` pode habilitar channel binding SCRAM. Em `NODE_ENV=development`, `AppModule` habilita `synchronize` e logging de queries/erros; fora desse modo, sincronização fica desabilitada. O `DataSource` usado pelos scripts de migração também define `synchronize: false`.
 
 Os relacionamentos principais incluem usuário–papel (muitos-para-muitos), produto–categoria, produto–localização por `ProductLocation`, movimentação–produto/localização e unidade–histórico de pontuação. Há scripts de migração e seeds em `src/database/` e `src/migration/`.
 
-O repositório contém uma migração, que altera a tabela `score_history`; ela não cria sozinha todo o schema da aplicação. Para uma instalação nova, o processo completo de provisionamento do schema não está documentado pelo repositório. Não execute migrações em um banco sem verificar previamente o estado esperado.
+As migrations TypeORM ficam em `src/migration/`. O bootstrap de produção verifica se o schema está vazio, completo ou parcial antes de aplicar migrations. Em um banco existente sem histórico, ele confere a compatibilidade das tabelas e registra o baseline conhecido; schemas parciais ou incompatíveis interrompem a inicialização para evitar alterações automáticas inesperadas.
 
 ## Testes
 
@@ -124,7 +124,9 @@ Configure `backend/.env` localmente. Não versione esse arquivo nem compartilhe 
 
 | Variável                           | Uso e valor padrão observado                                                                                                                  |
 | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`                     | URL PostgreSQL; necessária para TypeORM                                                                                                       |
+| `DB_HOST`, `DB_PORT`               | Endereço e porta do PostgreSQL                                                                                                                |
+| `DB_NAME`, `DB_USER`, `DB_PASSWORD`| Banco, usuário e senha do PostgreSQL                                                                                                          |
+| `DB_SSL`, `DB_SSL_REJECT_UNAUTHORIZED`, `DB_CHANNEL_BINDING` | Opções TLS e channel binding SCRAM para PostgreSQL                                                                 |
 | `REDIS_URL`                        | URL Redis; o serviço usa `redis://localhost:6379` quando não definida. O `.env.example` contém valor vazio; preencha-o para a execução local. |
 | `JWT_SECRET`, `JWT_REFRESH_SECRET` | Segredos usados para assinar/verificar tokens; configure valores próprios e não compartilhe                                                   |
 | `ACCESS_TOKEN_EXPIRES_IN`          | Duração do access token; padrão de código `15m`                                                                                               |
@@ -135,7 +137,7 @@ Configure `backend/.env` localmente. Não versione esse arquivo nem compartilhe 
 | `FRONTEND_URL`                     | Usada na mensagem de erro de tenant                                                                                                           |
 | `ADMIN_USERNAME`, `ADMIN_PASSWORD` | O seed de administrador usa esses valores; sem senha, gera senha temporária e a imprime no terminal                                           |
 
-O `.env.example` lista origens CORS de exemplo que não incluem `http://localhost:4200`. Se usar esse arquivo sem ajustes, inclua a origem do frontend local em `ALLOWED_ORIGINS`. O código atual usa `REDIS_URL`; `REDIS_PASSWORD` presente no exemplo não é lida diretamente pelo serviço.
+O `backend/.env.example` é o modelo comum das variáveis do backend e do Compose de produção. O Compose substitui `DB_HOST` dentro dos containers e monta `REDIS_URL` a partir de `REDIS_PASSWORD`; a conexão Redis direta do backend usa `REDIS_URL`.
 
 ### Schema e seeds
 
@@ -145,10 +147,23 @@ No modo de desenvolvimento, `AppModule` sincroniza entidades ao iniciar. Em outr
 pnpm migration:run
 pnpm seed:permissions
 pnpm seed:admin
-pnpm seed:units
 ```
 
-O comando de migração aplica as migrações existentes, mas elas não constituem um bootstrap completo de banco vazio. Os seeds conectam-se ao banco configurado; o de administrador pode gerar e imprimir uma senha temporária caso `ADMIN_PASSWORD` esteja vazia. Trate essa saída como credencial.
+Para gerar uma migration a partir de alterações em entidades, use um banco de desenvolvimento ou staging atualizado e execute:
+
+```bash
+pnpm migration:generate src/migration/NomeDescritivo
+```
+
+Revise e versione a migration gerada antes do deploy. O comando `pnpm migration:run` aplica migrations pendentes no ambiente local.
+
+O fluxo de produção executa build, verificação/preparação do schema, criação idempotente do administrador e inicialização da API:
+
+```bash
+pnpm deploy:prod
+```
+
+Configure `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `REDIS_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET` e `ADMIN_PASSWORD` no ambiente de produção. `ADMIN_USERNAME` é opcional e usa `sg.code` como padrão. O seed de administrador cria a conta se ela não existir e garante que ela tenha a role de administrador; não substitui a senha de uma conta já existente.
 
 ### Inicialização
 

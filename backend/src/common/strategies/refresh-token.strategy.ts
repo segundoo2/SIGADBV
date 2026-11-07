@@ -6,6 +6,7 @@ import { RequestWithCookies } from './interfaces/req-with-cookies.interface';
 import { EErrorsGlobal } from '../enum/global/errors-global.enum';
 import type { ICacheStorageService } from '../redis/interface/cache-storage.interface';
 import { ConfigService } from '@nestjs/config';
+import { getRefreshTokenBlacklistKey } from '../../modules/auth/utils/refresh-token-blacklist-key';
 
 export const cookieRefreshExtractor = (
   req: RequestWithCookies,
@@ -53,7 +54,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     }
 
     // 2. Validação na Blacklist do Redis
-    const blacklistKey = `blacklist:refresh:${payload.sub}:${payload.exp}`;
+    const blacklistKey = getRefreshTokenBlacklistKey(payload);
     const status = await this.redisService.get(blacklistKey);
 
     if (status) {

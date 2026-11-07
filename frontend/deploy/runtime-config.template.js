@@ -1,1 +1,0 @@
-window.__SIGADBV_API_URL__ = '${SIMULATION_API_URL}';

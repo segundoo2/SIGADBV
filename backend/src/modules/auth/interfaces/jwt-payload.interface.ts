@@ -7,6 +7,7 @@ export interface IJwtPayload {
   roles: string[];
   permissions: EPermission[];
   fingerprint: string;
+  jti?: string;
 }
 
 export interface IJwtPayloadWithExpiry extends IJwtPayload {

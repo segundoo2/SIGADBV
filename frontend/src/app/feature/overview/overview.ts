@@ -19,7 +19,6 @@ import {
   ChartItem,
 } from '../../shared/cards/bar-chart-card.component';
 import { AccessDeniedCard } from '../../shared/cards/access-denied-card.component';
-import { IScoreHistoryEntity } from '../../core/domain/entities/score-history.entity';
 import { CommonModule } from '@angular/common';
 import { PendingScoreRequestsComponent } from './components/pending-score-requests.component';
 
@@ -148,9 +147,5 @@ export class OverviewPage implements OnInit {
     } catch {
       // Tratado na store
     }
-  }
-
-  trackById(_index: number, record: IScoreHistoryEntity): string {
-    return record.id;
   }
 }

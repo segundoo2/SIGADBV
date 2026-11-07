@@ -18,6 +18,8 @@ import type { ICacheStorageService } from '../../common/redis/interface/cache-st
 import { EAuthErrors } from '../../common/enum/auth/auth-errors.enum';
 import { ILoginResponse } from './interfaces/login-response.interface';
 import { ConfigService } from '@nestjs/config';
+import { randomUUID } from 'crypto';
+import { getRefreshTokenBlacklistKey } from './utils/refresh-token-blacklist-key';
 
 type PermissionItem = EPermission | { slug: EPermission };
 
@@ -109,7 +111,7 @@ export class AuthService {
 
     if (ttl > 0) {
       await this.redisService.setWithExpiry(
-        `blacklist:refresh:${payload.sub}:${payload.exp}`,
+        getRefreshTokenBlacklistKey(payload),
         'rotated',
         ttl,
       );
@@ -155,7 +157,7 @@ export class AuthService {
 
     if (ttl > 0) {
       await this.redisService.setWithExpiry(
-        `blacklist:refresh:${payload.sub}:${payload.exp}`,
+        getRefreshTokenBlacklistKey(payload),
         'revoked',
         ttl,
       );
@@ -190,6 +192,7 @@ export class AuthService {
       roles,
       permissions: Array.from(new Set(permissions)),
       fingerprint,
+      jti: randomUUID(),
     };
   }
 }

@@ -250,20 +250,6 @@ describe('OverviewPage', () => {
     );
   });
 
-  it('should return a stable id for each pending history item', () => {
-    const mockRecord = {
-      id: 'rec-123',
-      tenantId: 't-1',
-      unitId: 'u-1',
-      score: 10,
-      description: 'test',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    expect(component.trackById(0, mockRecord)).toBe('rec-123');
-  });
-
   it('should handle data loading errors gracefully during initialization', async () => {
     mockUnitsStore.fetchAllUnits.mockRejectedValueOnce(
       new Error('Erro de carregamento'),

@@ -14,6 +14,17 @@ async function loginForPasswordChange(page: Page): Promise<void> {
       body: JSON.stringify({
         message: 'Login successful',
         mustChangePassword: true,
+        data: {
+          user: {
+            id: 'test-user',
+            tenantId: 'test-tenant',
+            username: FIRST_ACCESS_USERNAME,
+            mustChangePassword: true,
+            roles: [],
+            createdAt: '2026-01-01T00:00:00.000Z',
+            updatedAt: '2026-01-01T00:00:00.000Z',
+          },
+        },
       }),
     });
   });
@@ -27,7 +38,7 @@ async function loginForPasswordChange(page: Page): Promise<void> {
 
 async function fillMatchingPasswords(
   page: Page,
-  password = 'nova_senha_segura_123',
+  password = 'nova123456',
 ): Promise<void> {
   await page.getByTestId('password-input').fill(password);
   await page.getByTestId('confirm-password-input').fill(password);
@@ -142,7 +153,7 @@ test.describe('/auth/update-password', () => {
 
     const request = await updateRequest;
     expect(request.postDataJSON()).toEqual({
-      password: 'nova_senha_segura_123',
+      password: 'nova123456',
     });
     await expect(page).toHaveURL(/\/overview$/);
   });

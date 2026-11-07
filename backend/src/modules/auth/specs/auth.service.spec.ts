@@ -166,10 +166,14 @@ describe('AuthService', () => {
         fingerprint: testFingerprint,
       };
 
-      expect(mockTokenService.signAsync).toHaveBeenCalledWith(expectedPayload, {
-        secret: 'test-access-secret',
-        expiresIn: '15m',
-      });
+      const accessTokenPayload = mockTokenService.signAsync.mock
+        .calls[0][0] as IJwtPayload;
+      const refreshTokenPayload = mockTokenService.signAsync.mock
+        .calls[1][0] as IJwtPayload;
+
+      expect(accessTokenPayload).toMatchObject(expectedPayload);
+      expect(accessTokenPayload.jti).toEqual(expect.any(String));
+      expect(refreshTokenPayload).toEqual(accessTokenPayload);
     });
   });
 

@@ -141,13 +141,13 @@ describe('UnitsPage', () => {
     );
   });
 
-  it('selects a unit and opens its history modal', async () => {
-    await component.openHistoryModal(mockUnit);
+  it('selects a unit and opens its history modal', () => {
+    component.openHistoryModal(mockUnit);
     fixture.detectChanges();
 
     expect(component.selectedUnit()).toEqual(mockUnit);
     expect(component.isHistoryModalOpen()).toBe(true);
-    const modal = fixture.nativeElement.querySelector(
+    const modal = (fixture.nativeElement as HTMLElement).querySelector(
       'app-unit-score-history-modal',
     );
     expect(modal).toBeTruthy();
