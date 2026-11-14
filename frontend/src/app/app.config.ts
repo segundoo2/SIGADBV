@@ -45,6 +45,14 @@ import { CurrentUserStore } from './core/store/users.store';
 import { UsersApiAdapter } from './core/infra/adapters/users-api.adapter';
 import { PDF_REPORT_PORT } from './core/infra/tokens/pdf-report.token';
 import { PdfReportBrowserAdapter } from './core/infra/adapters/pdf-report-browser.adapter';
+import {
+  ADMIN_API_PORT,
+  ADMIN_STORE_PORT,
+} from './core/infra/tokens/admin.token';
+import { AdminManagementApiAdapter } from './core/infra/adapters/admin-management-api.adapter';
+import { AdminStore } from './core/store/admin.store';
+import { ROLES_API_PORT } from './core/infra/tokens/roles.token';
+import { RolesApiAdapter } from './core/infra/adapters/roles-api.adapter';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -75,6 +83,8 @@ export const appConfig: ApplicationConfig = {
     { provide: SCORE_HISTORY_API_PORT, useClass: ScoreHistoryApiAdapter },
     { provide: UNITS_API_PORT, useClass: UnitsApiAdapter },
     { provide: USERS_API_PORT, useClass: UsersApiAdapter },
+    { provide: ADMIN_API_PORT, useClass: AdminManagementApiAdapter },
+    { provide: ROLES_API_PORT, useClass: RolesApiAdapter },
     { provide: PDF_REPORT_PORT, useClass: PdfReportBrowserAdapter },
     // store
     {
@@ -85,5 +95,6 @@ export const appConfig: ApplicationConfig = {
     { provide: SCORE_HISTORY_STORE_PORT, useClass: UnitScoreHistoryStore },
     { provide: UNITS_STORE_PORT, useClass: UnitCatalogStore },
     { provide: USERS_STORE_PORT, useClass: CurrentUserStore },
+    { provide: ADMIN_STORE_PORT, useClass: AdminStore },
   ],
 };

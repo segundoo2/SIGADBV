@@ -138,6 +138,10 @@ describe('ProductLocationsRepository', () => {
 
       expect(count).toBe(1);
       expect(ormMock.createQueryBuilder).toHaveBeenCalledWith('pl');
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith(
+        'pl.tenantId = :tenantId',
+        { tenantId },
+      );
       expect(queryBuilderMock.andWhere).toHaveBeenCalledWith('pl.quantity > 0');
     });
   });
@@ -149,6 +153,10 @@ describe('ProductLocationsRepository', () => {
       const total = await repository.sumAllocatedStock(productId, tenantId);
 
       expect(total).toBe(25.5);
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith(
+        'pl.tenantId = :tenantId',
+        { tenantId },
+      );
     });
 
     it('should return 0 when total is null', async () => {

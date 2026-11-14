@@ -31,13 +31,13 @@ export interface IUsersRepository {
   ): Promise<UpdateResult>;
 
   addRoleToUser(
-    username: string,
+    userId: string,
     roleId: string,
     tenantId: string,
   ): Promise<void>;
 
   removeRoleFromUser(
-    username: string,
+    userId: string,
     roleId: string,
     tenantId: string,
   ): Promise<void>;

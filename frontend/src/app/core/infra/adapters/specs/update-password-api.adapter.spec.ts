@@ -35,9 +35,7 @@ describe('UpdatePasswordApiAdapter', () => {
 
   it('should send PATCH request with update password DTO and return response on success', async () => {
     const payload: IUpdatePasswordInput = {
-      username: 'john.doe',
       password: 'newSecurePassword123',
-      mustChangePassword: false,
     };
 
     const mockResponse: IApiResponseModel<null> = {
@@ -58,9 +56,7 @@ describe('UpdatePasswordApiAdapter', () => {
 
   it('should normalize NestJS errors when the update request fails', async () => {
     const payload: IUpdatePasswordInput = {
-      username: 'john.doe',
       password: 'newSecurePassword123',
-      mustChangePassword: false,
     };
 
     const updatePromise = adapter.updatePassword(payload);

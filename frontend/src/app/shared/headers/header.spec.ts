@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 import { USERS_STORE_PORT } from '../../core/infra/tokens/users.token';
 import { HeaderComponent } from './header';
+import { EPermission } from '../../core/domain/enums/permissions.enum';
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
@@ -19,7 +20,13 @@ describe('HeaderComponent', () => {
       userCurrentEntity: signal({
         id: '1',
         username: 'edilson.segundo',
-        roles: [{ id: 'role-1', name: 'Administrador' }],
+        roles: [
+          {
+            id: 'role-1',
+            name: 'Administrador',
+            permissions: [EPermission.USERS_READ],
+          },
+        ],
       }),
     };
 
@@ -50,11 +57,25 @@ describe('HeaderComponent', () => {
     expect(links.map((link) => link.textContent?.trim())).toEqual([
       'Visão Geral',
       'Unidades',
+      'Painel Admin',
     ]);
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/overview',
       '/units',
+      '/admin',
     ]);
+  });
+
+  it('hides the admin navigation link when the user lacks users.read', () => {
+    mockUsersStore.userCurrentEntity.set({
+      id: '1',
+      username: 'edilson.segundo',
+      roles: [{ id: 'r1', name: 'Role', permissions: [] }],
+    });
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain(
+      'Painel Admin',
+    );
   });
 
   it('should open and close the profile menu and display username and role', () => {
@@ -99,6 +120,9 @@ describe('HeaderComponent', () => {
     );
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
       'Unidades',
+    );
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Painel Admin',
     );
 
     component.toggleMobileMenu();

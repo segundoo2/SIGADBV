@@ -40,7 +40,7 @@ export class ProductLocationsRepository implements IProductLocationsRepository {
     return await repo
       .createQueryBuilder('pl')
       .where('pl.location_id = :locationId', { locationId })
-      .andWhere('pl.tenant_id = :tenantId', { tenantId })
+      .andWhere('pl.tenantId = :tenantId', { tenantId })
       .andWhere('pl.quantity > 0')
       .getCount();
   }
@@ -56,7 +56,7 @@ export class ProductLocationsRepository implements IProductLocationsRepository {
       .createQueryBuilder('pl')
       .select('SUM(pl.quantity)', 'total')
       .where('pl.product_id = :productId', { productId })
-      .andWhere('pl.tenant_id = :tenantId', { tenantId })
+      .andWhere('pl.tenantId = :tenantId', { tenantId })
       .getRawOne<{ total: string | null }>();
 
     return result?.total ? parseFloat(result.total) : 0;

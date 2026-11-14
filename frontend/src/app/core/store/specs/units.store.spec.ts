@@ -4,6 +4,7 @@ import { UnitScoreHistoryStore } from '../score-history.store';
 import { SCORE_HISTORY_API_PORT } from '../../infra/tokens/score-history.token';
 import { IScoreHistoryPayload } from '../../application/models/score-history-payload.model';
 import { IScoreHistoryEntity } from '../../domain/entities/score-history.entity';
+import { EScoreHistoryStatus } from '../../domain/enums/score-history-status.enum'; // Importação do enum de status
 import { ApiError } from '../../infra/interceptors/api-error.interceptor';
 import { IUnitEntity } from '../../domain/entities/unit.entity';
 
@@ -167,6 +168,7 @@ describe('UnitScoreHistoryStore', () => {
           unitId: 'unit-1',
           score: 10,
           description: 'Pending',
+          status: EScoreHistoryStatus.PENDING, // Adicionado status obrigatório
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -199,6 +201,7 @@ describe('UnitScoreHistoryStore', () => {
         unitId: 'unit-1',
         score: 10,
         description: 'Pending',
+        status: EScoreHistoryStatus.PENDING, // Adicionado status obrigatório
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -233,6 +236,7 @@ describe('UnitScoreHistoryStore', () => {
         unitId: 'unit-1',
         score: 10,
         description: 'Pending',
+        status: EScoreHistoryStatus.PENDING, // Adicionado status obrigatório
         createdAt: new Date(),
         updatedAt: new Date(),
       };

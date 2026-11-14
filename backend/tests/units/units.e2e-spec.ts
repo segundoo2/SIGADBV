@@ -9,16 +9,19 @@ import { EUnitGender } from '../../src/common/enum/unit/unit-gender.enum';
 import { IResponse } from '../../src/common/interfaces/response.interface';
 import { UnitEntity } from '../../src/modules/units/entities/unit.entity';
 import { UpdateUnitDto } from '../../src/modules/units/dto/update-unit.dto';
+import { EPermission } from '../../src/common/enum/role/permissions.enum';
 import {
   setupTestDatabase,
   cleanTestDatabase,
 } from '../setup-test-database.helper';
+import { createE2eUser, E2E_USER_AGENT, loginE2eUser } from '../e2e-helpers';
 
 describe('UnitsModule', () => {
   let app: INestApplication;
   let httpServer: Server;
   let authCookie: string;
   let createdUnitId: string;
+  let readOnlyCookie: string;
 
   const parseAllCookies = (
     rawCookies: string | string[] | undefined,
@@ -43,6 +46,8 @@ describe('UnitsModule', () => {
     await app.init();
     await setupTestDatabase(app);
 
+    await createE2eUser(app, 'units.reader', [EPermission.USERS_READ]);
+
     httpServer = app.getHttpServer() as Server;
 
     const loginResponse = await request(httpServer)
@@ -56,6 +61,11 @@ describe('UnitsModule', () => {
       .expect(200);
 
     authCookie = parseAllCookies(loginResponse.get('Set-Cookie'));
+    readOnlyCookie = await loginE2eUser(
+      httpServer,
+      'units.reader',
+      'Password123',
+    );
   });
 
   afterAll(async () => {
@@ -98,6 +108,27 @@ describe('UnitsModule', () => {
         })
         .expect(409);
     });
+
+    it('should reject unauthenticated, unauthorized, and invalid create requests', async () => {
+      const payload = {
+        name: 'Unidade Extra',
+        gender: EUnitGender.MALE,
+        maxMembers: 8,
+      };
+      await request(httpServer).post('/units').send(payload).expect(401);
+      await request(httpServer)
+        .post('/units')
+        .set('Cookie', readOnlyCookie)
+        .set('user-agent', 'Supertest-E2E-Agent')
+        .send(payload)
+        .expect(403);
+      await request(httpServer)
+        .post('/units')
+        .set('Cookie', authCookie)
+        .set('user-agent', 'Supertest-E2E-Agent')
+        .send({ ...payload, gender: 'INVALID' })
+        .expect(400);
+    });
   });
 
   describe('GET /units', () => {
@@ -113,6 +144,15 @@ describe('UnitsModule', () => {
       expect(body).toHaveProperty('message', EUnitSuccess.FIND);
       expect(Array.isArray(body.data)).toBe(true);
       expect(body.data.length).toBeGreaterThan(0);
+    });
+
+    it('should reject unauthenticated and unauthorized list requests', async () => {
+      await request(httpServer).get('/units').expect(401);
+      await request(httpServer)
+        .get('/units')
+        .set('Cookie', readOnlyCookie)
+        .set('user-agent', 'Supertest-E2E-Agent')
+        .expect(403);
     });
   });
 
@@ -159,6 +199,27 @@ describe('UnitsModule', () => {
       expect(body).toHaveProperty('message', EUnitSuccess.UPDATE);
       expect(body.data).toBeNull();
     });
+
+    it('should reject invalid, missing, and unauthorized unit updates', async () => {
+      await request(httpServer)
+        .put(`/units/${createdUnitId}`)
+        .set('Cookie', authCookie)
+        .set('user-agent', 'Supertest-E2E-Agent')
+        .send({ gender: 'INVALID' })
+        .expect(400);
+      await request(httpServer)
+        .put('/units/123e4567-e89b-12d3-a456-426614174999')
+        .set('Cookie', authCookie)
+        .set('user-agent', 'Supertest-E2E-Agent')
+        .send({ name: 'Ausente' })
+        .expect(404);
+      await request(httpServer)
+        .put(`/units/${createdUnitId}`)
+        .set('Cookie', readOnlyCookie)
+        .set('user-agent', 'Supertest-E2E-Agent')
+        .send({ name: 'Bloqueada' })
+        .expect(403);
+    });
   });
 
   describe('DELETE /units/:id', () => {
@@ -181,6 +242,15 @@ describe('UnitsModule', () => {
         .set('Cookie', authCookie)
         .set('user-agent', 'Supertest-E2E-Agent')
         .expect(404);
+    });
+
+    it('should reject unauthenticated and unauthorized unit deletion', async () => {
+      await request(httpServer).delete(`/units/${createdUnitId}`).expect(401);
+      await request(httpServer)
+        .delete(`/units/${createdUnitId}`)
+        .set('Cookie', readOnlyCookie)
+        .set('user-agent', 'Supertest-E2E-Agent')
+        .expect(403);
     });
   });
 });

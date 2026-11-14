@@ -10,6 +10,7 @@ import { ECategoryErrors } from '../../../common/enum/category/category-errors.e
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { DeleteResult, UpdateResult } from 'typeorm';
 import { PaginationQueryDto } from '../../../common/dtos/pagination-query.dto';
+import { IPaginatedResponse } from '../../../common/interfaces/paginated-response.interface';
 
 describe('CategoriesService', () => {
   let service: ICategoriesService;
@@ -62,6 +63,10 @@ describe('CategoriesService', () => {
         ...categoryDto,
         tenantId: category.tenantId,
       });
+      expect(repository.findByCategoryName).toHaveBeenCalledWith(
+        categoryDto.name,
+        category.tenantId,
+      );
     });
 
     it('should return ConflictException when category is existed', async () => {
@@ -121,7 +126,7 @@ describe('CategoriesService', () => {
 
       repository.findByCategoryName.mockResolvedValue(category);
       expect(
-        await service.findByCategoryName(category.name, category.tenantId),
+        await service.findByCategoryName(category.tenantId, category.name),
       ).toEqual(expectedResponse);
       expect(repository.findByCategoryName).toHaveBeenCalledWith(
         category.name,
@@ -132,7 +137,7 @@ describe('CategoriesService', () => {
     it('should return NotFoundException when Category not found', async () => {
       repository.findByCategoryName.mockResolvedValue(null);
       await expect(
-        service.findByCategoryName(category.name, category.tenantId),
+        service.findByCategoryName(category.tenantId, category.name),
       ).rejects.toThrow(
         new NotFoundException(ECategoryErrors.CATEGORY_NOT_FOUND),
       );
@@ -143,10 +148,17 @@ describe('CategoriesService', () => {
     const categoriesList: Category[] = [category, category, category];
     const pagination: PaginationQueryDto = { page: 1, limit: 10 };
 
-    it('should return tuple response when categories are found', async () => {
-      const expectedResponse: IResponse<[Category[], number]> = {
+    it('should return a paginated response when categories are found', async () => {
+      const expectedResponse: IPaginatedResponse<Category[]> = {
         message: ECategorySuccess.FOUND_CATEGORIES_LIST,
-        data: [categoriesList, 3],
+        data: categoriesList,
+        meta: {
+          itemCount: 3,
+          totalItems: 3,
+          itemsPerPage: 10,
+          totalPages: 1,
+          currentPage: 1,
+        },
       };
 
       repository.findAllCategories.mockResolvedValue([categoriesList, 3]);

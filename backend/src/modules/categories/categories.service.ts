@@ -13,6 +13,7 @@ import { Category } from './entities/category.entity';
 import { ECategoryErrors } from '../../common/enum/category/category-errors.enum';
 import { UpdateCategoryDto } from './dtos/update-category.dto';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
+import { IPaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @Injectable()
 export class CategoriesService implements ICategoriesService {
@@ -25,8 +26,8 @@ export class CategoriesService implements ICategoriesService {
     categoryDto: CategoryDto & { tenantId: string },
   ): Promise<IResponse<null>> {
     const categoryExisted = await this.repository.findByCategoryName(
-      categoryDto.tenantId,
       categoryDto.name,
+      categoryDto.tenantId,
     );
 
     if (categoryExisted) {
@@ -59,8 +60,8 @@ export class CategoriesService implements ICategoriesService {
   }
 
   async findByCategoryName(
-    nameCategory: string,
     tenantId: string,
+    nameCategory: string,
   ): Promise<IResponse<Category>> {
     const category = await this.repository.findByCategoryName(
       nameCategory,
@@ -80,19 +81,26 @@ export class CategoriesService implements ICategoriesService {
   async findAllCategories(
     tenantId: string,
     pagination: PaginationQueryDto,
-  ): Promise<IResponse<[Category[], number]>> {
-    const [categoriesList, total] = await this.repository.findAllCategories(
-      tenantId,
-      pagination,
-    );
+  ): Promise<IPaginatedResponse<Category[]>> {
+    const page = pagination.page ?? 1;
+    const limit = pagination.limit ?? 10;
+    const [categoriesList, totalItems] =
+      await this.repository.findAllCategories(tenantId, { page, limit });
 
-    if (total === 0 || categoriesList.length === 0) {
+    if (totalItems === 0 || categoriesList.length === 0) {
       throw new NotFoundException(ECategoryErrors.CATEGORY_NOT_FOUND);
     }
 
     return {
       message: ECategorySuccess.FOUND_CATEGORIES_LIST,
-      data: [categoriesList, total],
+      data: categoriesList,
+      meta: {
+        itemCount: categoriesList.length,
+        totalItems,
+        itemsPerPage: limit,
+        totalPages: Math.ceil(totalItems / limit),
+        currentPage: page,
+      },
     };
   }
 

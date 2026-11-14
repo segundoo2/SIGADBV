@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 import { USERS_STORE_PORT } from '../../core/infra/tokens/users.token'; // Importar o token de usuários
+import { EPermission } from '../../core/domain/enums/permissions.enum';
 
 interface SubmenuItem {
   readonly label: string;
@@ -19,6 +20,7 @@ interface NavItem {
   readonly label: string;
   readonly route?: string;
   readonly submenu?: readonly SubmenuItem[];
+  readonly requiredPermission?: EPermission;
 }
 
 @Component({
@@ -54,7 +56,24 @@ export class HeaderComponent {
       label: 'Unidades',
       route: '/units',
     },
+    {
+      label: 'Painel Admin',
+      submenu: [
+        { label: 'Usuários', route: '/admin/users' },
+        { label: 'Cargos', route: '/admin/roles' },
+      ],
+      requiredPermission: EPermission.USERS_READ,
+    },
   ];
+
+  hasPermission(permission?: EPermission): boolean {
+    if (!permission) return true;
+    return (
+      this.usersStore
+        .userCurrentEntity()
+        ?.roles.some((role) => role.permissions?.includes(permission)) ?? false
+    );
+  }
 
   toggleDropdown(label: string, event: Event): void {
     event.stopPropagation();

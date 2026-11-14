@@ -335,7 +335,7 @@ describe('ProductsRepository', () => {
           delta,
         );
         expect(createQueryBuilderMock.where).toHaveBeenCalledWith(
-          'id = :productId AND tenant_id = :tenantId',
+          'id = :productId AND "tenantId" = :tenantId',
           { productId: mockProduct.id, tenantId: mockProduct.tenantId },
         );
         if (remainsNonNegative) {

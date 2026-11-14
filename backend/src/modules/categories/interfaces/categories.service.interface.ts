@@ -3,6 +3,7 @@ import { IResponse } from '../../../common/interfaces/response.interface';
 import { CategoryDto } from '../dtos/category.dto';
 import { UpdateCategoryDto } from '../dtos/update-category.dto';
 import { Category } from '../entities/category.entity';
+import { IPaginatedResponse } from '../../../common/interfaces/paginated-response.interface';
 
 export interface ICategoriesService {
   createCategory(
@@ -23,7 +24,7 @@ export interface ICategoriesService {
   findAllCategories(
     tenantId: string,
     pagination: PaginationQueryDto,
-  ): Promise<IResponse<[Category[], number]>>;
+  ): Promise<IPaginatedResponse<Category[]>>;
 
   deleteCategory(id: string, tenantId: string): Promise<IResponse<null>>;
 }

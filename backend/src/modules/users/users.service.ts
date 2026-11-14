@@ -205,7 +205,7 @@ export class UsersService implements IUsersService {
       throw new NotFoundException(EUsersErrors.USER_DOES_NOT_HAVE_ROLE);
     }
 
-    await this.usersRepository.removeRoleFromUser(username, roleId, tenantId);
+    await this.usersRepository.removeRoleFromUser(user.id, roleId, tenantId);
 
     return {
       message: ERolesSuccess.ROLE_REMOVED,

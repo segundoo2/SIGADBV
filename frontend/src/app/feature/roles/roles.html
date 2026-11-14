@@ -1,0 +1,148 @@
+<app-header />
+
+<main class="p-6 max-w-7xl mx-auto space-y-6">
+  <app-access-denied-card
+    [requiredPermission]="EPermission.ROLES_READ"
+    message="Acesso restrito: você não possui permissão para visualizar os cargos."
+  >
+    <header
+      class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6"
+    >
+      <div>
+        <h1 class="text-2xl font-bold text-white">Gestão de Cargos</h1>
+        <p class="text-sm text-slate-400">
+          Crie, edite e exclua cargos do sistema.
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <button
+          type="button"
+          (click)="openCreateRole()"
+          class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium transition-colors cursor-pointer"
+        >
+          Criar Cargo
+        </button>
+      </div>
+    </header>
+
+    <app-error-message [message]="adminStore.error()" />
+
+    @if (adminStore.isLoading()) {
+    <div class="text-center py-12 text-slate-400" role="status">
+      Carregando Cargos...
+    </div>
+    } @else {
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (role of adminStore.roles(); track trackById($index, role)) {
+      <article
+        class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-sm flex flex-col justify-between space-y-4 hover:border-slate-700 hover:bg-slate-800/40 transition-all"
+      >
+        <div class="space-y-3">
+          <header class="flex justify-between items-start">
+            <h2 class="text-lg font-semibold text-white">
+              {{ role.name }}
+            </h2>
+          </header>
+          <p class="text-sm text-slate-400">
+            Permissões Vinculadas:
+            <span class="text-white font-medium block mt-1 text-xs bg-slate-950/50 p-2.5 rounded-lg border border-slate-800/80 max-h-24 overflow-y-auto">
+              {{ role.permissions.join(', ') || 'Nenhuma permissão' }}
+            </span>
+          </p>
+        </div>
+      </article>
+      } @empty {
+      <p class="col-span-full text-center py-12 text-slate-500">
+        Nenhum cargo encontrado.
+      </p>
+      }
+    </section>
+    }
+  </app-access-denied-card>
+</main>
+
+<!-- Modal Criar Cargo com Permissões Agrupadas -->
+<app-modal
+  [isOpen]="adminStore.modal() === 'create-role'"
+  title="Criar Cargo"
+  size="lg"
+
+  (closed)="closeModal()"
+>
+  <form class="space-y-6" (ngSubmit)="submitRole()">
+    <app-input-form
+      id="new-role-name"
+      label="Nome do cargo"
+      testId="new-role-name"
+      [formControl]="createRoleName"
+    />
+
+    <fieldset class="space-y-5 mt-5">
+      <div class="flex items-center justify-between">
+        <legend class="text-sm font-semibold text-white tracking-wide">
+          Permissões do Sistema
+        </legend>
+        <span class="text-xs font-medium text-indigo-300 bg-indigo-950/80 border border-indigo-800/60 px-3 py-1 rounded-full">
+          {{ adminStore.selectedPermissions().length }} selecionada(s)
+        </span>
+      </div>
+
+      <!-- Container de permissões com altura ampliada e elementos maiores -->
+      <div class="max-h-110 overflow-y-auto pr-2 space-y-4">
+        @for (group of permissionGroups; track group.title) {
+          <div class="p-4.5 rounded-xl bg-slate-950/70 border border-slate-800 space-y-3 shadow-inner">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-400">
+                {{ group.title }}
+              </h3>
+              <button
+                type="button"
+                (click)="toggleGroup(group.permissions)"
+                class="text-xs font-medium text-slate-400 hover:text-white transition-colors cursor-pointer underline underline-offset-2"
+              >
+                Selecionar grupo
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              @for (permission of group.permissions; track permission) {
+                <label
+                  class="group flex items-center gap-3.5 p-3 rounded-xl border transition-all cursor-pointer shadow-sm"
+                  [class.bg-indigo-950/40]="adminStore.selectedPermissions().includes(permission)"
+                  [class.border-indigo-500/60]="adminStore.selectedPermissions().includes(permission)"
+                  [class.bg-slate-900/50]="!adminStore.selectedPermissions().includes(permission)"
+                  [class.border-slate-800]="!adminStore.selectedPermissions().includes(permission)"
+                  [class.hover:border-slate-700]="!adminStore.selectedPermissions().includes(permission)"
+                >
+                  <input
+                    type="checkbox"
+                    [attr.aria-label]="permission"
+                    [checked]="adminStore.selectedPermissions().includes(permission)"
+                    (change)="togglePermission(permission, $any($event.target).checked)"
+                    class="rounded border-slate-700 bg-slate-900 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-slate-950 cursor-pointer w-5 h-5"
+                  />
+                  <span class="text-sm font-medium text-slate-200 group-hover:text-white transition-colors">
+                    {{ formatPermissionLabel(permission) }}
+                  </span>
+                </label>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </fieldset>
+
+    <app-error-message [message]="adminStore.error()" />
+
+  </form>
+  <div modal-footer class="flex items-center justify-end gap-3 w-full pt-4">
+    <button
+      type="button"
+      (click)="submitRole()"
+      [disabled]="adminStore.isRoleSaving()"
+      class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl font-medium shadow-lg shadow-indigo-600/25 transition-all cursor-pointer text-sm"
+    >
+      Criar Cargo
+    </button>
+  </div>
+</app-modal>

@@ -138,6 +138,14 @@ describe('Password management', () => {
     expect((await login('test.user', 'OwnPass12345')).status).toBe(200);
   });
 
+  it('returns not found when resetting a password for an unknown user', async () => {
+    await request(httpServer)
+      .post('/users/unknown.user/temporary-password')
+      .set('Cookie', adminCookie)
+      .set('user-agent', userAgent)
+      .expect(404);
+  });
+
   it('allows a user with users.update to issue a temporary password and then require first-access change', async () => {
     const resetResponse = await request(httpServer)
       .post('/users/target.user/temporary-password')

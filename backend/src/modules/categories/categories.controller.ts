@@ -28,6 +28,7 @@ import { Category } from './entities/category.entity';
 import { ICategoriesController } from './interfaces/categories.controller.interface';
 import type { ICategoriesService } from './interfaces/categories.service.interface';
 import { PaginationQueryDto } from '../../common/dtos/pagination-query.dto';
+import { IPaginatedResponse } from '../../common/interfaces/paginated-response.interface';
 
 @ApiTags('Categories')
 @ApiCookieAuth('access_token')
@@ -130,7 +131,7 @@ export class CategoriesController implements ICategoriesController {
   async findAllCategories(
     @TenantId() tenantId: string,
     @Query() pagination: PaginationQueryDto,
-  ): Promise<IResponse<[Category[], number]>> {
+  ): Promise<IPaginatedResponse<Category[]>> {
     return await this.service.findAllCategories(tenantId, pagination);
   }
 

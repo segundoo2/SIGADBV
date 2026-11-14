@@ -7,6 +7,7 @@ import { USERS_STORE_PORT } from '../../../core/infra/tokens/users.token';
 import { EPermission } from '../../../core/domain/enums/permissions.enum';
 import { UserEntity } from '../../../core/domain/entities/user.entity';
 import { UnitScoreManagerComponent } from './unit-score-manager.component';
+import { SelectOption } from '../../../shared/selects/select-form.component';
 
 describe('UnitScoreManagerComponent', () => {
   let fixture: ComponentFixture<UnitScoreManagerComponent>;
@@ -15,7 +16,7 @@ describe('UnitScoreManagerComponent', () => {
   const scoreStoreMock = {
     error: signal<string | null>(null),
     isLoading: signal(false),
-    unitsOptions: signal([]), // <-- Adicionado para satisfazer o signal computado do componente
+    unitsOptions: signal<SelectOption[]>([]), // Tipagem explícita para aceitar as opções de unidade
     registerUnitScore: vi.fn(),
     fetchAllUnitsOptions: vi.fn().mockResolvedValue([]),
     clearError: vi.fn(),

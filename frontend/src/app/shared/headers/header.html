@@ -20,16 +20,20 @@
     class="hidden md:flex items-center gap-3 bg-slate-800/80 px-4 py-2 rounded-full border border-slate-700/60"
     aria-label="Navegação principal"
   >
-    @for (item of navItems; track trackByLabel($index, item)) {
+    @for (item of navItems; track trackByLabel($index, item)) { @if
+    (hasPermission(item.requiredPermission)) {
     <div class="relative">
       @if (item.submenu) {
       <!-- Botão com Submenu -->
       <button
         type="button"
         (click)="toggleDropdown(item.label, $event)"
-        class="flex items-center gap-1.5 text-slate-300 hover:text-white px-4 py-1.5 rounded-full transition-colors text-sm focus:outline-none cursor-pointer"
+        class="flex items-center gap-1.5 px-4 py-1.5 rounded-full transition-colors text-sm focus:outline-none cursor-pointer"
         [class.bg-slate-700]="activeDropdown() === item.label"
         [class.text-white]="activeDropdown() === item.label"
+        [class.text-slate-300]="activeDropdown() !== item.label"
+        [class.hover:bg-slate-700/60]="activeDropdown() !== item.label"
+        [class.hover:text-white]="activeDropdown() !== item.label"
       >
         {{ item.label }}
         <svg
@@ -50,14 +54,14 @@
 
       @if (activeDropdown() === item.label) {
       <div
-        class="absolute left-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl py-2 z-50"
+        class="absolute left-0 mt-2 w-34 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl py-2 z-50"
       >
         @for (sub of item.submenu; track trackBySubRoute($index, sub)) {
         <a
           [routerLink]="sub.route"
-          routerLinkActive="bg-slate-700 text-white font-medium"
+          routerLinkActive="text-white font-medium"
           [routerLinkActiveOptions]="{ exact: true }"
-          class="block px-4 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+          class="block px-4 py-2 text-sm text-center  text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
           (click)="closeMenus()"
         >
           {{ sub.label }}
@@ -69,13 +73,13 @@
         [routerLink]="item.route"
         routerLinkActive="bg-slate-700 text-white font-semibold shadow-inner"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="text-slate-300 hover:text-white px-4 py-1.5 rounded-full transition-colors text-sm block"
+        class="text-slate-300 hover:text-white px-4 py-1.5 rounded-full transition-colors text-sm block hover:bg-slate-700/60"
       >
         {{ item.label }}
       </a>
       }
     </div>
-    }
+    } }
   </nav>
 
   <div class="flex items-center gap-3 relative">
@@ -203,7 +207,8 @@
   class="md:hidden bg-slate-900 border-b border-slate-800 px-6 py-4 space-y-3 sticky top-18.25 z-45 shadow-2xl"
   aria-label="Navegação móvel"
 >
-  @for (item of navItems; track trackByLabel($index, item)) {
+  @for (item of navItems; track trackByLabel($index, item)) { @if
+  (hasPermission(item.requiredPermission)) {
   <div>
     @if (item.submenu) {
     <div
@@ -236,6 +241,6 @@
     </a>
     }
   </div>
-  }
+  } }
 </nav>
 }

@@ -1,7 +1,10 @@
 import { INestApplication } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { SYSTEM_ADMIN_ROLE_NAME } from '../src/common/enum/role/permissions.enum';
+import {
+  EPermission,
+  SYSTEM_ADMIN_ROLE_NAME,
+} from '../src/common/enum/role/permissions.enum';
 import { Role } from '../src/modules/roles/entities/role.entity';
 import { User } from '../src/modules/users/entities/user.entity';
 
@@ -18,27 +21,13 @@ export async function setupTestDatabase(app: INestApplication): Promise<void> {
   const saltRounds = 4;
   const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
 
-  // 1. Cria a Role com todas as permissões de unit explícitas exigidas pelo Guard
+  // 1. Cria a role de teste com o conjunto atual de permissões da API.
   const roleRepository = dataSource.getRepository(Role);
   let superAdminRole = await roleRepository.findOne({
     where: { name: SYSTEM_ADMIN_ROLE_NAME, tenantId: MOCK_TENANT_ID },
   });
 
-  const explicitPermissions = [
-    'unit.create',
-    'unit.read',
-    'unit.update',
-    'unit.delete',
-    'users.create',
-    'users.read',
-    'users.update',
-    'users.update',
-    'products.create',
-    'products.read',
-    'score-history.adjust',
-    'score-history.read',
-    'score-history.approve',
-  ];
+  const explicitPermissions = Object.values(EPermission);
 
   if (!superAdminRole) {
     superAdminRole = roleRepository.create({

@@ -61,6 +61,7 @@ describe('RolesRepository', () => {
       findAndCount: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      createQueryBuilder: jest.fn(),
     });
 
     const module: TestingModule = await Test.createTestingModule({
@@ -240,5 +241,37 @@ describe('RolesRepository', () => {
       () => repository.deleteRole(roleId, tenantId),
       () => ormRepositoryMock.delete,
     );
+  });
+
+  describe('countUsersWithRole', () => {
+    it('counts associated users through the users_roles table', async () => {
+      const queryBuilder = {
+        leftJoin: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        getCount: jest.fn().mockResolvedValue(2),
+      };
+      ormRepositoryMock.createQueryBuilder?.mockReturnValue(queryBuilder);
+
+      await expect(
+        repository.countUsersWithRole(roleId, tenantId),
+      ).resolves.toBe(2);
+      expect(ormRepositoryMock.createQueryBuilder).toHaveBeenCalledWith('role');
+      expect(queryBuilder.leftJoin).toHaveBeenCalledWith(
+        'users_roles',
+        'userRole',
+        'userRole.role_id = role.id',
+      );
+      expect(queryBuilder.where).toHaveBeenCalledWith('role.id = :roleId', {
+        roleId,
+      });
+      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+        'role.tenantId = :tenantId',
+        { tenantId },
+      );
+      expect(queryBuilder.andWhere).toHaveBeenCalledWith(
+        'userRole.user_id IS NOT NULL',
+      );
+    });
   });
 });

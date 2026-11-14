@@ -103,10 +103,10 @@ export class RolesRepository implements IRolesRepository {
     try {
       return await this.repository
         .createQueryBuilder('role')
-        .leftJoin('role.users', 'user')
+        .leftJoin('users_roles', 'userRole', 'userRole.role_id = role.id')
         .where('role.id = :roleId', { roleId })
         .andWhere('role.tenantId = :tenantId', { tenantId })
-        .andWhere('user.id IS NOT NULL')
+        .andWhere('userRole.user_id IS NOT NULL')
         .getCount();
     } catch {
       throw new InternalServerErrorException(EErrorsGlobal.SERVER_ERROR);

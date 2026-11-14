@@ -29,6 +29,18 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'admin/users',
+    loadComponent: () =>
+      import('./feature/users/users').then((m) => m.UsersPage),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'admin/roles',
+    loadComponent: () =>
+      import('./feature/roles/roles').then((m) => m.RolesPage),
+    canActivate: [authGuard],
+  },
+  {
     path: '',
     loadComponent: () =>
       import('./shared/common/root-redirect').then((m) => m.RootRedirect),

@@ -38,7 +38,7 @@ export interface SelectOption {
             disabled
             class="bg-slate-900 text-slate-400"
           >
-            Selecione uma unidade...
+            {{ placeholder }}
           </option>
           @for (option of options; track option.id) {
             <option
@@ -93,6 +93,7 @@ export class SelectFormComponent implements ControlValueAccessor {
   @Input() showError: boolean = false;
   @Input() errorMessage?: string;
   @Input() size: 'normal' | 'sm' = 'normal';
+  @Input() placeholder = 'Selecione uma unidade...';
 
   value = signal<string | number>('');
   disabled = signal<boolean>(false);

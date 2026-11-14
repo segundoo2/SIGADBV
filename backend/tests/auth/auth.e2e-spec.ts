@@ -133,6 +133,15 @@ describe('AuthModule', () => {
         })
         .expect(401);
     });
+
+    it('should reject invalid credential payloads', async () => {
+      await request(httpServer)
+        .post('/auth/')
+        .set('x-tenant-slug', 'dummy-tenant')
+        .set('user-agent', 'Supertest-E2E-Agent')
+        .send({ username: '', password: '' })
+        .expect(400);
+    });
   });
 
   describe('POST /auth/refresh', () => {

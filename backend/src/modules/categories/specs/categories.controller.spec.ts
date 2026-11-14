@@ -7,6 +7,7 @@ import { CategoryDto } from '../dtos/category.dto';
 import { Category } from '../entities/category.entity';
 import { ICategoriesController } from '../interfaces/categories.controller.interface';
 import { ICategoriesService } from '../interfaces/categories.service.interface';
+import { IPaginatedResponse } from '../../../common/interfaces/paginated-response.interface';
 
 describe('CategoriesController', () => {
   let controller: ICategoriesController;
@@ -81,17 +82,28 @@ describe('CategoriesController', () => {
         response as IResponse<Category>,
       );
       expect(
-        await controller.findByCategoryName(category.name, category.tenantId),
+        await controller.findByCategoryName(category.tenantId, category.name),
       ).toEqual(response);
+      expect(service.findByCategoryName).toHaveBeenCalledWith(
+        category.tenantId,
+        category.name,
+      );
     });
   });
 
   describe('findAllCategories', () => {
     const categoriesList: Category[] = [category, category, category];
     const pagination: PaginationQueryDto = { page: 1, limit: 10 };
-    const response: IResponse<[Category[], number]> = {
+    const response: IPaginatedResponse<Category[]> = {
       message: ECategorySuccess.FOUND_CATEGORIES_LIST,
-      data: [categoriesList, 3],
+      data: categoriesList,
+      meta: {
+        itemCount: 3,
+        totalItems: 3,
+        itemsPerPage: 10,
+        totalPages: 1,
+        currentPage: 1,
+      },
     };
 
     it('should return category list with total count when categories are found', async () => {

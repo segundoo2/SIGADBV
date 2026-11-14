@@ -126,7 +126,7 @@ export class ProductsRepository implements IProductsRepository {
           currentStock: () => 'current_stock + :delta',
         })
         .setParameter('delta', delta)
-        .where('id = :productId AND tenant_id = :tenantId', {
+        .where('id = :productId AND "tenantId" = :tenantId', {
           productId,
           tenantId,
         });
