@@ -32,9 +32,7 @@ describe('PasswordUpdateStore', () => {
 
   it('should successfully update password and update state', async () => {
     const payload: IUpdatePasswordInput = {
-      username: 'john.doe',
       password: 'newPassword123',
-      mustChangePassword: false,
     };
 
     apiMock.updatePassword.mockResolvedValueOnce(undefined);
@@ -54,9 +52,7 @@ describe('PasswordUpdateStore', () => {
 
   it('should handle error state when update fails', async () => {
     const payload: IUpdatePasswordInput = {
-      username: 'john.doe',
       password: 'newPassword123',
-      mustChangePassword: false,
     };
 
     const mockError = new ApiError('Invalid password format', 400);

@@ -6,6 +6,7 @@ import { IScoreHistoryPayload } from '../../application/models/score-history-pay
 import { IScoreHistoryEntity } from '../../domain/entities/score-history.entity';
 import { ApiError } from '../../infra/interceptors/api-error.interceptor';
 import { IUnitEntity } from '../../domain/entities/unit.entity';
+import { EScoreHistoryStatus } from '../../domain/enums/score-history-status.enum';
 
 describe('UnitScoreHistoryStore', () => {
   let store: UnitScoreHistoryStore;
@@ -166,6 +167,7 @@ describe('UnitScoreHistoryStore', () => {
           tenantId: 'tenant-1',
           unitId: 'unit-1',
           score: 10,
+          status: EScoreHistoryStatus.PENDING,
           description: 'Pending',
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -198,6 +200,7 @@ describe('UnitScoreHistoryStore', () => {
         tenantId: 'tenant-1',
         unitId: 'unit-1',
         score: 10,
+        status: EScoreHistoryStatus.PENDING,
         description: 'Pending',
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -232,6 +235,7 @@ describe('UnitScoreHistoryStore', () => {
         tenantId: 'tenant-1',
         unitId: 'unit-1',
         score: 10,
+        status: EScoreHistoryStatus.PENDING,
         description: 'Pending',
         createdAt: new Date(),
         updatedAt: new Date(),

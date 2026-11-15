@@ -15,7 +15,7 @@ describe('UnitScoreManagerComponent', () => {
   const scoreStoreMock = {
     error: signal<string | null>(null),
     isLoading: signal(false),
-    unitsOptions: signal([]), // <-- Adicionado para satisfazer o signal computado do componente
+    unitsOptions: signal<Array<{ id: string; name: string }>>([]),
     registerUnitScore: vi.fn(),
     fetchAllUnitsOptions: vi.fn().mockResolvedValue([]),
     clearError: vi.fn(),
