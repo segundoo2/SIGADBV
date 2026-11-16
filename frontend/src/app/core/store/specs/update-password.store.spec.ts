@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
-import { PasswordUpdateStore } from '../update-password.store';
-import { UPDATE_PASSWORD_API_PORT } from '../../infra/tokens/update-password.token';
 import { IUpdatePasswordInput } from '../../application/models/update-password-input.model';
 import { ApiError } from '../../infra/interceptors/api-error.interceptor';
+import { USERS_API_PORT } from '../../infra/tokens/users.token';
+import { UsersStore } from '../users.store';
 
 describe('PasswordUpdateStore', () => {
-  let store: PasswordUpdateStore;
+  let store: UsersStore;
   let apiMock: { updatePassword: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
@@ -15,13 +15,10 @@ describe('PasswordUpdateStore', () => {
     };
 
     TestBed.configureTestingModule({
-      providers: [
-        PasswordUpdateStore,
-        { provide: UPDATE_PASSWORD_API_PORT, useValue: apiMock },
-      ],
+      providers: [UsersStore, { provide: USERS_API_PORT, useValue: apiMock }],
     });
 
-    store = TestBed.inject(PasswordUpdateStore);
+    store = TestBed.inject(UsersStore);
   });
 
   it('should initialize with default states', () => {

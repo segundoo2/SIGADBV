@@ -6,6 +6,7 @@ import { IUsersApiPort } from '../../application/ports/apis/users-api.port';
 import { URL } from '../tokens/url.token';
 import { IApiResponseModel } from '../../application/models/api-response.model';
 import { IUpdatePasswordInput } from '../../application/models/update-password-input.model';
+import { ICreateUserModel } from '../../application/models/create-user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -14,9 +15,9 @@ export class UsersApiAdapter implements IUsersApiPort {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${URL}/users`;
 
-  async createUser(user: UserEntity): Promise<UserEntity> {
-    const response: IApiResponseModel<UserEntity> = await firstValueFrom(
-      this.http.post<IApiResponseModel<UserEntity>>(this.baseUrl, user, {
+  async createUser(user: ICreateUserModel): Promise<string> {
+    const response: IApiResponseModel<string> = await firstValueFrom(
+      this.http.post<IApiResponseModel<string>>(this.baseUrl, user, {
         withCredentials: true,
       }),
     );

@@ -35,20 +35,20 @@ describe('UsersApiAdapter', () => {
     httpMock.verify();
   });
 
+  const username = 'edilson.segundo';
+  const tenantId = '00000000-0000-0000-0000-000000000000';
+
+  const user: UserEntity = {
+    id: 'da90c852-83de-448b-b794-cefc52925760',
+    tenantId,
+    username,
+    mustChangePassword: false,
+    roles: [],
+    createdAt: new Date('2026-09-01T10:00:00.000Z'),
+    updatedAt: new Date('2026-09-02T10:00:00.000Z'),
+  };
+
   it('should fetch and return a user by username and tenantId', async () => {
-    const username = 'edilson.segundo';
-    const tenantId = '00000000-0000-0000-0000-000000000000';
-
-    const user: UserEntity = {
-      id: 'da90c852-83de-448b-b794-cefc52925760',
-      tenantId,
-      username,
-      mustChangePassword: false,
-      roles: [],
-      createdAt: new Date('2026-09-01T10:00:00.000Z'),
-      updatedAt: new Date('2026-09-02T10:00:00.000Z'),
-    };
-
     const response: IApiResponseModel<UserEntity> = {
       message: 'User found',
       data: user,
@@ -94,6 +94,27 @@ describe('UsersApiAdapter', () => {
       name: 'ApiError',
       message: 'User not found',
       status: 404,
+    });
+  });
+
+  describe('createUser', () => {
+    it('should create a new user and return temporary password', async () => {
+      const response: IApiResponseModel<string> = {
+        message: 'Usuário criado com sucesso!',
+        data: 'temporary-password-123',
+      };
+
+      const promise = adapter.createUser({
+        username: user.username,
+        roleIds: user.roles.map((role) => role.id),
+      });
+
+      const req = httpMock.expectOne((req) => req.url === baseUrl);
+      expect(req.request.method).toBe('POST');
+
+      req.flush(response);
+
+      await expect(promise).resolves.toEqual(response.data);
     });
   });
 });

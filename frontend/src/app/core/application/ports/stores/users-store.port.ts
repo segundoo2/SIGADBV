@@ -1,4 +1,5 @@
 import { UserEntity } from '../../../domain/entities/user.entity';
+import { ICreateUserModel } from '../../models/create-user.model';
 import { IUpdatePasswordInput } from '../../models/update-password-input.model';
 
 export interface IUsersStorePort {
@@ -10,7 +11,7 @@ export interface IUsersStorePort {
   setCurrentUser(user: UserEntity): void;
   clearCurrentUser(): void;
 
-  createUser(user: UserEntity): Promise<UserEntity>;
+  createUser(user: ICreateUserModel): Promise<string>;
   getAllUsers(): Promise<UserEntity[]>;
   getUserByUsername(username: string, tenantId: string): Promise<UserEntity>;
   generateTemporaryPassword(

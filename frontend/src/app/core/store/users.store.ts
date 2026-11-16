@@ -4,6 +4,7 @@ import { IUsersStorePort } from '../application/ports/stores/users-store.port';
 import { IUpdatePasswordInput } from '../application/models/update-password-input.model';
 import { USERS_API_PORT } from '../infra/tokens/users.token';
 import { getErrorMessage } from '../application/errors/get-error-message';
+import { ICreateUserModel } from '../application/models/create-user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -32,6 +33,26 @@ export class UsersStore implements IUsersStorePort {
   clearCurrentUser(): void {
     this._userCurrentEntity.set(null);
     this._error.set(null);
+  }
+
+  createUser(user: ICreateUserModel): Promise<string> {
+    this._isLoading.set(true);
+    this._error.set(null);
+    this._successMessage.set('');
+
+    return this.usersApi
+      .createUser(user)
+      .then((temporaryPassword) => {
+        this._successMessage.set('Usuário criado com sucesso!');
+        return temporaryPassword;
+      })
+      .catch((err: unknown) => {
+        this._error.set(getErrorMessage(err));
+        throw err;
+      })
+      .finally(() => {
+        this._isLoading.set(false);
+      });
   }
 
   async updatePassword(input: IUpdatePasswordInput): Promise<void> {

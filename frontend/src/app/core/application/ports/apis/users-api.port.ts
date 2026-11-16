@@ -1,10 +1,11 @@
 import { UserEntity } from '../../../domain/entities/user.entity';
+import { ICreateUserModel } from '../../models/create-user.model';
 import { IUpdatePasswordInput } from '../../models/update-password-input.model';
 
 export interface IUsersApiPort {
-  createUser(user: UserEntity): Promise<UserEntity>;
+  createUser(username: ICreateUserModel): Promise<string>;
   getAllUsers(): Promise<UserEntity[]>;
-  getUserByUsername(username: string, tenantId: string): Promise<UserEntity>;
+  getUserByUsername(user: string, tenantId: string): Promise<UserEntity>;
   generateTemporaryPassword(
     username: string,
     tenantId: string,
