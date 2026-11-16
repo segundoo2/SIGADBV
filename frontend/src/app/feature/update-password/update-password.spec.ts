@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PasswordUpdatePage } from './update-password';
-import { UPDATE_PASSWORD_STORE_PORT } from '../../core/infra/tokens/update-password.token';
 import { AUTH_STORE_PORT } from '../../core/infra/tokens/auth.token';
 import { provideRouter, Router } from '@angular/router';
 import { signal, WritableSignal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { IAuthStorePort } from '../../core/application/ports/stores/auth-store.port';
+import { USERS_STORE_PORT } from '../../core/infra/tokens/users.token';
 
 describe('PasswordUpdatePage', () => {
   let component: PasswordUpdatePage;
@@ -54,7 +54,7 @@ describe('PasswordUpdatePage', () => {
       providers: [
         provideRouter([]),
         {
-          provide: UPDATE_PASSWORD_STORE_PORT,
+          provide: USERS_STORE_PORT,
           useValue: mockUpdatePasswordStore,
         },
         { provide: AUTH_STORE_PORT, useValue: mockAuthStore },

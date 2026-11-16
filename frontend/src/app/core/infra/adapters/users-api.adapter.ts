@@ -5,6 +5,7 @@ import { UserEntity } from '../../domain/entities/user.entity';
 import { IUsersApiPort } from '../../application/ports/apis/users-api.port';
 import { URL } from '../tokens/url.token';
 import { IApiResponseModel } from '../../application/models/api-response.model';
+import { IUpdatePasswordInput } from '../../application/models/update-password-input.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,15 @@ import { IApiResponseModel } from '../../application/models/api-response.model';
 export class UsersApiAdapter implements IUsersApiPort {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${URL}/users`;
+
+  async createUser(user: UserEntity): Promise<UserEntity> {
+    const response: IApiResponseModel<UserEntity> = await firstValueFrom(
+      this.http.post<IApiResponseModel<UserEntity>>(this.baseUrl, user, {
+        withCredentials: true,
+      }),
+    );
+    return response.data;
+  }
 
   async getUserByUsername(
     username: string,
@@ -29,5 +39,13 @@ export class UsersApiAdapter implements IUsersApiPort {
       ),
     );
     return response.data;
+  }
+
+  async updatePassword(input: IUpdatePasswordInput): Promise<void> {
+    await firstValueFrom(
+      this.http.patch<IApiResponseModel<null>>(this.baseUrl, input, {
+        withCredentials: true,
+      }),
+    );
   }
 }

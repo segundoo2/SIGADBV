@@ -12,9 +12,8 @@ import { Title } from '@angular/platform-browser';
 import { InputFormComponent } from '../../shared/inputs/input-form';
 import { ErrorMessageComponent } from '../../shared/error-message/error-message.component';
 import { ButtonComponent } from '../../shared/buttons/button.component';
-import { UPDATE_PASSWORD_STORE_PORT } from '../../core/infra/tokens/update-password.token';
+import { USERS_STORE_PORT } from '../../core/infra/tokens/users.token';
 
-// Validador customizado para comparar os campos de senha
 function passwordMatchValidator(
   control: AbstractControl,
 ): ValidationErrors | null {
@@ -39,7 +38,7 @@ function passwordMatchValidator(
   templateUrl: './update-password.html',
 })
 export class PasswordUpdatePage {
-  private readonly updatePasswordStore = inject(UPDATE_PASSWORD_STORE_PORT);
+  private readonly usersStore = inject(USERS_STORE_PORT);
   private readonly titleService = inject(Title);
   private readonly router = inject(Router);
 
@@ -59,7 +58,7 @@ export class PasswordUpdatePage {
 
   constructor() {
     effect(() => {
-      if (this.updatePasswordStore.isLoading()) {
+      if (this.usersStore.isLoading()) {
         this._updatePasswordForm.disable();
       } else {
         this._updatePasswordForm.enable();
@@ -67,7 +66,7 @@ export class PasswordUpdatePage {
     });
 
     effect(() => {
-      if (this.updatePasswordStore.successMessage()) {
+      if (this.usersStore.successMessage()) {
         void this.router.navigate(['/overview']);
       }
     });
@@ -82,11 +81,11 @@ export class PasswordUpdatePage {
   }
 
   get isLoading(): boolean {
-    return this.updatePasswordStore.isLoading();
+    return this.usersStore.isLoading();
   }
 
   get errorMessage(): string | null {
-    return this.updatePasswordStore.error();
+    return this.usersStore.error();
   }
 
   onSubmit(): void {
@@ -99,7 +98,7 @@ export class PasswordUpdatePage {
       return;
     }
 
-    void this.updatePasswordStore.updatePassword({
+    void this.usersStore.updatePassword({
       password: password,
     });
   }
